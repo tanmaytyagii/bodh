@@ -16,6 +16,8 @@ export interface CelestialSceneProps {
   paused: boolean;
   /** Follow the landing page's scroll story (hero mode only). */
   story: boolean;
+  /** Beside a conversation: rest beside the reading column (BESIDE_QUERY), as the stylesheet does. */
+  beside: boolean;
   onReady: () => void;
 }
 
@@ -40,7 +42,7 @@ export default function CelestialScene(props: CelestialSceneProps) {
  * still frames for reduced motion, and on demand once the reading position is
  * reached.
  */
-function Rig({ mode, theme, quality, reducedMotion, paused, story, onReady }: CelestialSceneProps) {
+function Rig({ mode, theme, quality, reducedMotion, paused, story, beside, onReady }: CelestialSceneProps) {
   const get = useThree((state) => state.get);
   const rig = useRef<Armillary | null>(null);
   const pointer = useRef({ x: 0, y: 0 });
@@ -72,13 +74,13 @@ function Rig({ mode, theme, quality, reducedMotion, paused, story, onReady }: Ce
     return () => window.removeEventListener("pointermove", onMove);
   }, [reducedMotion]);
 
-  // A new mode or theme wakes the loop for its transition.
+  // A new mode, theme or place wakes the loop for its transition.
   useEffect(() => {
     rig.current?.wake();
     const { setFrameloop, invalidate } = get();
     setFrameloop(paused ? "never" : reducedMotion ? "demand" : "always");
     invalidate();
-  }, [get, mode, theme, paused, reducedMotion]);
+  }, [get, mode, theme, paused, reducedMotion, beside]);
 
   // When frames are drawn on demand, the story asks for one whenever it moves.
   useEffect(() => {
@@ -99,6 +101,7 @@ function Rig({ mode, theme, quality, reducedMotion, paused, story, onReady }: Ce
       delta,
       width: state.size.width,
       height: state.size.height,
+      beside,
       snap: reducedMotion || !continuous,
       reducedMotion,
       pointer: pointer.current,

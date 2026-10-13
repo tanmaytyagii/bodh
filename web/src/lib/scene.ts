@@ -143,6 +143,13 @@ export const FRAME_WIDTH = 1536;
 export const COLUMN_WIDTH = 736;
 /** The conversation keeps the instrument beside its column from this width up. */
 export const BESIDE_FROM = 1280;
+/**
+ * The same breakpoint as the media query that globals.css and the column's
+ * spacing (xl:) use. A media query measures the whole window, while a classic
+ * scrollbar leaves the page and the stage up to 17px narrower, so the scene
+ * asks this query instead of comparing its own width with BESIDE_FROM.
+ */
+export const BESIDE_QUERY = `(min-width: ${BESIDE_FROM}px)`;
 
 /**
  * The landing page's shell, in pixels: the whole width of the screen, except
@@ -170,20 +177,23 @@ export interface HeroFrame {
 }
 
 /**
- * Where the instrument rests beside a conversation, in pixels: in the margin
- * to the right of the reading column when there is room, otherwise small and
- * centred above the question (the conversation leaves space for it there).
- * The same arithmetic places the still drawing, in globals.css.
+ * Where the instrument rests beside a conversation, in pixels of the stage: in
+ * the margin to the right of the reading column when `beside` (BESIDE_QUERY
+ * matches), otherwise small and centred above the question (the conversation
+ * leaves space for it there). `width` and `height` are the stage's own size,
+ * in which the reading column is centred. The same arithmetic places the still
+ * drawing, in globals.css.
  */
 export function conversationFraming(
   mode: "thinking" | "reading",
   width: number,
   height: number,
+  beside: boolean,
 ): { x: number; y: number; size: number; beside: boolean } {
   const header = 64;
   const left = width / 2 + COLUMN_WIDTH / 2 + 40;
   const room = width - 32 - left;
-  if (width >= BESIDE_FROM && room >= 180) {
+  if (beside) {
     const size = Math.min(room, height * (mode === "thinking" ? 0.42 : 0.36), 440);
     return { x: left + room / 2, y: header + 32 + size / 2, size, beside: true };
   }

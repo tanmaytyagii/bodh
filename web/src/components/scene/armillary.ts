@@ -149,6 +149,8 @@ export interface FrameInput {
   delta: number;
   width: number;
   height: number;
+  /** Beside a conversation: whether the instrument rests beside the reading column (BESIDE_QUERY). */
+  beside: boolean;
   /** Jump straight to the resting pose (reduced motion, or a single on-demand frame). */
   snap: boolean;
   reducedMotion: boolean;
@@ -418,7 +420,7 @@ export class Armillary {
     let targetX: number;
     let targetY: number;
     if (mode === "thinking" || mode === "reading") {
-      const place = conversationFraming(mode, input.width, input.height);
+      const place = conversationFraming(mode, input.width, input.height, input.beside);
       diameter = (place.size / input.height) * vh;
       targetX = (place.x / input.width - 0.5) * vw;
       targetY = (0.5 - place.y / input.height) * vh;

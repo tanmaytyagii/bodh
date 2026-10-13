@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties }
 
 import { journey } from "@/lib/journey";
 import {
+  BESIDE_QUERY,
   conversationFraming,
   framingStyle,
   orientationFor,
@@ -86,6 +87,8 @@ function useMediaQuery(query: string): boolean {
 export function Stage({ mode, quiet = false, story = false }: { mode: SceneMode; quiet?: boolean; story?: boolean }) {
   const { resolved } = useTheme();
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+  // Beside a conversation, the instrument goes wherever the stylesheet puts the still drawing.
+  const beside = useMediaQuery(BESIDE_QUERY);
   const webgl = useSyncExternalStore(noSubscribe, supportsWebGL, () => null);
   const sceneQuality = useSyncExternalStore(noSubscribe, preferredQuality, () => "full" as const);
   const [load, setLoad] = useState(false);
@@ -151,8 +154,9 @@ export function Stage({ mode, quiet = false, story = false }: { mode: SceneMode;
       let fade: number;
       if (mode === "thinking" || mode === "reading") {
         // Beside the reading column the instrument stays; above the question it
-        // gives way as soon as the answer scrolls up to it.
-        const place = conversationFraming(mode, window.innerWidth, window.innerHeight);
+        // gives way as soon as the answer scrolls up to it. Sized as the scene
+        // sizes it: by the stage, which a classic scrollbar makes narrower than the window.
+        const place = conversationFraming(mode, element.clientWidth, element.clientHeight, beside);
         fade = place.beside ? 1 : Math.max(0, 1 - window.scrollY / (place.size + 24));
       } else {
         const floor = mode === "hero" ? 0 : 0.2;
@@ -173,7 +177,7 @@ export function Stage({ mode, quiet = false, story = false }: { mode: SceneMode;
       window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(frame);
     };
-  }, [mode, following, reducedMotion]);
+  }, [mode, following, reducedMotion, beside]);
 
   const state = webgl === false ? "fallback" : ready ? "ready" : "loading";
   const style = { ...framingStyle(mode), "--stage-opacity": quiet ? "0" : String(SCENE_OPACITY[mode]) } as CSSProperties;
@@ -204,6 +208,7 @@ export function Stage({ mode, quiet = false, story = false }: { mode: SceneMode;
               reducedMotion={reducedMotion}
               paused={hidden || quiet || pageHidden}
               story={following}
+              beside={beside}
               onReady={() => setReady(true)}
             />
           </div>

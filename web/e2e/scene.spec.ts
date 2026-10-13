@@ -42,24 +42,32 @@ test("the 3D scene loads after the page and follows the conversation", async ({ 
   await expect(stage(page)).toHaveAttribute("data-scene", "ready", { timeout: 45_000 });
   await expect(page.locator(".stage canvas")).toHaveCount(1);
 
-  // Hold the answer back briefly so the "thinking" state can be seen.
+  // Hold the answer back until the "thinking" state has been seen, however
+  // long that takes on a busy machine; then let it through.
+  const thinkingSeen = Promise.withResolvers<void>();
   await page.route("**/api/ask/stream", async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await thinkingSeen.promise;
     await route.continue();
   });
   await page.getByLabel("Describe your situation").fill("I feel stuck in my career and don't know what to change.");
   await page.getByRole("button", { name: "Reflect" }).click();
   await expect(stage(page)).toHaveAttribute("data-mode", "thinking");
+  thinkingSeen.resolve();
   await expect(stage(page)).toHaveAttribute("data-mode", "reading", { timeout: 45_000 });
   await expect(page.getByRole("article", { name: "Question 1" }).getByText(/What the Gita offers|Passages only/).first()).toBeVisible();
 });
 
 async function stageFrames(page: Page): Promise<[Buffer, Buffer]> {
   await expect(stage(page)).toHaveAttribute("data-scene", "ready", { timeout: 45_000 });
-  await page.waitForTimeout(1200);
-  const first = await stage(page).screenshot();
+  // The scene has faded in over the still drawing.
+  await expect(page.locator(".stage-layer > div:has(canvas)")).toHaveCSS("opacity", "1");
+  // The stage fills the window, so the window is captured: a screenshot of the
+  // element first waits for two animation frames in which it holds still,
+  // which can outlast the test on a busy machine drawing the scene in software.
+  const first = await page.screenshot();
+  // Then it is watched for a moment: a still scene draws nothing new.
   await page.waitForTimeout(900);
-  const second = await stage(page).screenshot();
+  const second = await page.screenshot();
   return [first, second];
 }
 
@@ -124,9 +132,12 @@ test("nothing is drawn while the page is in a background tab", async ({ page }) 
 test("with reduced motion the still instrument stays faint behind the middle chapters", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  // Starting the scene can keep a busy machine's page from answering for
+  // seconds; it has drawn its first frame before the story is followed.
+  await expect(stage(page)).toHaveAttribute("data-scene", "ready", { timeout: 45_000 });
   const layer = page.locator(".stage-layer");
   await expect(layer).toHaveCSS("opacity", "1");
-  await page.evaluate(() => document.getElementById("understanding")?.scrollIntoView({ block: "start" }));
+  await page.locator("#understanding").evaluate((element) => element.scrollIntoView({ block: "start" }));
   await expect
     .poll(async () => Number(await layer.evaluate((element) => getComputedStyle(element).opacity)))
     .toBeLessThanOrEqual(0.15);

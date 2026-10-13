@@ -95,7 +95,9 @@ export function QuestionComposer({
           disabled={pending}
         />
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 pt-1 pb-4 sm:px-5">
-          <p id="question-help" className="flex min-w-0 items-center gap-1.5 text-[0.75em] text-ink-muted">
+          {/* Beside the buttons while it has 8rem, wrapping onto two lines, so a
+              phone keeps the button in the first screen; otherwise above them. */}
+          <p id="question-help" className="flex min-w-0 grow basis-32 items-center gap-1.5 text-[0.75em] text-ink-muted">
             <Icon name="lock" className="size-3.5" />
             <span>
               Private — not stored on our server.
