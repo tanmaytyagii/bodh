@@ -48,7 +48,12 @@ async function proxy(request: NextRequest, ctx: RouteContext<"/api/[...path]">) 
       cache: "no-store",
       signal: request.signal,
     });
-  } catch {
+  } catch (error) {
+    // The browser gets a plain message; whoever runs the web app gets where it looked, and why it failed.
+    if (!request.signal.aborted) {
+      const reason = error instanceof Error && error.cause instanceof Error ? error.cause.message : String(error);
+      console.error(`API proxy: ${request.method} /${target} failed. Is the API running at ${API_URL}? (${reason})`);
+    }
     return Response.json(
       { detail: "The guidance service is not reachable right now. Please try again shortly." },
       { status: 503 },

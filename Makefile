@@ -3,26 +3,29 @@
 PY := backend/.venv/bin/python
 SHELL := /bin/bash
 
-.PHONY: help setup db ingest corpus api web dev test lint eval eval-answers e2e up down
+.PHONY: help setup db ingest corpus api api-memory web test lint eval eval-answers e2e up down
 
 help:
-	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
+	@grep -E '^[a-z0-9-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
 
 setup: ## Create the Python venv and install backend + web dependencies
 	cd backend && python3.11 -m venv .venv && .venv/bin/pip install -c constraints.txt -e ".[dev]"
 	cd web && npm ci
 
-db: ## Start PostgreSQL + pgvector (localhost:54329)
+db: ## Start PostgreSQL + pgvector on localhost:54329 (Docker must be running)
 	docker compose up -d --wait db
 
 corpus: ## Re-fetch sources (cached) and rebuild data/processed with validation
 	cd backend && .venv/bin/python -m app.ingestion fetch && .venv/bin/python -m app.ingestion build
 
-ingest: db ## Load the processed corpus into Postgres and compute embeddings
+ingest: db ## Start the database, apply migrations, load the corpus and embed it (safe to re-run)
 	cd backend && .venv/bin/python -m app.ingestion load
 
-api: ## Run the API with reload on :8000
+api: ## Run the API on :8000 with reload (needs the database: make db, or use api-memory)
 	cd backend && .venv/bin/uvicorn app.main:app --reload --port 8000
+
+api-memory: ## Run the API on :8000 without PostgreSQL, from the committed corpus
+	cd backend && RETRIEVAL_BACKEND=memory .venv/bin/uvicorn app.main:app --reload --port 8000
 
 web: ## Run the web app in development on :3000
 	cd web && npm run dev
@@ -46,5 +49,5 @@ e2e: ## Browser tests (needs `make api` running; starts the web app if none is o
 up: ## Build and run everything in Docker (db, api, web)
 	docker compose --profile app up --build
 
-down: ## Stop Docker services
+down: ## Stop the Docker services (the database keeps its data)
 	docker compose --profile app down

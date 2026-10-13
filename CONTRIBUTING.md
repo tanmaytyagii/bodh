@@ -24,7 +24,7 @@ make api                # FastAPI on http://localhost:8000
 make web                # Next.js on http://localhost:3000, in a second terminal
 ```
 
-Without Docker, set `RETRIEVAL_BACKEND=memory` in `.env` and skip `make ingest`. Without a model key, answers are verified passages only, clearly marked; set `LLM_PROVIDER=none` to make that explicit.
+After the first time, `make db`, `make api` and `make web` are enough (with Docker running). Without Docker, skip `make ingest` and run `make api-memory` instead of `make api`. If something does not start, see [Troubleshooting](README.md#troubleshooting). Without a model key, answers are verified passages only, clearly marked; set `LLM_PROVIDER=none` to make that explicit.
 
 `make setup` needs a working `python3.11` on your `PATH` (from python.org, pyenv, uv or Homebrew).
 
@@ -63,7 +63,7 @@ These hold everywhere, and reviews check them:
 
 ## Dependencies
 
-- **Web:** Dependabot proposes npm updates weekly. `three` stays at 0.182 until @react-three/fiber stops using `THREE.Clock` ([web/README.md](web/README.md#the-scene)).
+- **Web:** Dependabot proposes npm updates weekly. If you change dependencies yourself, update `web/package-lock.json` with npm 11.19 or newer, as CI uses: earlier versions can leave out optional packages that `npm ci` on Linux then reports as missing. `three` stays at 0.182 until @react-three/fiber stops using `THREE.Clock` ([web/README.md](web/README.md#the-scene)).
 - **Backend:** the ranges are in `backend/pyproject.toml` and the exact versions in `backend/constraints.txt`. Change both together, then run `make setup`, `make lint` and `make test`.
 
 ## Reporting a vulnerability

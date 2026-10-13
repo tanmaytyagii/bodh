@@ -109,23 +109,44 @@ Both editions are in the public domain. Sources, provenance, corrections and the
 
 ## Quick start
 
-You need Python 3.11, Node.js 20.9 or newer, and Docker for PostgreSQL (optional).
+You need Python 3.11, Node.js 20.9 or newer, and Docker (Docker Desktop on a Mac) for PostgreSQL. Without Docker, see [Without Docker](#without-docker) below.
+
+**The first time**, with Docker running:
 
 ```bash
 git clone https://github.com/tanmaytyagii/bodh.git && cd bodh
 cp .env.example .env   # optional: add ANTHROPIC_API_KEY to enable AI guidance
 make setup             # Python virtualenv + npm install
-make ingest            # start PostgreSQL + pgvector, load the corpus, compute embeddings
-make api               # FastAPI on http://localhost:8000
+make ingest            # start PostgreSQL + pgvector, apply migrations, load the corpus, compute embeddings
+make api               # FastAPI on http://127.0.0.1:8000
 make web               # Next.js on http://localhost:3000, in a second terminal
 ```
 
-- **No Docker?** Set `RETRIEVAL_BACKEND=memory` in `.env` and skip `make ingest`. The API then serves the processed corpus from disk.
-- **No model key?** Everything works; answers are verified passages only. Set `LLM_PROVIDER=none` to make that explicit.
+**Every time after that**, start Docker, then run `make db`, `make api` and `make web`. The database keeps its data between runs. `make ingest` is needed again only when the corpus changes, and is safe to re-run. `make down` stops the database.
+
+- **No model key?** Everything works; answers are verified passages only, and say so. Set `LLM_PROVIDER=none` to make that explicit.
 - **The embedding model** (about 130 MB) downloads on first use and is cached under `backend/.cache`.
 - **Windows:** the Makefile needs `make` and a POSIX shell. Use WSL 2; native Windows has not been tested.
 
 The processed corpus is committed in `backend/data/processed`, so nothing needs to be downloaded from the source sites. `make corpus` re-fetches the sources (cached and checksummed) and rebuilds the corpus with validation.
+
+### Without Docker
+
+Run `make api-memory` instead of `make db` and `make api` (or set `RETRIEVAL_BACKEND=memory` in `.env`). The API then serves the committed corpus from memory, and everything works as it does with PostgreSQL, except that:
+
+- full-text ranking uses BM25 instead of PostgreSQL's full-text search, so results can differ a little ([docs/EVALUATION.md](docs/EVALUATION.md) has numbers for both);
+- reports sent with "Report an issue" are written to `backend/.cache/feedback.jsonl`, not to the database;
+- the passages are embedded on the first start, and cached under `backend/.cache`.
+
+### Troubleshooting
+
+| You see | Why | What to do |
+| --- | --- | --- |
+| "The guidance service is not reachable right now" when you ask a question | The web app cannot reach the API at `API_URL` (default `http://127.0.0.1:8000`): it is not running, or it failed to start. The web app's terminal logs the address it tried. | Check `curl http://127.0.0.1:8000/health`. Start the API with `make api` (or `make api-memory`), and read its terminal for the reason it stopped. |
+| `DatabaseUnavailable: Cannot connect to PostgreSQL at localhost:54329/wisdom` | The database is not running, usually because Docker was not started or was restarted | Start Docker, then `make db`. Its data is kept. Or use `make api-memory`. |
+| `The database has no passages` | The database is new and empty | `make ingest` |
+| `[Errno 48] … address already in use` on port 8000 | An earlier `make api` is still running. With `--reload`, it stays alive after its server fails to start, holding the port, until a file changes. | Stop it with Ctrl+C in its terminal. `lsof -nP -iTCP:8000 -sTCP:LISTEN` shows what holds the port. |
+| Port 54329 is already taken | Another PostgreSQL is using it | Set `POSTGRES_PORT` (for Docker) and a matching `DATABASE_URL` (for the API) in `.env`. |
 
 ### Configuration
 
