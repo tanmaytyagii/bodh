@@ -13,7 +13,7 @@ All responses are JSON unless noted, and text is UTF-8. Errors use FastAPI's sha
 | `GET /health` | Service status, corpus size, embedding model and model configuration |
 | `POST /ask` | Answer a question in one response |
 | `POST /ask/stream` | Answer a question as server-sent events, with progress |
-| `GET /search?q=&limit=12&source=` | Hybrid search over the corpus, without the language model (`limit` 1–40) |
+| `GET /search?q=&limit=12&source=` | Hybrid search over the corpus, without the language model (`q` 1–500 characters, `limit` 1–40) |
 | `GET /sources` | All sources with their divisions and editions |
 | `GET /sources/{source_id}` | One source |
 | `GET /sources/{source_id}/chapters/{n}` | A division's passages, with previous and next |
@@ -57,7 +57,7 @@ All responses are JSON unless noted, and text is UTF-8. Errors use FastAPI's sha
 ```
 
 - `question`: 1–4000 characters, not blank.
-- `history`: optional, at most 40 turns, of which the last 8 are used.
+- `history`: optional, at most 40 turns of up to 8000 characters each, of which the last 8 are used.
   - An assistant turn's `passage_ids` (up to 16) lets a follow-up question refer back to the passages already shown; they are retrieved again and kept citable.
   - The server keeps no conversation state, so the client sends the history each time.
 

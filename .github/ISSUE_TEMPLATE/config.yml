@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/tanmaytyagii/bodh/security/policy
+    about: Please don't describe a vulnerability in a public issue. The policy says how to report it privately.
+  - name: If you are struggling right now
+    url: https://findahelpline.com
+    about: Free, confidential helplines in your country. In India, Tele-MANAS is free and open 24×7 on 14416.

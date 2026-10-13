@@ -1,15 +1,40 @@
 # Architecture
 
-```
-Browser ──► Next.js web app (web/) ──────────► FastAPI service (backend/) ──► PostgreSQL 17 + pgvector
-             server components read the          retrieval · generation        passages, embeddings,
-             corpus; /api/* is a same-origin     safety · verification         concepts, stories, feedback
-             proxy for the browser                       │
-                                                         └──► language model (Anthropic, or any
-                                                              OpenAI-compatible endpoint), optional
+```mermaid
+flowchart LR
+  browser(["Browser"])
+
+  subgraph web["Next.js web app (web/)"]
+    pages["Pages<br/>Ask, Explore, verses, themes, stories,<br/>reflections, settings"]
+    proxy["/api/* proxy<br/>allowlisted, streams events"]
+  end
+
+  subgraph api["FastAPI service (backend/)"]
+    routes["Routes<br/>/ask/stream, /search, /passages, …"]
+    service["Answer pipeline<br/>safety · understand · retrieve ·<br/>generate · verify"]
+    retriever["Hybrid retrieval<br/>vectors, full text, romanized Sanskrit,<br/>themes"]
+  end
+
+  store[("PostgreSQL 17 + pgvector<br/>or the in-memory backend")]
+  llm["Language model, optional<br/>Anthropic or OpenAI-compatible"]
+  corpus[["Processed corpus<br/>backend/data/processed"]]
+  sources[["Wikisource, Project Gutenberg,<br/>gita/gita (cross-check)"]]
+
+  browser --> pages
+  browser -- "questions, feedback" --> proxy
+  pages -- "server components read the corpus" --> routes
+  proxy --> routes
+  routes --> service
+  service --> retriever
+  retriever --> store
+  service --> llm
+  sources -- "make corpus: fetch, parse,<br/>cross-check, validate" --> corpus
+  corpus -- "make ingest: load, embed" --> store
 ```
 
-The corpus is built offline by an ingestion pipeline:
+- **The browser only talks to the web app.** Pages are rendered on the server, which reads the corpus from the API; questions and feedback go through the web app's same-origin `/api/*` proxy.
+- **The API owns everything else**: safety, retrieval, generation, verification and storage. It works without a language model, and without PostgreSQL (`RETRIEVAL_BACKEND=memory` serves the processed corpus from disk).
+- **The corpus is built offline** by an ingestion pipeline, and the result is committed:
 
 ```
 fetch (cached, checksummed) → parse → cross-check → validate → data/processed/ → load into Postgres
@@ -30,6 +55,35 @@ The pipeline is covered in [DATA.md](DATA.md). This document describes the runni
 ## The answer pipeline
 
 `POST /ask/stream` (and its non-streaming twin `POST /ask`) is implemented by `GuidanceService.stream` in `backend/app/generation/service.py`.
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant G as GuidanceService
+  participant R as HybridRetriever
+  participant M as Language model
+  participant V as Verifier
+
+  B->>G: POST /ask/stream (through the web app's proxy)
+  G->>G: safety.detect, before any model
+  alt crisis
+    G-->>B: answer: helplines, no scripture
+  else no model configured
+    G->>R: retrieve the question
+    G-->>B: passages, then a retrieval_only answer
+  else
+    G->>M: understand: summary, searches, themes, safety
+    G-->>B: understanding
+    G->>R: retrieve with the question, searches and themes
+    G-->>B: passages
+    G->>M: write the answer, citing passage ids only
+    G->>V: drop citations of passages not provided, check quotations
+    G-->>B: answer
+  end
+  G-->>B: done
+```
+
+The steps in detail:
 
 1. **Deterministic safety check** (`safety.detect`). Regular expressions for self-harm, abuse and violence in English, Hindi and Hinglish. A crisis match returns a crisis answer at once, with helplines and without scripture. See [SAFETY.md](SAFETY.md).
 2. **No model configured?** Hybrid retrieval runs on the question alone, and the answer is `retrieval_only`: verified passages plus a notice.
@@ -149,7 +203,7 @@ The web app uses Next.js 16 (App Router, Turbopack) with React 19 and Tailwind C
 - **Scene.** Ask and Explore sit on a decorative full-screen stage: an observatory, an armillary sphere resting in an engraved bowl after Jaipur's Jantar Mantar, drawn with three.js through React Three Fiber (`web/src/components/scene/`).
   - It first paints as a still SVG drawing in the server HTML.
   - The 3D chunk loads when the browser is idle, and only where WebGL exists.
-  - The Ask page is a scroll story in six chapters; the instrument takes a pose for each, read from the scroll position, never moving the page.
+  - The Ask page is a scroll story in five chapters (invitation, teachings, themes, understanding, return); the instrument takes a pose for each, read from the scroll position, never moving the page.
   - It follows the conversation: thinking, then reading. It keeps still for reduced motion, renders less on low-power devices, draws nothing in a background tab, and fades out for a crisis reply.
   - Content elsewhere moves into place with CSS scroll-driven animations; text is moved, never faded.
   - Details are in `web/README.md`.

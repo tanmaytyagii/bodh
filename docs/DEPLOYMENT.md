@@ -59,7 +59,7 @@ Set these as environment variables or from a secret manager. Never bake keys int
 | Variable | When it is read | Purpose |
 | --- | --- | --- |
 | `API_URL` | Runtime | The API as seen from the web server, for example `http://api:8000` |
-| `NEXT_PUBLIC_SITE_URL` | Build time | The public address, e.g. `https://your-domain`. Link previews need it for an absolute image URL; without it they point at localhost and the build warns. |
+| `NEXT_PUBLIC_SITE_URL` | Build time | The public address, e.g. `https://your-domain`. Link previews need it for an absolute image URL, and pages get canonical links from it; without it, previews point at localhost, there are no canonical links, and the build warns. |
 | `NEXT_PUBLIC_APP_NAME` | Build time | Optional. Replaces the product name (BODH) alone; the rest of the brand is in `web/src/lib/brand.ts`. |
 
 ## Reverse proxy and networking

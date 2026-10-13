@@ -106,8 +106,10 @@ it comes from `src/lib/brand.ts`; change it there.
   drawn from `MARK` and `BRAND_COLORS`, so a change to the brand needs no new image files. The preview image fetches
   its three fonts from Google Fonts when it is built, cut to the letters it uses; without them it renders in a default
   face and leaves out the Devanagari.
-- **Link previews.** Each page's title and description become its preview's. Set `NEXT_PUBLIC_SITE_URL` when building
-  for production, so the preview image has an absolute address; without it Next.js uses localhost and warns.
+- **Link previews and canonical links.** Each page's title and description become its preview's. Set
+  `NEXT_PUBLIC_SITE_URL` when building for production: the preview image then has an absolute address, and every
+  page names its own path, without a query string, as its canonical link. Without it Next.js uses localhost for the
+  image, warns, and no canonical links are written.
 - **Kept on purpose.** Browser storage keys still start with `sw.` (`sw.theme`, `sw.reflections.v1`,
   `sw.conversation.v1`), from the working name. Renaming them would lose people's saved reflections and appearance.
 
@@ -126,6 +128,9 @@ Ask has two views at one address (`components/ask/Conversation.tsx`).
   lives in `sessionStorage` and is gone when the tab closes. Links to Ask (the name, the navigation, the footer)
   open the invitation, even from the conversation (`AskLink`, `lib/askNavigation.ts`); the conversation stays one
   step back. "New question" in the answer does the same; "Start over" clears the conversation.
+- **Kept while away.** With Cache Components, Next.js keeps a page you leave mounted but hidden (React's
+  `<Activity>`), state and all, and re-runs its effects when it is shown again. So the view is decided from the
+  address each time the Ask page is shown: a link back to it from another page brings the invitation too.
 - **Asking.** As a first question is sent, the page becomes the conversation and the question becomes its heading,
   gliding up from where the question box was. Only transform and opacity move, so nothing waits on it and every
   control stays usable; with reduced motion it simply appears. The request starts at once. A question is sent only once, however often the button is pressed. If it
@@ -228,11 +233,15 @@ the top of smaller ones.
 ## Checks
 
 ```bash
-npx tsc --noEmit && npx eslint src e2e
+npm run typecheck && npm run lint   # generates the route types first, so it works on a fresh clone
+npx playwright install chromium     # once, for the browser tests
 npx playwright test     # needs the API running; starts the web app if none is on :3000
 PORT=3100 npx playwright test   # use another port, e.g. while `npm run dev` holds :3000
 BASE_URL=http://localhost:3000 npx playwright test e2e/console.spec.ts e2e/theme.spec.ts e2e/scene.spec.ts   # against `npm run dev`
 ```
+
+`npm run typecheck` runs `next typegen` before `tsc`: the page props types (`PageProps`, `LayoutProps`) are
+generated into `.next/`, which a fresh clone does not have.
 
 Run the console, theme and scene tests against the development server too. Only development builds report
 hydration mismatches. Use `localhost`, not `127.0.0.1`: the development server refuses its hot-reload

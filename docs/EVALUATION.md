@@ -57,6 +57,8 @@ This is the raw question only, as in the no-key mode. With a model, the understa
 | PostgreSQL (default) | 0.686 | 0.743 | 0.497 | 0.302 | 23 ms |
 | In-memory | 0.686 | 0.757 | 0.522 | 0.307 | 3 ms |
 
+The in-memory figures were reproduced exactly with `make eval` on 2026-10-13.
+
 By language, PostgreSQL first and in-memory in brackets:
 
 | Language | n | hit@8 | MRR |
@@ -185,7 +187,7 @@ Each case makes two model calls. Run `--all` once a key is configured, and recor
 | Suite | Count | Covers |
 | --- | --- | --- |
 | Backend, `make test` | 76 | See below |
-| Browser, `make e2e` | 194: 97 each on desktop Chrome and a Pixel 7. 178 run: 96 on desktop and 82 on the Pixel 7. The 16 skipped are by design: 12 set their own viewports and run on desktop only, 2 navigation tests each run on one device, and the chapter rail and step list exist on large screens only. | See below |
+| Browser, `make e2e` | 208: 104 each on desktop Chrome and a Pixel 7. 192 run: 103 on desktop and 89 on the Pixel 7. The 16 skipped are by design: 12 set their own viewports and run on desktop only, 2 navigation tests each run on one device, and the chapter rail and step list exist on large screens only. | See below |
 
 The backend tests cover:
 
@@ -204,6 +206,8 @@ The browser tests cover:
   - the invitation shows nothing from earlier, and offers an earlier conversation without showing it;
   - the logo, Ask in the navigation, back, forward, refresh and "New question" move between the views without
     losing the conversation;
+  - the logo brings back the invitation from another page too, though Next.js keeps the Ask page and its state
+    while that page is open;
   - progress while an answer is prepared, and "Stop" returning the question to its box;
   - an error keeping the question, with "Try again", and a double press sending the question once;
   - a real answer read as one column under a quiet note, its passages leading to their verse pages and back;
@@ -218,7 +222,7 @@ The browser tests cover:
 - no horizontal scrolling at phone width, and none on key pages at small-phone, tablet and ultrawide sizes, or in a full answer at 360 to 1280 px;
 - the Ask screen at seven sizes from 360 × 740 to 2560 × 1080: the question box and its button sit in the first screen, clear of the header;
 - the landing story:
-  - its six chapters, in order;
+  - its five chapters, in order;
   - the chapter rail marks where you are and takes you to a chapter;
   - its passages match the corpus exactly (text, reference, citation and links);
   - the theme explorer works by pointer and keyboard, and its links lead to real pages;
@@ -240,6 +244,9 @@ The browser tests cover:
   hydration errors;
 - desktop and mobile navigation, and follow-up questions carrying the conversation so far;
 - deleting saved reflections, one at a time or all at once, with confirmation;
-- no console errors or warnings on key pages, in either theme.
+- no console errors or warnings on key pages, in either theme;
+- the BODH identity: page titles, the header and the footer, each page's link preview, the icons and the
+  preview image, the name in Devanagari marked as Hindi, and the mark's bead that travels while an answer is
+  prepared and holds still with reduced motion.
 
 None of them needs a model: the backend tests use a fake one, and the browser tests pass with or without a key. With a key configured, the ask test makes real model calls.

@@ -1,0 +1,41 @@
+name: Problem with a passage or citation
+description: The Sanskrit, a translation, a transliteration, a citation or a quotation looks wrong.
+labels: [source text]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        BODH shows each passage exactly as its edition prints it, and links to the printed page. If what you see differs from that page, or a citation leads to the wrong place, please describe it here. How flagged verses are reviewed is in [docs/DATA.md](https://github.com/tanmaytyagii/bodh/blob/main/docs/DATA.md#reviewing-flagged-verses).
+  - type: input
+    id: passage
+    attributes:
+      label: Passage
+      description: The reference or the link to its page.
+      placeholder: Bhagavad Gita 2.47, or https://…/scripture/bhagavad-gita/2/47
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What looks wrong
+      options:
+        - The Sanskrit differs from the printed page
+        - The translation differs from the printed page
+        - The transliteration does not match the Sanskrit
+        - The citation or the scan link points to the wrong place
+        - A quotation in a theme or story does not match the passage
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What it says now, and what you believe it should say.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: What you compared it with
+      description: The scan of the printed page, or another published edition, with a link where there is one.

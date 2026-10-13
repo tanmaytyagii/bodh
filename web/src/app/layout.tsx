@@ -44,6 +44,9 @@ const tiro = Tiro_Devanagari_Sanskrit({
 // fills them in from the page, and the Twitter card follows openGraph.
 export const metadata: Metadata = {
   metadataBase: SITE_URL ? new URL(SITE_URL) : undefined,
+  // Each page's canonical address is its own path, without a query string
+  // (so searches point to /explore). Only with a known public address.
+  alternates: SITE_URL ? { canonical: "./" } : undefined,
   title: { default: DEFAULT_TITLE, template: `%s · ${BRAND.name}` },
   description: BRAND.description,
   applicationName: BRAND.name,

@@ -85,12 +85,16 @@ export function Conversation({ below }: { below?: ReactNode }) {
   // Restore this tab's conversation, before the first paint so a refresh
   // never flashes the invitation. It is shown only when the address asks for
   // it (a refresh, or back/forward); otherwise the invitation offers it.
+  // This also runs each time the page is shown again: Next.js keeps it, state
+  // and all, while another page is open, so a link back to Ask must bring the
+  // invitation here, as it does on the page itself.
   useLayoutEffect(() => {
     const restored = loadConversation();
     const asked = window.location.hash === CONVERSATION_HASH;
     if (asked && !restored.length) window.history.replaceState(null, "", window.location.pathname);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the view follows the address whenever the page is shown
+    if (!asked) setView("invitation");
     if (!restored.length) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser storage and the address on mount
     setTurns(restored);
     if (asked) setView("conversation");
   }, []);

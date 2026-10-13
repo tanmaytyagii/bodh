@@ -1,0 +1,22 @@
+name: Suggestion
+description: An idea that would make BODH more useful.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would it help with
+      description: The situation or the need, in your own words.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you have in mind
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Sources, editions or examples that would help. New texts must be in the public domain or openly licensed (see docs/DATA.md).

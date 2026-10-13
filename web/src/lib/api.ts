@@ -13,11 +13,21 @@ import type { Chapter, Concept, Health, PassageDetail, SearchResponse, Source, S
 
 export class ApiUnavailableError extends Error {}
 
+// A corpus read takes milliseconds. One that stalls fails here, and the page
+// offers to try again, instead of holding the reader for minutes.
+const TIMEOUT_MS = 15_000;
+
 async function get<T>(path: string): Promise<T | null> {
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, { headers: { accept: "application/json" } });
-  } catch {
+    response = await fetch(`${API_URL}${path}`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "TimeoutError") {
+      throw new ApiUnavailableError(`The scripture API did not answer ${path} within ${TIMEOUT_MS / 1000} s.`);
+    }
     throw new ApiUnavailableError(
       `The scripture API at ${API_URL} is not reachable. Start it with \`uvicorn app.main:app\` in backend/.`,
     );

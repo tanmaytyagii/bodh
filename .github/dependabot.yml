@@ -1,0 +1,31 @@
+# Weekly update checks. Each ecosystem's minor and patch updates arrive
+# together in one pull request; major versions arrive one at a time.
+#
+# Python dependencies are not listed here: the backend installs with
+# backend/constraints.txt, which Dependabot does not keep in step with
+# pyproject.toml. Update them together by hand (see CONTRIBUTING.md).
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+    groups:
+      web:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      # Pinned on purpose: from 0.183 the THREE.Clock that @react-three/fiber 9
+      # uses logs a deprecation warning on every page, which the console tests
+      # reject. See "Pinned version" in web/README.md.
+      - dependency-name: three
+      - dependency-name: "@types/three"

@@ -82,6 +82,26 @@ test("the invitation and an answer stay distinct, through the logo, Ask, back, f
   await expect(questionHeading(page)).toBeVisible();
 });
 
+test("the logo brings back the invitation from another page too, with the conversation offered", async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto("/");
+  await ask(page);
+
+  // Next.js keeps the Ask page, with its state, while another page is open.
+  if (isMobile) await page.getByRole("button", { name: "Menu" }).click();
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/\/about$/);
+  await page.getByRole("banner").getByRole("link", { name: BRAND.name, exact: true }).click();
+  await expect(invitation(page)).toBeVisible();
+  await expect(page).not.toHaveURL(/#conversation/);
+  await expect(page.getByText("You asked")).toHaveCount(0);
+
+  await returnLink(page).click();
+  await expect(questionHeading(page)).toBeVisible();
+});
+
 test("while the answer is prepared, progress shows, and stopping returns the question", async ({ page }) => {
   await page.goto("/");
   // Hold the request, so the question stays in progress until it is stopped.

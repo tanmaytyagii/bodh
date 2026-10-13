@@ -32,7 +32,7 @@ test: ## Backend unit/integration tests (no Docker or API key needed)
 
 lint: ## Lint and type-check backend and web
 	cd backend && .venv/bin/ruff check app tests && .venv/bin/ruff format --check app tests && .venv/bin/mypy
-	cd web && npx tsc --noEmit && npx eslint src
+	cd web && npm run typecheck && npm run lint
 
 eval: ## Retrieval evaluation on the labelled question set
 	cd backend && .venv/bin/python -m app.evaluation.retrieval

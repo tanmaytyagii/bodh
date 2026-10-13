@@ -1,0 +1,51 @@
+name: Bug report
+description: Something in BODH does not work as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. Please leave out anything personal: the questions you asked BODH, names, and API keys or other credentials.
+        A problem with a verse, a translation or a citation has its own form.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce it
+      placeholder: |
+        1. Open /explore
+        2. Search for "anger"
+        3. …
+    validations:
+      required: true
+  - type: dropdown
+    id: part
+    attributes:
+      label: Where
+      options:
+        - Web app (Ask, Explore, a verse page, Themes, Reflections, Settings)
+        - API
+        - Data ingestion (make corpus / make ingest)
+        - Docker or deployment
+        - Documentation
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: How you run BODH (local development, Docker), your OS and browser, and whether a language model is configured (LLM_PROVIDER).
+      placeholder: macOS 15, Chrome 141, make api + make web, LLM_PROVIDER=none
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Error messages or the browser console, with keys and personal details removed.
+      render: text
