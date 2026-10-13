@@ -1,0 +1,740 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens: ink and saffron.
+ *
+ * Light is warm ivory paper with near-black ink; dark is deep charcoal ink
+ * with ivory text. One recognisable accent, saffron (antique gold in dark),
+ * marks what matters: the verified-source seal, active states, highlights.
+ * Primary actions are drawn in ink (ivory in dark), not in the accent.
+ *
+ * The four kinds of content the product must never blur have their own tones:
+ * source text (bronze), editorial material (sage), AI interpretation (indigo),
+ * and the reader's own words (neutral).
+ *
+ * The theme is chosen by `data-theme` on <html>, set by an inline script before
+ * the first paint (src/lib/theme.ts). Without JavaScript the operating
+ * system's preference applies through the media query. The two dark blocks
+ * must stay identical. A nested element can also carry data-theme, so both
+ * themes can be shown in a subtree.
+ */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces */
+  --paper: #f8f6f1;
+  --surface: #fdfcf9;
+  --surface-raised: #ffffff;
+  --surface-sunk: #f0ede5;
+
+  /* Text */
+  --ink: #16171a;
+  --ink-soft: #3d3f45;
+  --ink-muted: #63656c;
+
+  /* Lines */
+  --rule: #e6e2d8;
+  --rule-strong: #d2ccbf;
+  --field: #8e8a80; /* form-field outlines: 3:1 against every surface */
+
+  /* Primary actions: ink */
+  --primary: #16171a;
+  --primary-hover: #2c2e33;
+  --primary-ink: #f8f6f1;
+
+  /* Accent: saffron */
+  --accent: #a6510d;
+  --accent-strong: #87410a;
+  --accent-soft: #f6e8d6;
+  --accent-ink: #ffffff;
+  --gold: #a8741f; /* ornaments, numerals and the source seal: 3:1 for large text */
+
+  /* Content kinds */
+  --source: #7a4a12;
+  --source-bg: #faf4e8;
+  --ai: #3b4d86;
+  --ai-bg: #eef1f9;
+  --editorial: #4b6141;
+  --editorial-bg: #eef3ea;
+
+  /* Status */
+  --info: #2d5f8a;
+  --info-bg: #e9f1f8;
+  --warn: #8a5a00;
+  --warn-bg: #fbf1d9;
+  --danger: #a3301f;
+  --danger-bg: #fbeae6;
+  --ok: #2b6b45;
+  --ok-bg: #e6f2ea;
+
+  --focus: #c06a1c;
+
+  /* The celestial scene (still drawing and atmosphere). */
+  --scene-ring: #b8862e;
+  --scene-glow: #e9ab55;
+  --scene-core: #fff3d9;
+  --scene-atmosphere: rgb(214 160 80 / 0.13);
+
+  --elevation-1: 0 1px 2px rgb(22 23 26 / 0.04), 0 1px 1px rgb(22 23 26 / 0.03);
+  --elevation-2: 0 1px 2px rgb(22 23 26 / 0.04), 0 12px 32px -12px rgb(22 23 26 / 0.14);
+  --elevation-3: 0 2px 6px rgb(22 23 26 / 0.06), 0 32px 64px -24px rgb(22 23 26 / 0.3);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0f1012;
+  --surface: #15171a;
+  --surface-raised: #1c1e22;
+  --surface-sunk: #0a0b0c;
+  --ink: #eeeae2;
+  --ink-soft: #c9c5bc;
+  --ink-muted: #8f9198;
+  --rule: #24262b;
+  --rule-strong: #34373d;
+  --field: #71747c;
+  --primary: #eeeae2;
+  --primary-hover: #ffffff;
+  --primary-ink: #121315;
+  --accent: #eaa24f;
+  --accent-strong: #f4b968;
+  --accent-soft: #2a2114;
+  --accent-ink: #1a1206;
+  --gold: #d9a548;
+  --source: #e8c690;
+  --source-bg: #17150f;
+  --ai: #aab8e6;
+  --ai-bg: #151a26;
+  --editorial: #b9cba6;
+  --editorial-bg: #141a12;
+  --info: #9cc4e8;
+  --info-bg: #10202d;
+  --warn: #efc46a;
+  --warn-bg: #251d0d;
+  --danger: #f19a8a;
+  --danger-bg: #2a1512;
+  --ok: #8dcfa4;
+  --ok-bg: #0f2117;
+  --focus: #eaa24f;
+  --scene-ring: #d9a548;
+  --scene-glow: #eaa24f;
+  --scene-core: #fff3d6;
+  --scene-atmosphere: rgb(234 162 79 / 0.12);
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --elevation-2: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -16px rgb(0 0 0 / 0.7);
+  --elevation-3: 0 2px 6px rgb(0 0 0 / 0.45), 0 32px 72px -24px rgb(0 0 0 / 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0f1012;
+    --surface: #15171a;
+    --surface-raised: #1c1e22;
+    --surface-sunk: #0a0b0c;
+    --ink: #eeeae2;
+    --ink-soft: #c9c5bc;
+    --ink-muted: #8f9198;
+    --rule: #24262b;
+    --rule-strong: #34373d;
+    --field: #71747c;
+    --primary: #eeeae2;
+    --primary-hover: #ffffff;
+    --primary-ink: #121315;
+    --accent: #eaa24f;
+    --accent-strong: #f4b968;
+    --accent-soft: #2a2114;
+    --accent-ink: #1a1206;
+    --gold: #d9a548;
+    --source: #e8c690;
+    --source-bg: #17150f;
+    --ai: #aab8e6;
+    --ai-bg: #151a26;
+    --editorial: #b9cba6;
+    --editorial-bg: #141a12;
+    --info: #9cc4e8;
+    --info-bg: #10202d;
+    --warn: #efc46a;
+    --warn-bg: #251d0d;
+    --danger: #f19a8a;
+    --danger-bg: #2a1512;
+    --ok: #8dcfa4;
+    --ok-bg: #0f2117;
+    --focus: #eaa24f;
+    --scene-ring: #d9a548;
+    --scene-glow: #eaa24f;
+    --scene-core: #fff3d6;
+    --scene-atmosphere: rgb(234 162 79 / 0.12);
+    --elevation-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --elevation-2: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -16px rgb(0 0 0 / 0.7);
+    --elevation-3: 0 2px 6px rgb(0 0 0 / 0.45), 0 32px 72px -24px rgb(0 0 0 / 0.85);
+  }
+}
+
+/* `dark:` utilities follow the chosen theme, not only the system setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+/* A landscape screen too short for the wide composition, such as a phone on its side. */
+@custom-variant short-landscape (@media (min-aspect-ratio: 29/20) and (max-height: 499.98px));
+/*
+ * Room for the invitation's two regions side by side (.hero): a landscape
+ * screen at least 48rem wide, or a phone on its side. Below that the copy
+ * column would be too narrow for the headline and the question box.
+ */
+@custom-variant hero-split {
+  @media (min-width: 48rem) and (min-aspect-ratio: 1/1), (min-aspect-ratio: 29/20) and (max-height: 499.98px) {
+    @slot;
+  }
+}
+
+/*
+ * The page frame. The shell is the width a page composes in: the whole
+ * screen, except on ultrawide screens, where it keeps to 1.85 times the
+ * height (never less than 80rem), so the composition never strings out into a
+ * band. Gutters grow with the screen. shellWidth in lib/scene.ts is the same
+ * rule.
+ */
+:root {
+  --shell: min(100%, max(80rem, 185svh));
+  --page-x: clamp(1.25rem, 3.4vw + 0.25rem, 7.5rem);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunk: var(--surface-sunk);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-field: var(--field);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-ink: var(--primary-ink);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-gold: var(--gold);
+  --color-source: var(--source);
+  --color-source-bg: var(--source-bg);
+  --color-ai: var(--ai);
+  --color-ai-bg: var(--ai-bg);
+  --color-editorial: var(--editorial);
+  --color-editorial-bg: var(--editorial-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-focus: var(--focus);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-literata), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-instrument), var(--font-literata), Georgia, serif;
+  --font-deva: var(--font-tiro), "Noto Serif Devanagari", serif;
+
+  --shadow-card: var(--elevation-1);
+  --shadow-raised: var(--elevation-2);
+  --shadow-overlay: var(--elevation-3);
+}
+
+@theme {
+  /* Layout widths: a comfortable reading measure, and the full page. */
+  --container-reading: 44rem;
+  --container-page: 84rem;
+
+  /* Display sizes. */
+  --text-hero: 4.75rem;
+  --text-hero--line-height: 0.98;
+  --text-display: 3.75rem;
+  --text-display--line-height: 1.02;
+  --text-title: 3rem;
+  --text-title--line-height: 1.05;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  scrollbar-gutter: stable;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Display headlines: the editorial serif, set tight. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  font-kerning: normal;
+}
+
+/* Devanagari verse: generous line height for conjuncts and matras. */
+.deva {
+  font-family: var(--font-deva);
+  line-height: 1.95;
+  font-feature-settings: "kern";
+}
+
+/* Scripture in translation. */
+.prose-read {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+/* Small uppercase labels. */
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+kbd {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1;
+  padding: 0.22rem 0.38rem;
+  border-radius: 5px;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  background: var(--surface-raised);
+  color: var(--ink-soft);
+}
+
+details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A slow pulse for the step in progress. */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.breathe {
+  animation: breathe 1.8s ease-in-out infinite;
+}
+
+/* The mark's bead travelling its ring while an answer is prepared (BrandMark orbit). */
+@keyframes orbit {
+  to {
+    transform: rotate(1turn);
+  }
+}
+.mark-orbit {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: orbit 2.8s linear infinite;
+}
+
+/* Placeholder blocks while content loads. */
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-sunk) 25%, var(--rule) 37%, var(--surface-sunk) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Gentle entrance for newly arrived content. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/*
+ * Scroll-linked motion. Content moves into place as it scrolls into view. It is
+ * tied to the scroll position, not to time, so it never makes anyone wait and
+ * runs backwards when the page is scrolled back. Text is only ever moved,
+ * never faded, so it stays readable (and measurable for contrast) at every
+ * point. Off with reduced motion, and in browsers without scroll timelines.
+ * Once in place, nothing remains applied (fill "backwards"), so revealed
+ * content never keeps a transform or a stacking context of its own.
+ */
+@keyframes reveal-rise {
+  from {
+    transform: translate3d(0, 2.5rem, 0);
+  }
+}
+@keyframes reveal-tilt {
+  from {
+    transform: perspective(1600px) translate3d(0, 4rem, -5rem) rotateX(9deg);
+  }
+}
+@keyframes reveal-rule {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+@keyframes recede {
+  to {
+    transform: translate3d(0, -5rem, 0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-rise linear backwards;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+    .reveal-tilt {
+      transform-origin: 50% 100%;
+      animation: reveal-tilt linear backwards;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+    .reveal-rule {
+      transform-origin: 0 50%;
+      animation: reveal-rule linear backwards;
+      animation-timeline: view();
+      animation-range: entry 20% cover 30%;
+    }
+    /* The opening headline drifts up a little faster than the page. */
+    .hero-recede {
+      animation: recede linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+  }
+}
+
+/* A volume in the library: it leans back a little, like a book taken from a shelf. */
+.volume {
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.volume:hover,
+.volume:focus-visible {
+  transform: perspective(1100px) rotateX(4deg) translateY(-6px);
+  box-shadow: var(--elevation-3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .volume:hover,
+  .volume:focus-visible {
+    transform: none;
+  }
+}
+
+/* How far through an answer you are: the hairline under its section bar. */
+.reading-progress {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reading-progress {
+      display: block;
+      animation: reading linear both;
+      animation-timeline: --answer;
+      animation-range: contain 0% contain 100%;
+    }
+  }
+}
+@keyframes reading {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/*
+ * A leaf of a pothi, the long loose-leaf manuscript format of Indian texts:
+ * a ruled border, and binding holes in the margins on wider screens. Used for
+ * passages on the landing page.
+ */
+.leaf {
+  position: relative;
+  padding: 2rem 1.5rem 1.75rem;
+  border-radius: 10px;
+  background: var(--source-bg);
+  box-shadow:
+    var(--elevation-2),
+    inset 0 0 0 1px var(--rule);
+}
+.leaf::before {
+  content: "";
+  position: absolute;
+  inset: 0.55rem;
+  border: 1px solid color-mix(in oklab, var(--gold) 28%, transparent);
+  border-radius: 6px;
+  pointer-events: none;
+}
+@media (min-width: 640px) {
+  .leaf:not(.leaf-compact) {
+    --hole: color-mix(in oklab, var(--gold) 55%, transparent);
+    padding: 3rem 4.25rem 2.5rem;
+    background:
+      radial-gradient(circle at 2rem 50%, var(--paper) 0 0.3rem, var(--hole) 0.3rem 0.36rem, transparent 0.37rem),
+      radial-gradient(circle at calc(100% - 2rem) 50%, var(--paper) 0 0.3rem, var(--hole) 0.3rem 0.36rem, transparent 0.37rem),
+      var(--source-bg);
+  }
+}
+.leaf-compact {
+  padding: 1.5rem 1.75rem;
+}
+
+/*
+ * The stage: a fixed, full-viewport layer behind the content of the Ask and
+ * Explore pages. It uses the large viewport height so that mobile browser
+ * chrome appearing and disappearing never resizes it.
+ */
+.stage {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  height: 100lvh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--stage-opacity, 1);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.stage-layer {
+  position: absolute;
+  inset: 0;
+}
+.stage-atmosphere {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--scene-x) var(--scene-y),
+    var(--scene-atmosphere) 0,
+    transparent var(--scene-glow-size)
+  );
+}
+.stage-layer > .scene-fallback {
+  position: absolute;
+  left: var(--scene-x);
+  top: var(--scene-y);
+  width: calc(var(--scene-diameter) * 1.112);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  transition:
+    left 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s;
+}
+/*
+ * The same four framings as lib/scene.ts: wide, squarer landscape, short
+ * landscape, portrait. On screens wider than Explore's 96rem content frame,
+ * the horizontal position keeps to the frame (frameCx).
+ */
+.stage {
+  --scene-x: calc(50% + (var(--scene-cx) - 0.5) * min(100%, 96rem));
+  --scene-y: calc(var(--scene-cy) * 100%);
+  --scene-cx: var(--scene-cx-wide);
+  --scene-cy: var(--scene-cy-wide);
+  --scene-diameter: calc(var(--scene-d-wide) * 100lvh);
+  --scene-glow-size: calc(var(--scene-d-wide) * 62lvh);
+}
+@media (min-aspect-ratio: 1/1) and (max-aspect-ratio: 29/20) {
+  .stage {
+    --scene-cx: var(--scene-cx-square);
+    --scene-cy: var(--scene-cy-square);
+    --scene-diameter: calc(var(--scene-d-square) * 100lvh);
+    --scene-glow-size: calc(var(--scene-d-square) * 62lvh);
+  }
+}
+@media (min-aspect-ratio: 29/20) and (max-height: 499.98px) {
+  .stage {
+    --scene-cx: var(--scene-cx-short);
+    --scene-cy: var(--scene-cy-short);
+    --scene-diameter: calc(var(--scene-d-short) * 100lvh);
+    --scene-glow-size: calc(var(--scene-d-short) * 62lvh);
+  }
+}
+@media (max-aspect-ratio: 1/1) {
+  .stage {
+    --scene-cx: var(--scene-cx-portrait);
+    --scene-cy: var(--scene-cy-portrait);
+    --scene-diameter: min(calc(var(--scene-d-portrait) * 100vw), calc(var(--scene-dmax-portrait) * 100lvh));
+    --scene-glow-size: 45vw;
+  }
+}
+/*
+ * Beside a conversation (conversationFraming in lib/scene.ts): small and
+ * centred above the question, or, from 1280px, in the margin to the right of
+ * the 46rem reading column.
+ */
+.stage:is([data-mode="thinking"], [data-mode="reading"]) {
+  --scene-diameter: min(30vw, 16lvh, 170px);
+  --scene-x: 50%;
+  --scene-y: calc(72px + var(--scene-diameter) / 2);
+  --scene-glow-size: calc(var(--scene-diameter) * 0.9);
+}
+@media (min-width: 1280px) {
+  .stage:is([data-mode="thinking"], [data-mode="reading"]) {
+    --room: calc(50vw - 23rem - 72px);
+    --scene-diameter: min(var(--room), 36lvh, 440px);
+    --scene-x: calc(50vw + 23rem + 40px + var(--room) / 2);
+    --scene-y: calc(96px + var(--scene-diameter) / 2);
+  }
+  .stage[data-mode="thinking"] {
+    --scene-diameter: min(var(--room), 42lvh, 440px);
+  }
+}
+/*
+ * In the landing story the still drawing is the invitation's own (.hero-visual),
+ * and the glow waits until Stage has centred it on that region.
+ */
+.stage-atmosphere {
+  transition: opacity 0.7s;
+}
+.stage[data-story] .stage-layer:not([data-framed]) .stage-atmosphere {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .stage-atmosphere,
+  .scene-fallback {
+    transition: none;
+  }
+}
+
+/*
+ * The invitation (Conversation.tsx): the headline, the question box and the
+ * examples beside the instrument's region, in one grid that fills the first
+ * screen. Type and the question box follow the copy column's width
+ * (container units); spacing and the instrument follow the screen's height.
+ * A large monitor gets a larger composition, not a small one adrift in empty
+ * space. Narrow and portrait screens stack the instrument above the copy.
+ */
+.hero {
+  --hero-pad: clamp(1rem, 4svh, 3.5rem);
+  --hero-gap-xs: clamp(0.75rem, 1.8svh, 1.75rem);
+  --hero-gap-sm: clamp(1rem, 2.7svh, 2.25rem);
+  --hero-gap: clamp(1.25rem, 3.5svh, 3rem);
+  /* The "Scroll to explore" cue below, on screens tall enough to show it. */
+  --hero-cue: 0px;
+  /* The height the first screen leaves for the composition. */
+  --hero-avail: calc(100svh - 4rem - env(safe-area-inset-top) - 2 * var(--hero-pad) - var(--hero-cue));
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 40rem);
+  align-content: start;
+  row-gap: var(--hero-gap-sm);
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding: calc(4rem + env(safe-area-inset-top) + 0.75rem) var(--page-x) var(--hero-pad);
+
+  @media (min-height: 760px) {
+    --hero-cue: 3.5rem;
+  }
+  @variant hero-split {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    grid-template-rows: minmax(var(--hero-avail), auto);
+    align-content: center;
+    align-items: center;
+    column-gap: clamp(2rem, 4vw, 8rem);
+    padding-top: calc(4rem + env(safe-area-inset-top) + var(--hero-pad));
+  }
+  /* A phone on its side: the instrument needs only the height it has. */
+  @variant short-landscape {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+.hero-copy {
+  container-type: inline-size;
+}
+/* The base size of the copy: 1rem up to a 38rem column, growing to 1.25rem at about 68rem. */
+.hero-text {
+  font-size: clamp(1rem, 0.68rem + 0.842cqi, 1.25rem);
+}
+.hero-text .eyebrow {
+  font-size: 0.6875em;
+}
+.hero-visual {
+  position: relative;
+  order: -1;
+  justify-self: center;
+  width: min(100%, clamp(7rem, 19svh, 16rem));
+  aspect-ratio: 1;
+
+  @variant hero-split {
+    order: 0;
+    align-self: start;
+    width: min(100%, var(--hero-avail));
+    /* Centred in the first screen, even when the copy beside it runs on below. */
+    margin-top: calc((var(--hero-avail) - min(100%, var(--hero-avail))) / 2);
+  }
+}
+/* The instrument fills the region; its drawing (SceneFallback) leaves a margin of a twentieth all round. */
+.hero-visual > .scene-fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% / 0.9);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  transition: opacity 0.7s;
+}
+:root:has(.stage[data-scene="ready"]) .hero-visual > .scene-fallback {
+  opacity: 0;
+}

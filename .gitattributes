@@ -1,0 +1,5 @@
+# Source texts exactly as they were downloaded. Each file must match the
+# checksum in its directory's manifest.json (the ingestion pipeline refuses a
+# file that does not), so Git keeps them byte for byte: no line-ending
+# conversion, and their original spacing is not reported as whitespace errors.
+backend/data/raw/** -text -whitespace

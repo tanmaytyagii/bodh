@@ -1,0 +1,49 @@
+[
+ {
+  "id": "besant-1922",
+  "source_ids": [
+   "bhagavad-gita"
+  ],
+  "role": "primary",
+  "language": "sa, en",
+  "title": "The Bhagavad-Gita, or The Lord's Song (4th edition), with the Devanagari text",
+  "contributors": "Annie Besant (translator); transcribed and proofread by Wikisource volunteers",
+  "year": 1922,
+  "publisher": "G. A. Natesan & Co., Madras",
+  "license": "Public domain. The Sanskrit text is ancient; Besant's translation is in the public domain (translator died 1933). Wikisource transcription of a public-domain work.",
+  "url": "https://en.wikisource.org/wiki/Bhagavad-Gita_(Besant_4th)",
+  "notes": "Sanskrit and English are printed side by side in this edition. Obvious misprints marked [sic] by Wikisource transcribers are corrected; every correction is recorded with the printed reading."
+ },
+ {
+  "id": "gita-json",
+  "source_ids": [
+   "bhagavad-gita"
+  ],
+  "role": "cross_check",
+  "language": "sa",
+  "title": "Bhagavad Gita in JSON — verse.json (Devanagari text only)",
+  "contributors": "gita/gita open-source project contributors",
+  "year": null,
+  "publisher": null,
+  "license": "Repository released under The Unlicense; the Sanskrit text is ancient and in the public domain. Only the Devanagari is used here.",
+  "url": "https://github.com/gita/gita/blob/700c015912aa3f17ec2f275b9cfdd4f04278f47f/data/verse.json",
+  "notes": "Used to cross-check the primary edition's Sanskrit; not displayed as a source."
+ },
+ {
+  "id": "paramananda-1919",
+  "source_ids": [
+   "isha-upanishad",
+   "katha-upanishad",
+   "kena-upanishad"
+  ],
+  "role": "primary",
+  "language": "en",
+  "title": "The Upanishads (Isa, Katha, Kena), translated and commentated by Swami Paramananda",
+  "contributors": "Swami Paramananda (translator and commentator); Project Gutenberg eBook #3283",
+  "year": 1919,
+  "publisher": null,
+  "license": "Public domain: published in 1919; the translator died in 1940. Project Gutenberg transcription.",
+  "url": "https://www.gutenberg.org/ebooks/3283",
+  "notes": "English only — the edition does not print the Sanskrit. Each verse is followed by the translator's commentary, shown here as his notes."
+ }
+]

@@ -1,0 +1,9 @@
+{
+  "verse.json": {
+    "filename": "verse.json",
+    "url": "https://raw.githubusercontent.com/gita/gita/700c015912aa3f17ec2f275b9cfdd4f04278f47f/data/verse.json",
+    "retrieved_at": "2026-10-09T16:53:55+00:00",
+    "sha256": "bb599e666e552bd65080f1f8da6d488f067237f64091ab265978861cf3fadec7",
+    "bytes": 659295
+  }
+}

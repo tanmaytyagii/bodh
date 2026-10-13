@@ -1,0 +1,16 @@
+{
+  "pg3283-images.html": {
+    "filename": "pg3283-images.html",
+    "url": "https://www.gutenberg.org/cache/epub/3283/pg3283-images.html",
+    "retrieved_at": "2026-10-09T18:19:11+00:00",
+    "sha256": "a6b994258942c963ee440bb63c03ee9215d870195f14276388ab221fa8107ae3",
+    "bytes": 148821
+  },
+  "pg3283.txt": {
+    "filename": "pg3283.txt",
+    "url": "https://www.gutenberg.org/cache/epub/3283/pg3283.txt",
+    "retrieved_at": "2026-10-09T18:18:53+00:00",
+    "sha256": "2ffc941173d8fd10c16eea7bfb4ab2ace13cf9e734228c71f367402f9236aa46",
+    "bytes": 125461
+  }
+}

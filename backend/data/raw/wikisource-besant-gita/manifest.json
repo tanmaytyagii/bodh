@@ -1,0 +1,128 @@
+{
+  "discourse-01.json": {
+    "filename": "discourse-01.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_1",
+    "retrieved_at": "2026-10-09T16:43:21+00:00",
+    "sha256": "6b836cf291da46fa3a881135f6f21982bc5b25167a160ae80f27dfd8040e1212",
+    "bytes": 80191
+  },
+  "discourse-02.json": {
+    "filename": "discourse-02.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_2",
+    "retrieved_at": "2026-10-09T16:43:24+00:00",
+    "sha256": "7867cf1a09c1d9681a5419c4c52ff1472bc01baab035d2b193478a0edb9f809d",
+    "bytes": 123645
+  },
+  "discourse-03.json": {
+    "filename": "discourse-03.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_3",
+    "retrieved_at": "2026-10-09T16:43:25+00:00",
+    "sha256": "bea90d8c37fce587e35c602a905d588009c38b3086b831b44153e811e4f611df",
+    "bytes": 74929
+  },
+  "discourse-04.json": {
+    "filename": "discourse-04.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_4",
+    "retrieved_at": "2026-10-09T16:43:27+00:00",
+    "sha256": "f5b8e0177029643b750ab16842132e7e86f9092450b6225ac3bb72f4c40307c8",
+    "bytes": 70048
+  },
+  "discourse-05.json": {
+    "filename": "discourse-05.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_5",
+    "retrieved_at": "2026-10-09T16:43:29+00:00",
+    "sha256": "47d7dd9f0528ce92139c40608b2e598864460164e91f5cffd16263d71bd60175",
+    "bytes": 53489
+  },
+  "discourse-06.json": {
+    "filename": "discourse-06.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_6",
+    "retrieved_at": "2026-10-09T16:43:32+00:00",
+    "sha256": "16c9b97a8cc2f7d9e27d4d2473fdadd42a24b5ff918fa1b77c0250b74b3d975e",
+    "bytes": 79208
+  },
+  "discourse-07.json": {
+    "filename": "discourse-07.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_7",
+    "retrieved_at": "2026-10-09T16:43:34+00:00",
+    "sha256": "e504efaced64d9290806efa900ccc067b58ab50a4a2773aac1a8b543ebb83e9f",
+    "bytes": 54849
+  },
+  "discourse-08.json": {
+    "filename": "discourse-08.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_8",
+    "retrieved_at": "2026-10-09T16:43:36+00:00",
+    "sha256": "e18eed78771ebc40f572349136aeae3cfbbc8e4a17edb9d4c465fd4101e29d63",
+    "bytes": 55786
+  },
+  "discourse-09.json": {
+    "filename": "discourse-09.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_9",
+    "retrieved_at": "2026-10-09T16:43:38+00:00",
+    "sha256": "a8f1bae67fcfec9e2e365689baa8e0f5e8d99e307d7c23f9b3bec3fccb177210",
+    "bytes": 60126
+  },
+  "discourse-10.json": {
+    "filename": "discourse-10.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_10",
+    "retrieved_at": "2026-10-09T16:44:14+00:00",
+    "sha256": "7675ab1f34a766a952a36607ae15fb1d0fc17d3afb9124602aa5a03144fea000",
+    "bytes": 70131
+  },
+  "discourse-11.json": {
+    "filename": "discourse-11.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_11",
+    "retrieved_at": "2026-10-09T16:44:19+00:00",
+    "sha256": "f24002018512b9136ff94dcead985834571d151250d2da3308795bda4f423df3",
+    "bytes": 97232
+  },
+  "discourse-12.json": {
+    "filename": "discourse-12.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_12",
+    "retrieved_at": "2026-10-09T16:44:24+00:00",
+    "sha256": "d09cdae42f9610c51caa270537d4741854c4f5e7aaa3ad6403597a03f1b64209",
+    "bytes": 38055
+  },
+  "discourse-13.json": {
+    "filename": "discourse-13.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_13",
+    "retrieved_at": "2026-10-09T16:44:29+00:00",
+    "sha256": "83eb18f05a636a53d6c7ebbb972f0e8af01a25aa45cc6e0527112c97eac004d4",
+    "bytes": 65162
+  },
+  "discourse-14.json": {
+    "filename": "discourse-14.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_14",
+    "retrieved_at": "2026-10-09T16:44:34+00:00",
+    "sha256": "b8b0a092e053e66c702917ff8589e067e3ca4dc402ef78ff62b18a9a6aac7536",
+    "bytes": 51954
+  },
+  "discourse-15.json": {
+    "filename": "discourse-15.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_15",
+    "retrieved_at": "2026-10-09T16:44:39+00:00",
+    "sha256": "ba8975adc51aa5dfea91dfe0fc85bc97a3d664e8e443867ec30b4bcb30d192e9",
+    "bytes": 41819
+  },
+  "discourse-16.json": {
+    "filename": "discourse-16.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_16",
+    "retrieved_at": "2026-10-09T16:44:44+00:00",
+    "sha256": "6180863c61854f7419c7b9f95635b5b65b5bc89a0c6382dd59c96a41b0323fb1",
+    "bytes": 40892
+  },
+  "discourse-17.json": {
+    "filename": "discourse-17.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_17",
+    "retrieved_at": "2026-10-09T16:44:49+00:00",
+    "sha256": "b1197ed2347fcfa374513a6afcc779292be0298828f65e2e4788050b6eb6c680",
+    "bytes": 49777
+  },
+  "discourse-18.json": {
+    "filename": "discourse-18.json",
+    "url": "https://en.wikisource.org/w/api.php?action=parse&format=json&formatversion=2&prop=text%7Crevid&page=Bhagavad-Gita_(Besant_4th)/Discourse_18",
+    "retrieved_at": "2026-10-09T16:44:54+00:00",
+    "sha256": "b661ac132e07f03af62713c15bb90fe8e6a1df808f2005677d6861237790aa60",
+    "bytes": 125896
+  }
+}

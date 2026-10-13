@@ -1,0 +1,956 @@
+[
+ {
+  "id": "action-without-attachment",
+  "name": "Action without attachment to results",
+  "term": "karmaphala",
+  "term_original": null,
+  "summary": "Krishna's counsel that one's responsibility lies in the action itself — done well and for the right reasons — rather than in controlling its outcome. It is not indifference to results or a licence for careless work: the same passages ask for steady, skilful effort (2.48, 2.50). The Isha Upanishad likewise speaks of a full life lived \"performing Karma (righteous deeds)\" without being defiled by it (Isha 2).",
+  "caveats": [
+   "Spoken to Arjuna about his duty in a specific war; applying it to modern work and study is an interpretation."
+  ],
+  "life_situations": [
+   "anxiety about exam or interview results",
+   "fear of failure",
+   "obsessing over outcomes you cannot control",
+   "burnout from chasing results"
+  ],
+  "passage_ids": [
+   "bg.2.47",
+   "bg.2.48",
+   "bg.2.50",
+   "bg.3.19",
+   "bg.4.20",
+   "bg.5.12",
+   "bg.12.11",
+   "bg.18.6",
+   "bg.18.9",
+   "bg.18.11",
+   "isha.1.2"
+  ],
+  "related": [
+   "equanimity",
+   "no-effort-wasted",
+   "five-factors-of-action",
+   "work-as-offering"
+  ]
+ },
+ {
+  "id": "equanimity",
+  "name": "Steadiness in success and failure",
+  "term": "samatva",
+  "term_original": null,
+  "summary": "Evenness of mind toward pleasure and pain, gain and loss, honour and dishonour. The Gita presents it as a discipline cultivated while acting (\"equilibrium is called yoga\", 2.48), not as emotional numbness.",
+  "caveats": [],
+  "life_situations": [
+   "rejection",
+   "criticism or public failure",
+   "a setback after hard work",
+   "being thrown off balance by praise and blame"
+  ],
+  "passage_ids": [
+   "bg.2.14",
+   "bg.2.15",
+   "bg.2.38",
+   "bg.2.48",
+   "bg.2.56",
+   "bg.2.57",
+   "bg.5.20",
+   "bg.6.7",
+   "bg.12.18",
+   "bg.12.19",
+   "bg.14.24",
+   "bg.14.25"
+  ],
+  "related": [
+   "action-without-attachment",
+   "steady-wisdom",
+   "impermanence-and-endurance"
+  ]
+ },
+ {
+  "id": "own-path",
+  "name": "One's own path (svadharma)",
+  "term": "svadharma",
+  "term_original": null,
+  "summary": "\"Better one's own duty, though destitute of merit, than the duty of another, well discharged\" (3.35, repeated in 18.47). It discourages taking up another's path because it looks more successful.",
+  "caveats": [
+   "In the text, svadharma refers to duties tied to one's social station and nature (Arjuna's is the warrior's). Reading it as following one's individual calling is a modern interpretation.",
+   "It must never be used to justify caste discrimination or to keep anyone in a role they did not choose."
+  ],
+  "life_situations": [
+   "comparing your career path with friends",
+   "pressure to follow someone else's choices",
+   "choosing a field that fits who you are",
+   "feeling behind your peers"
+  ],
+  "passage_ids": [
+   "bg.3.35",
+   "bg.18.45",
+   "bg.18.47",
+   "bg.18.48",
+   "bg.2.31"
+  ],
+  "related": [
+   "comparison-and-envy",
+   "acting-not-escaping",
+   "work-as-offering"
+  ]
+ },
+ {
+  "id": "dilemma-and-despair",
+  "name": "Paralysis before a hard choice",
+  "term": "kārpaṇya",
+  "term_original": null,
+  "summary": "The Gita opens with Arjuna overwhelmed: he sees kinsmen on both sides, his body fails him, and he cannot tell what is right. His despair is taken seriously — the whole teaching answers it — and his turning point is to admit his confusion and ask for guidance (2.7).",
+  "caveats": [
+   "Arjuna's words in chapter 1 and early chapter 2 describe his despair; they are not teachings to follow."
+  ],
+  "life_situations": [
+   "torn between family and duty",
+   "a decision where every option hurts someone",
+   "feeling frozen and overwhelmed",
+   "moral confusion"
+  ],
+  "passage_ids": [
+   "bg.1.28",
+   "bg.1.29",
+   "bg.1.30",
+   "bg.2.6",
+   "bg.2.7",
+   "bg.2.8",
+   "bg.18.72",
+   "bg.18.73"
+  ],
+  "related": [
+   "doubt-and-clarity",
+   "reflect-then-choose",
+   "courage"
+  ]
+ },
+ {
+  "id": "mastering-the-mind",
+  "name": "Training the restless mind",
+  "term": "abhyāsa",
+  "term_original": null,
+  "summary": "Arjuna objects that the mind is as hard to curb as the wind; Krishna agrees, and answers that it can be trained \"by constant practice and by dispassion\" (6.35). Whenever the mind wanders, bring it back (6.26). The Katha Upanishad pictures the body as a chariot, the intellect as its driver, \"mind the reins\" and the senses as horses (Katha 1.3.3-1.3.6).",
+  "caveats": [],
+  "life_situations": [
+   "procrastination",
+   "distraction and screen addiction",
+   "inability to focus while studying",
+   "racing thoughts"
+  ],
+  "passage_ids": [
+   "bg.6.5",
+   "bg.6.6",
+   "bg.6.26",
+   "bg.6.34",
+   "bg.6.35",
+   "bg.2.60",
+   "bg.2.67",
+   "katha.3.3",
+   "katha.3.4",
+   "katha.3.5",
+   "katha.3.6"
+  ],
+  "related": [
+   "self-as-friend",
+   "senses-and-desire",
+   "meditation"
+  ]
+ },
+ {
+  "id": "anger-and-desire",
+  "name": "How desire turns into anger",
+  "term": "krodha",
+  "term_original": null,
+  "summary": "A chain of causes: dwelling on objects breeds attachment, attachment desire, desire anger; anger brings delusion, confused memory and the loss of reason (2.62–2.63). Desire and wrath are named as \"our foe here on earth\" (3.37).",
+  "caveats": [],
+  "life_situations": [
+   "anger",
+   "wanting revenge",
+   "saying things you later regret",
+   "resentment after being wronged",
+   "impulsive decisions"
+  ],
+  "passage_ids": [
+   "bg.2.62",
+   "bg.2.63",
+   "bg.3.36",
+   "bg.3.37",
+   "bg.3.39",
+   "bg.3.43",
+   "bg.5.23",
+   "bg.5.26"
+  ],
+  "related": [
+   "senses-and-desire",
+   "forgiveness",
+   "three-gates",
+   "mastering-the-mind"
+  ]
+ },
+ {
+  "id": "steady-wisdom",
+  "name": "The person of steady wisdom",
+  "term": "sthitaprajña",
+  "term_original": null,
+  "summary": "Arjuna asks how a person of stable mind speaks, sits and walks (2.54). Krishna's answer describes someone untroubled in sorrow, without craving in pleasure, free of fear and anger, content in the Self, and at peace (2.55–2.72).",
+  "caveats": [],
+  "life_situations": [
+   "staying calm under pressure",
+   "being shaken by every event",
+   "wanting inner stability"
+  ],
+  "passage_ids": [
+   "bg.2.54",
+   "bg.2.55",
+   "bg.2.56",
+   "bg.2.58",
+   "bg.2.64",
+   "bg.2.70",
+   "bg.2.71"
+  ],
+  "related": [
+   "equanimity",
+   "contentment",
+   "senses-and-desire"
+  ]
+ },
+ {
+  "id": "grief-and-the-self",
+  "name": "Grief and what does not perish",
+  "term": "dehin",
+  "term_original": null,
+  "summary": "Krishna answers Arjuna's grief by teaching that the dweller in the body is not born and does not die (2.20); bodies are cast off like worn-out garments (2.22); death is certain for the born (2.27). Death teaches Nachiketas the same in the Katha Upanishad: \"This Self is never born, nor does It die\" (Katha 1.2.18).",
+  "caveats": [
+   "In context, this is said to a warrior grieving in advance of a battle.",
+   "These verses concern the nature of the self. They should never be used to dismiss someone's grief; the Gita itself begins with grief taken seriously."
+  ],
+  "life_situations": [
+   "death of a loved one",
+   "fear of death",
+   "grieving a loss"
+  ],
+  "passage_ids": [
+   "bg.2.11",
+   "bg.2.12",
+   "bg.2.13",
+   "bg.2.20",
+   "bg.2.22",
+   "bg.2.23",
+   "bg.2.27",
+   "bg.2.28",
+   "katha.2.18",
+   "katha.2.19"
+  ],
+  "related": [
+   "impermanence-and-endurance",
+   "equanimity"
+  ]
+ },
+ {
+  "id": "impermanence-and-endurance",
+  "name": "Enduring what comes and goes",
+  "term": "titikṣā",
+  "term_original": null,
+  "summary": "Contacts that give cold and heat, pleasure and pain \"come and go, impermanent; endure them bravely\" (2.14). Pleasures born of contact have a beginning and an end (5.22).",
+  "caveats": [],
+  "life_situations": [
+   "a hard phase of life",
+   "temporary pain or discomfort",
+   "waiting out a difficult period"
+  ],
+  "passage_ids": [
+   "bg.2.14",
+   "bg.2.15",
+   "bg.5.22"
+  ],
+  "related": [
+   "equanimity",
+   "grief-and-the-self"
+  ]
+ },
+ {
+  "id": "courage",
+  "name": "Courage and fearlessness",
+  "term": "abhaya",
+  "term_original": null,
+  "summary": "Krishna rouses Arjuna from faint-heartedness — \"Shake off this paltry faint-heartedness! Stand up\" (2.3) — and lists fearlessness first among the divine qualities (16.1). Even a little of this knowledge \"protects from great fear\" (2.40). The Katha Upanishad calls out in the same spirit: \"Arise! Awake!\" (Katha 1.3.14).",
+  "caveats": [
+   "Many of Krishna's exhortations urge Arjuna to fight a specific war; they are not an endorsement of violence or of ignoring real danger."
+  ],
+  "life_situations": [
+   "fear of failure",
+   "interview or exam nerves",
+   "taking a risk",
+   "speaking up"
+  ],
+  "passage_ids": [
+   "bg.2.3",
+   "bg.2.40",
+   "bg.4.42",
+   "bg.16.1",
+   "bg.18.58",
+   "katha.3.14"
+  ],
+  "related": [
+   "no-effort-wasted",
+   "dilemma-and-despair",
+   "faith-and-self-trust"
+  ]
+ },
+ {
+  "id": "no-effort-wasted",
+  "name": "No sincere effort is wasted",
+  "term": "abhikrama",
+  "term_original": null,
+  "summary": "\"In this there is no loss of effort\" (2.40). Arjuna asks what becomes of one who strives but falls short; Krishna answers that \"never doth any who worketh righteousness … tread the path of woe\" (6.40), and that such a person recovers their former progress and labours on (6.43–6.44).",
+  "caveats": [
+   "In 6.40–6.45 the carrying-forward of effort is described across lifetimes; applying it within a single career or exam season is an interpretation."
+  ],
+  "life_situations": [
+   "feeling that your effort was wasted",
+   "failing after trying hard",
+   "starting over",
+   "wanting to give up halfway"
+  ],
+  "passage_ids": [
+   "bg.2.40",
+   "bg.6.40",
+   "bg.6.41",
+   "bg.6.43",
+   "bg.6.44"
+  ],
+  "related": [
+   "action-without-attachment",
+   "courage"
+  ]
+ },
+ {
+  "id": "self-as-friend",
+  "name": "Be a friend to yourself",
+  "term": "bandhu",
+  "term_original": null,
+  "summary": "\"Let him raise the self by the Self and not let the self become depressed; for verily is the Self the friend of the self, and also the Self the self's enemy\" (6.5). Self-mastery is what makes the self a friend (6.6).",
+  "caveats": [],
+  "life_situations": [
+   "low self-worth",
+   "harsh self-criticism",
+   "self-sabotage",
+   "feeling not good enough"
+  ],
+  "passage_ids": [
+   "bg.6.5",
+   "bg.6.6"
+  ],
+  "related": [
+   "mastering-the-mind",
+   "faith-and-self-trust"
+  ]
+ },
+ {
+  "id": "comparison-and-envy",
+  "name": "Envy, comparison and goodwill",
+  "term": "vimatsara",
+  "term_original": null,
+  "summary": "The wise are described as free from envy (4.22), bearing no ill-will to any being (12.13), and content (12.14); \"absence of envy and pride\" is among the divine qualities (16.3). Together with 3.35 this points toward measuring yourself by your own duty rather than by others' gains.",
+  "caveats": [],
+  "life_situations": [
+   "jealousy of friends' success",
+   "comparing yourself on social media",
+   "rivalry with siblings or peers",
+   "resenting a colleague's promotion"
+  ],
+  "passage_ids": [
+   "bg.4.22",
+   "bg.12.13",
+   "bg.12.14",
+   "bg.16.3",
+   "bg.3.35"
+  ],
+  "related": [
+   "own-path",
+   "contentment",
+   "goodwill-toward-all"
+  ]
+ },
+ {
+  "id": "contentment",
+  "name": "Contentment",
+  "term": "santuṣṭa",
+  "term_original": null,
+  "summary": "\"Ever content\" and \"wholly content with what cometh\" recur in the portraits of the wise and the devoted (12.14, 12.19). In 12.14 contentment sits beside being \"resolute\": it is not the absence of effort. The Isha Upanishad opens with the same counsel: \"Do not covet the wealth of any man\" (Isha 1).",
+  "caveats": [],
+  "life_situations": [
+   "never feeling it is enough",
+   "constant craving for more",
+   "dissatisfaction despite success"
+  ],
+  "passage_ids": [
+   "bg.2.55",
+   "bg.2.70",
+   "bg.4.22",
+   "bg.12.14",
+   "bg.12.19",
+   "isha.1.1"
+  ],
+  "related": [
+   "steady-wisdom",
+   "comparison-and-envy"
+  ]
+ },
+ {
+  "id": "balanced-living",
+  "name": "Moderation in daily life",
+  "term": "yukta",
+  "term_original": null,
+  "summary": "Yoga is not for one who eats or sleeps too much or too little (6.16); it \"killeth out all pain for him who is regulated in eating and amusement, regulated in performing actions, regulated in sleeping and waking\" (6.17).",
+  "caveats": [],
+  "life_situations": [
+   "burnout",
+   "pulling all-nighters",
+   "overwork",
+   "unhealthy routines and sleep"
+  ],
+  "passage_ids": [
+   "bg.6.16",
+   "bg.6.17"
+  ],
+  "related": [
+   "mastering-the-mind",
+   "pleasure-and-lasting-good"
+  ]
+ },
+ {
+  "id": "leading-by-example",
+  "name": "Leading by example",
+  "term": "lokasaṅgraha",
+  "term_original": null,
+  "summary": "\"Whatsoever a great man doeth, that other men also do\" (3.21). The wise act with \"an eye to the welfare of the world\" (3.20, 3.25) and do not unsettle the minds of others, but show the way by their own conduct (3.26).",
+  "caveats": [],
+  "life_situations": [
+   "leading a team",
+   "being a role model for younger people",
+   "parenting",
+   "responsibility that comes with seniority"
+  ],
+  "passage_ids": [
+   "bg.3.20",
+   "bg.3.21",
+   "bg.3.25",
+   "bg.3.26"
+  ],
+  "related": [
+   "action-without-attachment",
+   "acting-not-escaping"
+  ]
+ },
+ {
+  "id": "right-speech",
+  "name": "Truthful and kind speech",
+  "term": "vāṅmaya",
+  "term_original": null,
+  "summary": "The \"austerity of speech\" is speech \"causing no annoyance, truthful, pleasant and beneficial\" (17.15); the austerity of the mind includes serenity and self-control (17.16).",
+  "caveats": [],
+  "life_situations": [
+   "a difficult conversation",
+   "giving honest feedback",
+   "conflict with a partner, parent or friend",
+   "regretting harsh words"
+  ],
+  "passage_ids": [
+   "bg.17.15",
+   "bg.17.16",
+   "bg.16.2"
+  ],
+  "related": [
+   "anger-and-desire",
+   "goodwill-toward-all"
+  ]
+ },
+ {
+  "id": "goodwill-toward-all",
+  "name": "Friendliness and compassion",
+  "term": "maitra",
+  "term_original": null,
+  "summary": "The devotee dear to Krishna \"beareth no ill-will to any being, friendly and compassionate … and forgiving\" (12.13), \"alike to foe and friend\" (12.18). 6.9 praises one who regards friends, foes and strangers impartially.",
+  "caveats": [
+   "Being \"alike to foe and friend\" describes inner steadiness and goodwill. It does not require trusting someone who has harmed you or staying in an unsafe situation."
+  ],
+  "life_situations": [
+   "betrayal by a friend",
+   "dealing with someone who hurt you",
+   "conflict in a friendship",
+   "hostility at work"
+  ],
+  "passage_ids": [
+   "bg.12.13",
+   "bg.12.14",
+   "bg.12.18",
+   "bg.6.9",
+   "bg.16.2"
+  ],
+  "related": [
+   "forgiveness",
+   "equal-regard",
+   "comparison-and-envy"
+  ]
+ },
+ {
+  "id": "forgiveness",
+  "name": "Forgiveness and forbearance",
+  "term": "kṣamā",
+  "term_original": null,
+  "summary": "Forgiveness (kṣamā) is among the divine qualities (16.3) and among the states of beings that arise from Krishna (10.4); forgiveness (kṣānti) is also listed among the marks of wisdom (13.8).",
+  "caveats": [
+   "Forgiveness does not mean excusing abuse, staying in harm's way, or giving up appropriate boundaries."
+  ],
+  "life_situations": [
+   "holding a grudge",
+   "resentment toward family",
+   "being unable to let go of a wrong"
+  ],
+  "passage_ids": [
+   "bg.16.3",
+   "bg.10.4",
+   "bg.13.8",
+   "bg.12.13"
+  ],
+  "related": [
+   "anger-and-desire",
+   "goodwill-toward-all"
+  ]
+ },
+ {
+  "id": "three-gates",
+  "name": "Lust, anger and greed",
+  "term": "lobha",
+  "term_original": null,
+  "summary": "\"Triple is the gate of this hell, destructive of the self—lust, wrath, and greed\" (16.21); one freed from them \"accomplisheth his own welfare\" (16.22).",
+  "caveats": [],
+  "life_situations": [
+   "greed",
+   "compulsive habits",
+   "destructive patterns",
+   "addiction"
+  ],
+  "passage_ids": [
+   "bg.16.21",
+   "bg.16.22",
+   "bg.14.17"
+  ],
+  "related": [
+   "anger-and-desire",
+   "senses-and-desire",
+   "pleasure-and-lasting-good"
+  ]
+ },
+ {
+  "id": "faith-and-self-trust",
+  "name": "Faith (śraddhā)",
+  "term": "śraddhā",
+  "term_original": null,
+  "summary": "\"The man consists of his faith; that which his faith is, he is even that\" (17.3). Faith with mastery of the senses leads to wisdom (4.39); for \"the doubting self\" there is no happiness (4.40).",
+  "caveats": [],
+  "life_situations": [
+   "self-belief",
+   "a crisis of faith",
+   "cynicism",
+   "losing hope"
+  ],
+  "passage_ids": [
+   "bg.17.3",
+   "bg.4.39",
+   "bg.4.40"
+  ],
+  "related": [
+   "doubt-and-clarity",
+   "self-as-friend"
+  ]
+ },
+ {
+  "id": "doubt-and-clarity",
+  "name": "Cutting through doubt",
+  "term": "saṃśaya",
+  "term_original": null,
+  "summary": "Krishna urges Arjuna to cleave \"ignorance-born doubt\" with \"the sword of the wisdom of the Self\" and stand up (4.42). Arjuna ends the dialogue: \"Destroyed is my delusion … my doubts have fled away\" (18.73).",
+  "caveats": [],
+  "life_situations": [
+   "indecision",
+   "overthinking",
+   "second-guessing every choice",
+   "confusion about what is right"
+  ],
+  "passage_ids": [
+   "bg.4.40",
+   "bg.4.41",
+   "bg.4.42",
+   "bg.18.72",
+   "bg.18.73"
+  ],
+  "related": [
+   "reflect-then-choose",
+   "dilemma-and-despair",
+   "faith-and-self-trust"
+  ]
+ },
+ {
+  "id": "refuge-and-trust",
+  "name": "Taking refuge, letting go",
+  "term": "śaraṇa",
+  "term_original": null,
+  "summary": "Krishna's closing teaching invites Arjuna to come to him \"for shelter\" and \"sorrow not\" (18.66), and promises security to those devoted to him (9.22).",
+  "caveats": [
+   "These are devotional teachings within a theistic framework; readers relate to them in different ways.",
+   "How \"abandoning all duties\" in 18.66 should be understood is debated among commentators. It is not a call to passivity — the dialogue ends with Arjuna acting."
+  ],
+  "life_situations": [
+   "anxiety about the future",
+   "carrying everything alone",
+   "needing to let go of control"
+  ],
+  "passage_ids": [
+   "bg.18.66",
+   "bg.18.62",
+   "bg.9.22",
+   "bg.18.58"
+  ],
+  "related": [
+   "devotion",
+   "action-without-attachment"
+  ]
+ },
+ {
+  "id": "devotion",
+  "name": "Devotion (bhakti)",
+  "term": "bhakti",
+  "term_original": null,
+  "summary": "Devotion is presented as open to anyone: \"a leaf, a flower, a fruit, water\" offered with devotion is accepted (9.26), and whatever one does can be an offering (9.27).",
+  "caveats": [],
+  "life_situations": [
+   "seeking meaning",
+   "prayer and spiritual practice",
+   "finding the sacred in daily work"
+  ],
+  "passage_ids": [
+   "bg.9.26",
+   "bg.9.27",
+   "bg.9.22",
+   "bg.12.8",
+   "bg.13.11"
+  ],
+  "related": [
+   "refuge-and-trust",
+   "work-as-offering"
+  ]
+ },
+ {
+  "id": "acting-not-escaping",
+  "name": "Not running away from responsibility",
+  "term": "tyāga",
+  "term_original": null,
+  "summary": "Freedom does not come from abstaining from action (3.4); no one can remain actionless (3.5), and action is better than inaction (3.8). Giving up a duty merely because it is painful is not true relinquishment (18.8); true relinquishment is giving up attachment to the fruit (18.2).",
+  "caveats": [
+   "Not every decision to leave is escapism. Leaving a harmful job, relationship or course of study can be the responsible choice."
+  ],
+  "life_situations": [
+   "wanting to quit when things get hard",
+   "avoiding responsibilities",
+   "dropping out",
+   "escaping into distraction"
+  ],
+  "passage_ids": [
+   "bg.3.4",
+   "bg.3.5",
+   "bg.3.8",
+   "bg.18.2",
+   "bg.18.7",
+   "bg.18.8",
+   "bg.18.48"
+  ],
+  "related": [
+   "action-without-attachment",
+   "own-path"
+  ]
+ },
+ {
+  "id": "three-qualities",
+  "name": "The three qualities (guṇas)",
+  "term": "guṇa",
+  "term_original": null,
+  "summary": "Nature acts through three qualities — Harmony (sattva), Motion (rajas) and Inertia (tamas) — which bind in different ways (14.5–14.8); wisdom arises from the first, greed from the second, heedlessness from the third (14.17).",
+  "caveats": [],
+  "life_situations": [
+   "understanding your habits",
+   "laziness and inertia",
+   "restless ambition",
+   "feeling stuck"
+  ],
+  "passage_ids": [
+   "bg.14.5",
+   "bg.14.6",
+   "bg.14.7",
+   "bg.14.8",
+   "bg.14.17",
+   "bg.3.27"
+  ],
+  "related": [
+   "pleasure-and-lasting-good"
+  ]
+ },
+ {
+  "id": "pleasure-and-lasting-good",
+  "name": "Short-term pleasure and lasting good",
+  "term": "sukha",
+  "term_original": null,
+  "summary": "Three kinds of pleasure: one which \"at first is as venom but in the end is as nectar\" (18.37), one at first as nectar but in the end like venom (18.38), and one deluding from start to finish (18.39). Contact-born delights are \"wombs of pain\" (5.22). The Katha Upanishad draws the same line: \"The good is one thing and the pleasant another\" (Katha 1.2.1).",
+  "caveats": [],
+  "life_situations": [
+   "procrastination",
+   "instant gratification",
+   "addictive habits",
+   "choosing between fun now and goals later"
+  ],
+  "passage_ids": [
+   "bg.18.36",
+   "bg.18.37",
+   "bg.18.38",
+   "bg.18.39",
+   "bg.5.22",
+   "katha.2.1",
+   "katha.2.2"
+  ],
+  "related": [
+   "three-qualities",
+   "senses-and-desire",
+   "mastering-the-mind"
+  ]
+ },
+ {
+  "id": "learning-and-humility",
+  "name": "Learning with humility",
+  "term": "praṇipāta",
+  "term_original": null,
+  "summary": "\"Learn thou this by discipleship, by investigation, and by service\" (4.34). Humility and unpretentiousness head the list of what counts as wisdom (13.8). \"Arise! Awake! Having reached the Great Ones (illumined Teachers), gain understanding\" (Katha 1.3.14).",
+  "caveats": [],
+  "life_situations": [
+   "finding a mentor",
+   "being a good student",
+   "asking for help",
+   "learning a new skill"
+  ],
+  "passage_ids": [
+   "bg.4.34",
+   "bg.4.38",
+   "bg.13.8",
+   "bg.13.12",
+   "katha.3.14"
+  ],
+  "related": [
+   "ego-and-humility"
+  ]
+ },
+ {
+  "id": "ego-and-humility",
+  "name": "Ego and humility",
+  "term": "ahaṅkāra",
+  "term_original": null,
+  "summary": "\"The self, deluded by egoism\" takes itself to be the doer (3.27). Hypocrisy, arrogance and conceit are named among the demoniacal properties (16.4), and Arjuna's \"I will not fight\" is called a resolve \"entrenched in egoism\" (18.59).",
+  "caveats": [],
+  "life_situations": [
+   "arrogance",
+   "ego clashes at work",
+   "taking all the credit or all the blame",
+   "pride getting in the way"
+  ],
+  "passage_ids": [
+   "bg.3.27",
+   "bg.16.4",
+   "bg.13.8",
+   "bg.13.9",
+   "bg.18.58",
+   "bg.18.59"
+  ],
+  "related": [
+   "learning-and-humility",
+   "five-factors-of-action"
+  ]
+ },
+ {
+  "id": "reflect-then-choose",
+  "name": "Reflect fully, then choose",
+  "term": "vimṛśya",
+  "term_original": null,
+  "summary": "After the whole teaching Krishna tells Arjuna: \"having reflected on it fully, then act thou as thou listest\" (18.63). The guidance is offered for reflection, and the decision remains Arjuna's own.",
+  "caveats": [],
+  "life_situations": [
+   "a major life decision",
+   "wanting someone else to decide for you",
+   "thinking before acting"
+  ],
+  "passage_ids": [
+   "bg.18.63",
+   "bg.2.7",
+   "bg.18.73"
+  ],
+  "related": [
+   "doubt-and-clarity",
+   "dilemma-and-despair"
+  ]
+ },
+ {
+  "id": "divine-qualities",
+  "name": "Qualities worth cultivating",
+  "term": "daivī",
+  "term_original": null,
+  "summary": "Chapter 16 lists the qualities of one \"born with the divine properties\" — fearlessness, purity, almsgiving, self-restraint, harmlessness, truth, absence of wrath, compassion, mildness, modesty, forgiveness, fortitude — and contrasts them with hypocrisy, arrogance, conceit, wrath and harshness.",
+  "caveats": [],
+  "life_situations": [
+   "building character",
+   "deciding what kind of person to be",
+   "values and integrity"
+  ],
+  "passage_ids": [
+   "bg.16.1",
+   "bg.16.2",
+   "bg.16.3",
+   "bg.16.4"
+  ],
+  "related": [
+   "courage",
+   "forgiveness",
+   "ego-and-humility"
+  ]
+ },
+ {
+  "id": "work-as-offering",
+  "name": "Skill and meaning in work",
+  "term": "kauśala",
+  "term_original": null,
+  "summary": "\"Yoga is skill in action\" (2.50). A person reaches perfection by being intent on their own work (18.45) and by worshipping through it (18.46); whatever one does can be offered (9.27).",
+  "caveats": [],
+  "life_situations": [
+   "finding meaning in ordinary work",
+   "job dissatisfaction",
+   "doing excellent work",
+   "boring but necessary tasks"
+  ],
+  "passage_ids": [
+   "bg.2.50",
+   "bg.18.45",
+   "bg.18.46",
+   "bg.9.27"
+  ],
+  "related": [
+   "action-without-attachment",
+   "own-path",
+   "devotion"
+  ]
+ },
+ {
+  "id": "meditation",
+  "name": "Meditation practice",
+  "term": null,
+  "term_original": null,
+  "summary": "Chapter 6 describes meditation: a secluded place, a steady seat, the mind made one-pointed (6.10–6.12), \"as a lamp in a windless place\" that does not flicker (6.19).",
+  "caveats": [],
+  "life_situations": [
+   "anxiety",
+   "learning to meditate",
+   "finding stillness",
+   "improving focus"
+  ],
+  "passage_ids": [
+   "bg.6.10",
+   "bg.6.12",
+   "bg.6.19",
+   "bg.6.26",
+   "bg.6.35"
+  ],
+  "related": [
+   "mastering-the-mind"
+  ]
+ },
+ {
+  "id": "senses-and-desire",
+  "name": "The senses and their pull",
+  "term": "indriya",
+  "term_original": null,
+  "summary": "The roving senses can hurry the understanding away \"as the gale hurries away a ship upon the waters\" (2.67); the wise withdraw them as a tortoise draws in its limbs (2.58). Attraction and aversion lie in wait in the senses (3.34).",
+  "caveats": [],
+  "life_situations": [
+   "temptation",
+   "social media and screen time",
+   "compulsive habits",
+   "distraction"
+  ],
+  "passage_ids": [
+   "bg.2.58",
+   "bg.2.60",
+   "bg.2.61",
+   "bg.2.67",
+   "bg.2.68",
+   "bg.3.34",
+   "bg.3.41"
+  ],
+  "related": [
+   "mastering-the-mind",
+   "anger-and-desire",
+   "pleasure-and-lasting-good"
+  ]
+ },
+ {
+  "id": "equal-regard",
+  "name": "Seeing all beings equally",
+  "term": "samadarśin",
+  "term_original": null,
+  "summary": "Sages \"look equally\" on a learned Brahmana, a cow, an elephant, a dog and an outcaste (5.18); the harmonised self sees the Self in all beings (6.29) and \"seeth equality in everything\" through the likeness of the Self (6.32). The Isha Upanishad describes one who \"sees all beings in the Self and the Self in all beings\" (Isha 6).",
+  "caveats": [
+   "Besant's 1922 wording reflects the social vocabulary of its time."
+  ],
+  "life_situations": [
+   "prejudice",
+   "treating people differently by status",
+   "empathy",
+   "discrimination"
+  ],
+  "passage_ids": [
+   "bg.5.18",
+   "bg.6.29",
+   "bg.6.32",
+   "bg.12.13",
+   "isha.1.6",
+   "isha.1.7"
+  ],
+  "related": [
+   "goodwill-toward-all"
+  ]
+ },
+ {
+  "id": "five-factors-of-action",
+  "name": "Many factors shape an outcome",
+  "term": "kāraṇa",
+  "term_original": null,
+  "summary": "Krishna names five causes of every action — \"the body, the actor, the various organs, the diverse kinds of energies, and the presiding deities also, the fifth\" (18.14, Besant). Regarding oneself as the sole actor is called a failure of understanding (18.16).",
+  "caveats": [
+   "Translations differ on the fifth factor (daiva). Besant renders it \"the presiding deities\"; others understand it as providence or fate."
+  ],
+  "life_situations": [
+   "blaming yourself entirely for a failure",
+   "taking a setback personally",
+   "outcomes outside your control"
+  ],
+  "passage_ids": [
+   "bg.18.13",
+   "bg.18.14",
+   "bg.18.15",
+   "bg.18.16",
+   "bg.3.27"
+  ],
+  "related": [
+   "action-without-attachment",
+   "ego-and-humility"
+  ]
+ }
+]

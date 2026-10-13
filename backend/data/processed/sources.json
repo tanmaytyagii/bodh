@@ -1,0 +1,298 @@
+[
+ {
+  "id": "bhagavad-gita",
+  "title": "Bhagavad Gita",
+  "title_original": "श्रीमद्भगवद्गीता",
+  "tradition": "Itihāsa · part of the Bhishma Parva of the Mahabharata",
+  "description": "A dialogue on the battlefield of Kurukshetra in which Krishna counsels Arjuna, who is overcome by grief and doubt about his duty. Its teachings on action without attachment to results, steadiness of mind, devotion and self-knowledge are among the most widely read in Indian philosophy.",
+  "division_label": "Chapter",
+  "passage_label": "Verse",
+  "sort_order": 1,
+  "divisions": [
+   {
+    "number": 1,
+    "title": "The Despondency of Arjuna",
+    "title_original": "अर्जुनविषादयोग",
+    "passage_count": 47,
+    "first_passage_id": "bg.1.1",
+    "corrections": []
+   },
+   {
+    "number": 2,
+    "title": "Yoga by the Sankhya",
+    "title_original": "साङ्ख्ययोग",
+    "passage_count": 72,
+    "first_passage_id": "bg.2.1",
+    "corrections": []
+   },
+   {
+    "number": 3,
+    "title": "The Yoga of Action",
+    "title_original": "कर्मयोग",
+    "passage_count": 43,
+    "first_passage_id": "bg.3.1",
+    "corrections": []
+   },
+   {
+    "number": 4,
+    "title": "The Yoga of Wisdom",
+    "title_original": "ज्ञानविभागयोग",
+    "passage_count": 42,
+    "first_passage_id": "bg.4.1",
+    "corrections": []
+   },
+   {
+    "number": 5,
+    "title": "The Yoga of the Renunciation of Action",
+    "title_original": "संन्यासयोग",
+    "passage_count": 29,
+    "first_passage_id": "bg.5.1",
+    "corrections": []
+   },
+   {
+    "number": 6,
+    "title": "The Yoga of Self-Subdual",
+    "title_original": "अध्यात्मयोग",
+    "passage_count": 47,
+    "first_passage_id": "bg.6.1",
+    "corrections": []
+   },
+   {
+    "number": 7,
+    "title": "The Yoga of Discriminative Knowledge",
+    "title_original": "ज्ञानयोग",
+    "passage_count": 30,
+    "first_passage_id": "bg.7.1",
+    "corrections": []
+   },
+   {
+    "number": 8,
+    "title": "The Yoga of the Indestructible Supreme Eternal",
+    "title_original": "अक्षरब्रह्मयोग",
+    "passage_count": 28,
+    "first_passage_id": "bg.8.1",
+    "corrections": [
+     {
+      "field": "division_title",
+      "printed": "THE YOGA OF THE INDESCTRUCTIBLE SUPREME ETERNAL.",
+      "corrected": "THE YOGA OF THE INDESTRUCTIBLE SUPREME ETERNAL.",
+      "applied": true,
+      "basis": "Obvious misprint, corrected by the project editors."
+     }
+    ]
+   },
+   {
+    "number": 9,
+    "title": "The Yoga of the Kingly Science and the Kingly Secret",
+    "title_original": "राजविद्याराजगुह्ययोग",
+    "passage_count": 34,
+    "first_passage_id": "bg.9.1",
+    "corrections": []
+   },
+   {
+    "number": 10,
+    "title": "The Yoga of Sovereignty",
+    "title_original": "विभूतियोग",
+    "passage_count": 42,
+    "first_passage_id": "bg.10.1",
+    "corrections": []
+   },
+   {
+    "number": 11,
+    "title": "The Yoga of the Vision of the Universal Form",
+    "title_original": "विश्वरूपदर्शनयोग",
+    "passage_count": 55,
+    "first_passage_id": "bg.11.1",
+    "corrections": []
+   },
+   {
+    "number": 12,
+    "title": "The Yoga of Devotion",
+    "title_original": "भक्तियोग",
+    "passage_count": 20,
+    "first_passage_id": "bg.12.1",
+    "corrections": []
+   },
+   {
+    "number": 13,
+    "title": "The Yoga of the Distinction between the Field and the Knower of the Field",
+    "title_original": "क्षेत्रक्षेत्रज्ञविभागयोग",
+    "passage_count": 35,
+    "first_passage_id": "bg.13.1",
+    "corrections": []
+   },
+   {
+    "number": 14,
+    "title": "The Yoga of Separation from the Three Qualities",
+    "title_original": "गुणत्रयविभागयोग",
+    "passage_count": 27,
+    "first_passage_id": "bg.14.1",
+    "corrections": []
+   },
+   {
+    "number": 15,
+    "title": "The Yoga of Attaining the Supreme Spirit",
+    "title_original": "पुरुषोत्तमयोग",
+    "passage_count": 20,
+    "first_passage_id": "bg.15.1",
+    "corrections": []
+   },
+   {
+    "number": 16,
+    "title": "The Yoga of Division between the Divine and the Demoniacal",
+    "title_original": "दैवासुरसम्पद्विभागयोग",
+    "passage_count": 24,
+    "first_passage_id": "bg.16.1",
+    "corrections": []
+   },
+   {
+    "number": 17,
+    "title": "The Yoga of the Division of Threefold Faith",
+    "title_original": "श्रद्धात्रयविभागयोग",
+    "passage_count": 28,
+    "first_passage_id": "bg.17.1",
+    "corrections": []
+   },
+   {
+    "number": 18,
+    "title": "The Yoga of Liberation by Renunciation",
+    "title_original": "मोक्षसंन्यासयोग",
+    "passage_count": 78,
+    "first_passage_id": "bg.18.1",
+    "corrections": [
+     {
+      "field": "division_title",
+      "printed": "संन्यासयोगो",
+      "corrected": "मोक्षसंन्यासयोगो",
+      "applied": true,
+      "basis": "Marked [sic] by Wikisource transcribers."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "isha-upanishad",
+  "title": "Isha Upanishad",
+  "title_original": null,
+  "tradition": "Upanishad · Shukla Yajur Veda",
+  "description": "One of the shortest of the principal Upanishads, eighteen verses in all. It opens by seeing the whole world as pervaded by the Lord, and asks how one should live and act in the light of that vision.",
+  "division_label": "Part",
+  "passage_label": "Verse",
+  "sort_order": 2,
+  "divisions": [
+   {
+    "number": 1,
+    "title": null,
+    "title_original": null,
+    "passage_count": 18,
+    "first_passage_id": "isha.1.1",
+    "corrections": []
+   }
+  ]
+ },
+ {
+  "id": "katha-upanishad",
+  "title": "Katha Upanishad",
+  "title_original": null,
+  "tradition": "Upanishad · Krishna Yajur Veda",
+  "description": "The story of the boy Nachiketas, who goes to the house of Death and asks what becomes of a person after death. Refusing every worldly gift Death offers, he receives the teaching on the Self, and on choosing the good over the merely pleasant.",
+  "division_label": "Part",
+  "passage_label": "Verse",
+  "sort_order": 3,
+  "divisions": [
+   {
+    "number": 1,
+    "title": "Chapter 1, section 1",
+    "title_original": null,
+    "passage_count": 29,
+    "first_passage_id": "katha.1.1",
+    "corrections": []
+   },
+   {
+    "number": 2,
+    "title": "Chapter 1, section 2",
+    "title_original": null,
+    "passage_count": 25,
+    "first_passage_id": "katha.2.1",
+    "corrections": []
+   },
+   {
+    "number": 3,
+    "title": "Chapter 1, section 3",
+    "title_original": null,
+    "passage_count": 17,
+    "first_passage_id": "katha.3.1",
+    "corrections": []
+   },
+   {
+    "number": 4,
+    "title": "Chapter 2, section 1",
+    "title_original": null,
+    "passage_count": 15,
+    "first_passage_id": "katha.4.1",
+    "corrections": []
+   },
+   {
+    "number": 5,
+    "title": "Chapter 2, section 2",
+    "title_original": null,
+    "passage_count": 15,
+    "first_passage_id": "katha.5.1",
+    "corrections": []
+   },
+   {
+    "number": 6,
+    "title": "Chapter 2, section 3",
+    "title_original": null,
+    "passage_count": 18,
+    "first_passage_id": "katha.6.1",
+    "corrections": []
+   }
+  ]
+ },
+ {
+  "id": "kena-upanishad",
+  "title": "Kena Upanishad",
+  "title_original": null,
+  "tradition": "Upanishad · Sama Veda (Talavakara Brahmana)",
+  "description": "Named for its first word, kena, “by whom?”: by whom is the mind directed, by whom do the eye and ear work? A short inquiry into the power behind the senses and the mind.",
+  "division_label": "Part",
+  "passage_label": "Verse",
+  "sort_order": 4,
+  "divisions": [
+   {
+    "number": 1,
+    "title": null,
+    "title_original": null,
+    "passage_count": 8,
+    "first_passage_id": "kena.1.1",
+    "corrections": []
+   },
+   {
+    "number": 2,
+    "title": null,
+    "title_original": null,
+    "passage_count": 5,
+    "first_passage_id": "kena.2.1",
+    "corrections": []
+   },
+   {
+    "number": 3,
+    "title": null,
+    "title_original": null,
+    "passage_count": 12,
+    "first_passage_id": "kena.3.1",
+    "corrections": []
+   },
+   {
+    "number": 4,
+    "title": null,
+    "title_original": null,
+    "passage_count": 9,
+    "first_passage_id": "kena.4.1",
+    "corrections": []
+   }
+  ]
+ }
+]

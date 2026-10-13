@@ -1,0 +1,63 @@
+# Local development services.
+#
+#   docker compose up -d db          # PostgreSQL 17 + pgvector on localhost:54329
+#   docker compose --profile app up  # also build and run the API and web app
+#
+# The API and web containers read the same .env file as local development.
+
+name: scriptural-wisdom
+
+services:
+  db:
+    image: ${POSTGRES_IMAGE:-pgvector/pgvector:pg17}
+    environment:
+      POSTGRES_USER: wisdom
+      POSTGRES_PASSWORD: wisdom
+      POSTGRES_DB: wisdom
+    ports:
+      - "${POSTGRES_PORT:-54329}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wisdom -d wisdom"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  api:
+    profiles: ["app"]
+    build: ./backend
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://wisdom:wisdom@db:5432/wisdom
+      CORS_ORIGINS: '["http://localhost:3000"]'
+      # The web app proxies browser requests and forwards the client address.
+      TRUST_FORWARDED_FOR: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - model-cache:/app/.cache
+
+  web:
+    profiles: ["app"]
+    build:
+      context: ./web
+      args:
+        # Compiled into the web app; set them in .env or the shell.
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+        NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-}
+    environment:
+      API_URL: http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  db-data:
+  model-cache:

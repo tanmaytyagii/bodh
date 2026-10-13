@@ -1,0 +1,28 @@
+# Secrets
+.env
+.env.local
+*.local
+
+# Python
+backend/.venv/
+backend/.cache/
+__pycache__/
+*.pyc
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node / Next.js
+web/node_modules/
+web/.next/
+web/out/
+web/next-env.d.ts
+web/test-results/
+web/playwright-report/
+web/blob-report/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

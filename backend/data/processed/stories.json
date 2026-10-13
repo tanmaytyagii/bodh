@@ -1,0 +1,74 @@
+[
+ {
+  "id": "nachiketas-and-death",
+  "source_id": "katha-upanishad",
+  "title": "Nachiketas and Death",
+  "location": "Katha Upanishad 1.1-1.2 (Paramananda's Parts 1-2)",
+  "characters": [
+   "Nachiketas, a boy",
+   "His father, Vahasrava (also called Gautama and Auddalaki Aruni in this translation)",
+   "Yama, Death"
+  ],
+  "summary": "At a sacrifice where his father gives away all he possesses, young Nachiketas sees that the cows being given are old and spent, and asks his father to whom he himself will be given. Asked three times, the father replies: \"I shall give thee unto Death.\" Nachiketas goes to the house of Yama and waits three nights without food, so Yama offers him three boons. Nachiketas asks first that his father be free of anger toward him, then for knowledge of the fire-sacrifice that leads to heaven, and last for the truth about what becomes of a man after death. Yama tries to turn him from the third question with sons, wealth, long life, rule over the earth and every pleasure. Nachiketas refuses them all, and Yama, pleased, teaches him about the Self.",
+  "dilemma": "Whether to accept everything the world can offer — wealth, long life, pleasure and power — or to hold to the one question he really needs answered, though it is hard and Death himself urges him to drop it.",
+  "choices": [
+   {
+    "actor": "Nachiketas",
+    "choice": "Questions his father's gift of worn-out cows instead of keeping quiet.",
+    "consequence": "His father, provoked, says he will give him to Death."
+   },
+   {
+    "actor": "Nachiketas",
+    "choice": "Uses his first boon to ask that his father be at peace with him, before anything for himself.",
+    "consequence": "Yama grants that his father will receive him again without anger."
+   },
+   {
+    "actor": "Yama",
+    "choice": "Offers sons and grandsons, cattle, gold, long life, rule over the earth and every pleasure in place of the third boon.",
+    "consequence": "The offer tests whether Nachiketas truly wants wisdom."
+   },
+   {
+    "actor": "Nachiketas",
+    "choice": "Refuses: \"these are fleeting … Keep thou thy chariots, dance and music.\"",
+    "consequence": "Yama praises him as one \"who longs for wisdom\" and teaches him about the Self."
+   }
+  ],
+  "lessons": [
+   "The good and the pleasant are different paths; the wise examine both and choose the good (Katha 1.2.1-1.2.2).",
+   "\"Man cannot be satisfied by wealth\" (Katha 1.1.27): what is offered in place of what you need is not a substitute for it.",
+   "A sincere question, held to under pressure, is what opens the teaching."
+  ],
+  "caveats": [
+   "This is a sacred narrative about the teaching of the Self. It is not a prescription to seek out danger or death.",
+   "Refusing comfort and security is the story's image for putting wisdom first; it is not advice to give up a livelihood or ignore practical needs.",
+   "The story's outcome does not prove that refusing every offer is always right."
+  ],
+  "life_situations": [
+   "tempted by an easy reward that is not what you really want",
+   "holding to an important question that others want you to drop",
+   "choosing long-term good over short-term pleasure"
+  ],
+  "excerpt_ids": [
+   "katha.1.3",
+   "katha.1.4",
+   "katha.1.9",
+   "katha.1.10",
+   "katha.1.20",
+   "katha.1.21",
+   "katha.1.23",
+   "katha.1.24",
+   "katha.1.25",
+   "katha.1.26",
+   "katha.1.27",
+   "katha.2.1",
+   "katha.2.2",
+   "katha.2.3",
+   "katha.2.4"
+  ],
+  "related_passage_ids": [
+   "bg.18.37",
+   "bg.18.38",
+   "bg.2.62"
+  ]
+ }
+]

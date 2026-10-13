@@ -1,0 +1,31 @@
+# Editorial decisions on verses flagged `needs_review` (see docs/DATA.md).
+#
+# The cross-check flags a verse when its Sanskrit differs from the independent
+# edition. Before deciding, compare the scan of the printed page (linked from
+# the verse page) and at least one other printed edition.
+#
+# Keep the printed reading (it is a genuine variant, or the other edition is
+# wrong); the verse is then marked "reviewed":
+#
+#   - passage_id: bg.N.N
+#     decision: keep_printed
+#     basis: What you compared and what it showed (pages, editions).
+#     reviewer: Your name
+#     date: YYYY-MM-DD
+#
+# Correct a misprint in the primary edition; the verse is then "verified":
+#
+#   - passage_id: bg.N.N
+#     decision: correct
+#     printed: the misprinted text, exactly as it appears in the verse
+#     corrected: its replacement
+#     basis: ...
+#     reviewer: ...
+#     date: ...
+#
+# The build rejects a review of a verse that is not flagged, a `printed` text
+# that does not occur in the verse, and a correction after which the verse
+# still differs from the cross-check edition. Corrected Sanskrit therefore
+# always has a published text behind it.
+
+[]

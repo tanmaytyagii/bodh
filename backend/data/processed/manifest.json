@@ -1,0 +1,68 @@
+{
+  "built_at": "2026-10-10T04:03:05+00:00",
+  "passages_sha256": "3599a5e3dc2652cc9b04b146e371e1e4175ef399c544e4177f4b0a79d8f7fee2",
+  "stats": {
+    "passages": 872,
+    "by_source": {
+      "bhagavad-gita": 701,
+      "isha-upanishad": 18,
+      "katha-upanishad": 119,
+      "kena-upanishad": 34
+    },
+    "provenance": {
+      "verified": 676,
+      "needs_review": 25,
+      "unverified": 171
+    },
+    "cross_checks": {
+      "exact": 479,
+      "orthographic": 197,
+      "variant": 25
+    },
+    "corrections": {
+      "translation:kept printed": 3,
+      "translation:applied": 12,
+      "sanskrit:applied": 12,
+      "sanskrit:kept printed": 2,
+      "verse_number:applied": 9,
+      "speaker:applied": 1
+    },
+    "concepts": 36,
+    "stories": 1
+  },
+  "inputs": {
+    "github-gita-json": {
+      "verse.json": "bb599e666e552bd65080f1f8da6d488f067237f64091ab265978861cf3fadec7"
+    },
+    "gutenberg-paramananda-upanishads": {
+      "pg3283-images.html": "a6b994258942c963ee440bb63c03ee9215d870195f14276388ab221fa8107ae3",
+      "pg3283.txt": "2ffc941173d8fd10c16eea7bfb4ab2ace13cf9e734228c71f367402f9236aa46"
+    },
+    "wikisource-besant-gita": {
+      "discourse-01.json": "6b836cf291da46fa3a881135f6f21982bc5b25167a160ae80f27dfd8040e1212",
+      "discourse-02.json": "7867cf1a09c1d9681a5419c4c52ff1472bc01baab035d2b193478a0edb9f809d",
+      "discourse-03.json": "bea90d8c37fce587e35c602a905d588009c38b3086b831b44153e811e4f611df",
+      "discourse-04.json": "f5b8e0177029643b750ab16842132e7e86f9092450b6225ac3bb72f4c40307c8",
+      "discourse-05.json": "47d7dd9f0528ce92139c40608b2e598864460164e91f5cffd16263d71bd60175",
+      "discourse-06.json": "16c9b97a8cc2f7d9e27d4d2473fdadd42a24b5ff918fa1b77c0250b74b3d975e",
+      "discourse-07.json": "e504efaced64d9290806efa900ccc067b58ab50a4a2773aac1a8b543ebb83e9f",
+      "discourse-08.json": "e18eed78771ebc40f572349136aeae3cfbbc8e4a17edb9d4c465fd4101e29d63",
+      "discourse-09.json": "a8f1bae67fcfec9e2e365689baa8e0f5e8d99e307d7c23f9b3bec3fccb177210",
+      "discourse-10.json": "7675ab1f34a766a952a36607ae15fb1d0fc17d3afb9124602aa5a03144fea000",
+      "discourse-11.json": "f24002018512b9136ff94dcead985834571d151250d2da3308795bda4f423df3",
+      "discourse-12.json": "d09cdae42f9610c51caa270537d4741854c4f5e7aaa3ad6403597a03f1b64209",
+      "discourse-13.json": "83eb18f05a636a53d6c7ebbb972f0e8af01a25aa45cc6e0527112c97eac004d4",
+      "discourse-14.json": "b8b0a092e053e66c702917ff8589e067e3ca4dc402ef78ff62b18a9a6aac7536",
+      "discourse-15.json": "ba8975adc51aa5dfea91dfe0fc85bc97a3d664e8e443867ec30b4bcb30d192e9",
+      "discourse-16.json": "6180863c61854f7419c7b9f95635b5b65b5bc89a0c6382dd59c96a41b0323fb1",
+      "discourse-17.json": "b1197ed2347fcfa374513a6afcc779292be0298828f65e2e4788050b6eb6c680",
+      "discourse-18.json": "b661ac132e07f03af62713c15bb90fe8e6a1df808f2005677d6861237790aa60"
+    },
+    "curated": {
+      "concepts.yaml": "59165108576ebfb4a460fa02b3d65c99af4a11e618fbc783b17b91e9aa90e866",
+      "reviews.yaml": "a6d78e35f996579a674a07640fe7b0ed04e784d252ea746eec2e2e7bc606eec1",
+      "sensitivities.yaml": "41afadc8f1d3d84819a4b086877185c52816ef4e6395d9f1cdcd5e8eb9fd5f9f",
+      "stories.yaml": "99f96801dd0b3f525143123fd345735622126724ca247026c70ea4787e9dea01"
+    }
+  }
+}

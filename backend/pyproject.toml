@@ -1,0 +1,70 @@
+[project]
+name = "scriptural-wisdom-api"
+version = "0.1.0"
+description = "Source-grounded guidance from the Bhagavad Gita: ingestion, hybrid retrieval and answer generation."
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "psycopg[binary]>=3.2",
+    "psycopg-pool>=3.2",
+    "pgvector>=0.3",
+    "numpy>=1.26",
+    "httpx[http2]>=0.27",
+    "beautifulsoup4>=4.12",
+    "indic-transliteration>=2.3",
+    "fastembed>=0.7",
+    "anthropic>=1.13",
+    "openai>=1.40",
+    "pyyaml>=6.0",
+    "py-rust-stemmers>=0.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11", "types-PyYAML"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = [".venv", ".cache", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = [
+    "RUF001",  # ambiguous unicode: we deliberately handle Devanagari and typographic quotes
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["app"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+exclude = ["tests/"]
+
+[[tool.mypy.overrides]]
+module = ["app.ingestion.sources.*", "app.evaluation.*"]
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "postgres: needs a running PostgreSQL with the corpus loaded (deselect with -m 'not postgres')",
+    "live_llm: calls a real language model (needs credentials)",
+]
