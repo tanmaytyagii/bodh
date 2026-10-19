@@ -11,6 +11,7 @@ which sends the relevant history with each follow-up.
 from __future__ import annotations
 
 import logging
+import re
 import time
 import uuid
 from collections.abc import Iterator
@@ -19,7 +20,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.api.views import Lookup, PassageView, passage_view
+from app.api.views import ConceptRef, Lookup, PassageView, passage_view
 from app.config import Settings
 from app.corpus import Passage
 from app.generation import prompts, safety
@@ -32,10 +33,16 @@ from app.generation.llm import (
 )
 from app.generation.schemas import GuidanceDraft, Understanding
 from app.generation.verify import Verifier
-from app.retrieval.hybrid import HybridRetriever, RetrievalResult
+from app.retrieval import text as search_text
+from app.retrieval.hybrid import HybridRetriever, RetrievalResult, RetrievedPassage
 from app.storage.repository import Repository
 
 log = logging.getLogger(__name__)
+
+# A passage id as the collection writes them: "bg.2.47", "katha.1.2.14".
+_PASSAGE_ID = re.compile(r"[a-z0-9][a-z0-9._-]{0,63}")
+# The most matched words named for one passage.
+_MAX_MATCHED_WORDS = 4
 
 
 # --------------------------------------------------------------------------
@@ -52,6 +59,9 @@ class HistoryTurn(BaseModel):
 class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=4000)
     history: list[HistoryTurn] = Field(default_factory=list, max_length=40)
+    # Passages the question is about ("Ask about this verse"): searched first,
+    # so the reply can read them. Ids the collection does not hold are ignored.
+    passage_ids: list[str] = Field(default_factory=list, max_length=4)
 
     @field_validator("question")
     @classmethod
@@ -59,6 +69,14 @@ class AskRequest(BaseModel):
         if not value.strip():
             raise ValueError("question must not be blank")
         return value
+
+    @field_validator("passage_ids")
+    @classmethod
+    def passage_id_format(cls, value: list[str]) -> list[str]:
+        ids = [pid.strip().lower() for pid in value]
+        if any(not _PASSAGE_ID.fullmatch(pid) for pid in ids):
+            raise ValueError("passage ids look like bg.2.47")
+        return list(dict.fromkeys(ids))
 
 
 class TeachingView(BaseModel):
@@ -114,11 +132,31 @@ class ConceptMatchView(BaseModel):
     via: str
 
 
+class PassageMatchView(BaseModel):
+    """Why search brought a passage up, from the signals retrieval recorded.
+
+    Only what actually happened is listed: the editorial themes that routed
+    it, the words of its translation that matched the search, closeness in
+    meaning, a match on the romanized Sanskrit, and whether the person asked
+    about it or it was cited earlier in the conversation. All empty means
+    search ranked it without a signal worth naming.
+    """
+
+    passage_id: str
+    themes: list[ConceptRef] = Field(default_factory=list)
+    words: list[str] = Field(default_factory=list)
+    semantic: bool = False
+    sanskrit: bool = False
+    asked_about: bool = False
+    from_conversation: bool = False
+
+
 class RetrievalView(BaseModel):
     queries: list[str]
     concepts: list[ConceptMatchView]
     evidence: str
     passage_ids: list[str]
+    matches: list[PassageMatchView] = Field(default_factory=list)
 
 
 AnswerKind = Literal[
@@ -136,6 +174,9 @@ class AnswerView(BaseModel):
     id: str
     kind: AnswerKind
     language: str
+    # "In short": the model's two or three sentences above everything else.
+    # Absent from answers written before it existed, and for follow-ups.
+    summary: str | None = None
     situation: str | None = None
     teachings: list[TeachingView] = Field(default_factory=list)
     path_forward_intro: str | None = None
@@ -230,7 +271,8 @@ class GuidanceService:
             {"role": t.role, "content": t.content}
             for t in request.history[-self.settings.max_history_turns :]
         ]
-        pinned_ids = _recent_citations(request.history)
+        focus_ids = request.passage_ids
+        pinned_ids = list(dict.fromkeys([*focus_ids, *_recent_citations(request.history)]))
         language: str = safety.guess_language(question)
         signal = safety.detect(question)
 
@@ -258,6 +300,7 @@ class GuidanceService:
                 pinned_ids,
                 timings,
                 done,
+                focus_ids=focus_ids,
                 notice=self._not_configured_notice(),
             )
             return
@@ -282,6 +325,7 @@ class GuidanceService:
                 pinned_ids,
                 timings,
                 done,
+                focus_ids=focus_ids,
                 notice=f"AI guidance is unavailable right now ({exc}).",
             )
             return
@@ -340,7 +384,7 @@ class GuidanceService:
             result = _without_crisis_sensitive(result)
         timings["retrieve"] = _ms(t0)
         pinned = [p for p in self.repo.get_passages(pinned_ids) if p.id not in result.allowed_ids()]
-        yield Event("passages", self._passages_payload(result))
+        yield Event("passages", self._passages_payload(result, focus_ids))
 
         # 3. Generate --------------------------------------------------------
         yield Event("status", {"stage": "writing"})
@@ -371,6 +415,7 @@ class GuidanceService:
                     language,
                     result,
                     notice=f"AI guidance is unavailable right now ({exc}).",
+                    focus_ids=focus_ids,
                 )
             )
             return
@@ -379,7 +424,11 @@ class GuidanceService:
         # 4. Verify and assemble ---------------------------------------------
         allowed = self._allowed(result, pinned)
         draft, report = Verifier(allowed).draft(draft)
-        yield done(self._assemble(answer_id, language, draft, report, result, allowed, signal, safety_note))
+        yield done(
+            self._assemble(
+                answer_id, language, draft, report, result, allowed, signal, safety_note, focus_ids
+            )
+        )
 
     # -- helpers -------------------------------------------------------------
 
@@ -404,15 +453,18 @@ class GuidanceService:
             allowed[passage.id] = passage
         return allowed
 
-    def _passages_payload(self, result: RetrievalResult) -> dict[str, Any]:
+    def _passages_payload(self, result: RetrievalResult, focus_ids: list[str]) -> dict[str, Any]:
         return {
             "passages": [
                 passage_view(i.passage, self.lookup).model_dump(mode="json") for i in result.passages
             ],
-            "retrieval": self._retrieval_view(result).model_dump(mode="json"),
+            "retrieval": self._retrieval_view(result, focus_ids).model_dump(mode="json"),
         }
 
-    def _retrieval_view(self, result: RetrievalResult) -> RetrievalView:
+    def _retrieval_view(self, result: RetrievalResult, focus_ids: list[str]) -> RetrievalView:
+        search_stems = {
+            search_text.stem(word) for query in result.queries for word in search_text.keywords(query)
+        }
         return RetrievalView(
             queries=result.queries,
             concepts=[
@@ -420,6 +472,37 @@ class GuidanceService:
             ],
             evidence=result.evidence,
             passage_ids=[i.passage.id for i in result.passages],
+            matches=[self._match_view(item, search_stems, focus_ids) for item in result.passages],
+        )
+
+    def _match_view(
+        self, item: RetrievedPassage, search_stems: set[str], focus_ids: list[str]
+    ) -> PassageMatchView:
+        """What brought one passage up. Matched words are only those of its
+        translation: a match in a translator's note or a theme's vocabulary
+        is not reported as a match in the text."""
+        words: list[str] = []
+        if "lexical" in item.channels:
+            # One form of each matched word: "fruit", not "fruits" and "fruit".
+            stems: set[str] = set()
+            for word in search_text.tokenize(item.passage.translation):
+                stem = search_text.stem(word)
+                if word not in search_text.STOPWORDS and stem in search_stems and stem not in stems:
+                    stems.add(stem)
+                    words.append(word)
+        pid = item.passage.id
+        return PassageMatchView(
+            passage_id=pid,
+            themes=[
+                ConceptRef(id=cid, name=self.concepts[cid].name)
+                for cid in item.concept_ids
+                if cid in self.concepts
+            ],
+            words=words[:_MAX_MATCHED_WORDS],
+            semantic="vector" in item.channels,
+            sanskrit="roman" in item.channels,
+            asked_about=pid in focus_ids,
+            from_conversation="pinned" in item.channels and pid not in focus_ids,
         )
 
     def _assemble(
@@ -432,6 +515,7 @@ class GuidanceService:
         allowed: dict[str, Passage],
         signal: safety.SafetySignal,
         safety_note: str | None,
+        focus_ids: list[str],
     ) -> AnswerView:
         def view(pid: str) -> PassageView:
             return passage_view(allowed[pid], self.lookup)
@@ -441,6 +525,7 @@ class GuidanceService:
             id=answer_id,
             kind=kind,
             language=language,
+            summary=draft.summary,
             situation=draft.situation,
             teachings=[
                 TeachingView(passage=view(t.passage_id), **t.model_dump(exclude={"passage_id"}))
@@ -473,7 +558,7 @@ class GuidanceService:
                 for v in [view(pid)]
             ],
             generated_by=self._generated_by("answer"),
-            retrieval=self._retrieval_view(result),
+            retrieval=self._retrieval_view(result, focus_ids),
         )
 
     def _crisis_answer(self, answer_id: str, language: str, signal: safety.SafetySignal) -> AnswerView:
@@ -497,16 +582,19 @@ class GuidanceService:
         done: Any,
         *,
         notice: str,
+        focus_ids: list[str],
     ) -> Iterator[Event]:
         yield Event("status", {"stage": "retrieving"})
         t0 = time.perf_counter()
         result = self.retriever.retrieve(question=question, pinned_ids=pinned_ids, top_k=6)
         timings["retrieve"] = _ms(t0)
-        yield Event("passages", self._passages_payload(result))
-        yield done(self._retrieval_only_answer(answer_id, language, result, notice=notice))
+        yield Event("passages", self._passages_payload(result, focus_ids))
+        yield done(
+            self._retrieval_only_answer(answer_id, language, result, notice=notice, focus_ids=focus_ids)
+        )
 
     def _retrieval_only_answer(
-        self, answer_id: str, language: str, result: RetrievalResult, *, notice: str
+        self, answer_id: str, language: str, result: RetrievalResult, *, notice: str, focus_ids: list[str]
     ) -> AnswerView:
         return AnswerView(
             id=answer_id,
@@ -514,7 +602,7 @@ class GuidanceService:
             language=language,
             passages=[passage_view(i.passage, self.lookup) for i in result.passages],
             evidence=_evidence_label(result.evidence),
-            retrieval=self._retrieval_view(result),
+            retrieval=self._retrieval_view(result, focus_ids),
             notice=notice + " The passages below were found by search; no AI interpretation "
             "was generated. Read each one in its context.",
         )

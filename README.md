@@ -171,7 +171,7 @@ Every setting is an environment variable, read from `.env`. All of them are docu
 | --- | --- |
 | `make test` | Backend unit and integration tests. No Docker or model key needed. |
 | `make lint` | ruff, mypy, the TypeScript check and ESLint |
-| `make e2e` | Playwright tests on desktop Chrome and a Pixel 7, including axe accessibility checks in both themes. Start the API first, and install the browser once with `cd web && npx playwright install chromium`. |
+| `make e2e` | Playwright tests on desktop Chrome and a Pixel 7, including axe accessibility checks in both themes. They build and serve their own copy of the web app on port 3100, alongside `make web`. Start the API first, and install the browser once with `cd web && npx playwright install chromium`. |
 | `make eval` | Retrieval evaluation on 74 labelled questions |
 | `make eval-answers` | Answer evaluation through the configured model. It makes real model calls. |
 | `make corpus` / `make ingest` | Rebuild the processed corpus / load it into PostgreSQL |

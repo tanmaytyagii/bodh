@@ -212,10 +212,32 @@ export interface Resource {
   url: string | null;
 }
 
+/** Why search brought a passage up: only the signals retrieval actually recorded. */
+export interface PassageMatch {
+  passage_id: string;
+  themes: ConceptRef[];
+  words: string[];
+  semantic: boolean;
+  sanskrit: boolean;
+  asked_about: boolean;
+  from_conversation: boolean;
+}
+
+export interface Retrieval {
+  queries: string[];
+  concepts: { id: string; name: string; via: string }[];
+  evidence: string;
+  passage_ids: string[];
+  /** Absent from answers saved before it existed. */
+  matches?: PassageMatch[];
+}
+
 export interface Answer {
   id: string;
   kind: AnswerKind;
   language: string;
+  /** "In short": two or three sentences of AI interpretation. Absent from older answers and follow-ups. */
+  summary?: string | null;
   situation: string | null;
   teachings: Teaching[];
   path_forward_intro: string | null;
@@ -233,12 +255,7 @@ export interface Answer {
   verification: { checked: boolean; issues: string[]; cited_ids: string[] } | null;
   references: ({ id: string; ref: string } & PassageLink)[];
   generated_by: { provider: string; model: string } | null;
-  retrieval: {
-    queries: string[];
-    concepts: { id: string; name: string; via: string }[];
-    evidence: string;
-    passage_ids: string[];
-  } | null;
+  retrieval: Retrieval | null;
   notice: string | null;
   timings_ms: Record<string, number>;
 }

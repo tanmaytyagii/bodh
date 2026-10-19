@@ -4,6 +4,8 @@ import { useId, useRef, type ReactNode } from "react";
 
 import { buttonClass } from "@/lib/ui";
 
+import { T } from "./i18n/T";
+
 /**
  * A button for a destructive action that asks first, in a modal dialog.
  * Focus starts on Cancel; Escape cancels.
@@ -46,7 +48,7 @@ export function ConfirmButton({
         </p>
         <div className="mt-7 flex justify-end gap-2">
           <button type="button" onClick={() => dialog.current?.close()} className={buttonClass("ghost", "md")}>
-            Cancel
+            <T k="feedback.cancel" />
           </button>
           <button
             type="button"

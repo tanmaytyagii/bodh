@@ -58,3 +58,14 @@ test("every source page names the edition its text comes from", async ({ page })
   }
   await expect(page.getByText(/Swami Paramananda/).first()).toBeVisible();
 });
+
+test("with a search, the introduction steps back and the results start on the first screen", async ({ page }) => {
+  await page.goto("/explore?q=anger");
+  const results = page.getByRole("region", { name: "Results for “anger”" });
+  await expect(results).toBeVisible();
+  await expect(page.getByText("Read the sources directly.")).toBeHidden();
+  const first = await results.getByRole("article").first().boundingBox();
+  expect(first?.y).toBeLessThan(page.viewportSize()?.height ?? 0);
+  // The search box stays above them, holding the query.
+  await expect(page.getByRole("searchbox")).toHaveValue("anger");
+});

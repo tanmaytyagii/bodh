@@ -12,6 +12,7 @@ async function fixtureAnswer(page: Page) {
     id: "fixture-answer",
     kind: "guidance",
     language: "en",
+    summary: "TEST FIXTURE in short: keep preparing, and let the outcome go [[bg.2.47]].",
     situation: "TEST FIXTURE. Repeated rejection while friends succeed, which feeds envy and self-doubt [[bg.2.47]].",
     teachings: [
       {
@@ -64,23 +65,43 @@ test("a structured answer renders every section with clear labels", async ({ pag
   await page.getByLabel("Describe your situation").fill("I keep failing interviews.");
   await page.getByRole("button", { name: "Reflect" }).click();
 
+  // The answer opens with the model's summary, labelled as interpretation, its citation a link.
+  const inShort = page.getByRole("region", { name: "In short" });
+  await expect(inShort).toBeVisible();
+  await expect(inShort.getByText("TEST FIXTURE in short")).toBeVisible();
+  await expect(inShort.getByText("AI interpretation")).toBeVisible();
+  await expect(inShort.getByRole("link", { name: "BG 2.47" })).toHaveAttribute("href", "/scripture/bhagavad-gita/2/47");
+
   await expect(page.getByRole("heading", { name: "1. What the Gita offers" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "2. Understanding your situation" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "3. A path forward" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "4. To reflect on" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "2. A path forward" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "3. To reflect on" })).toBeVisible();
 
   // Source text and AI interpretation are visibly distinct.
   const verse = page.locator("article[aria-label='Bhagavad Gita 2.47']");
-  await expect(verse.getByText("Source text")).toBeVisible();
+  await expect(verse.getByText("Source text", { exact: true })).toBeVisible();
   await expect(page.getByText("Written by the model from the passage above")).toBeVisible();
-
-  // Citation markers become links to the cited verse.
-  await expect(page.getByRole("link", { name: "BG 2.48" })).toHaveAttribute("href", "/scripture/bhagavad-gita/2/48");
 
   await expect(page.getByText("TEST step two")).toBeVisible();
   await expect(page.getByText("This week")).toBeVisible();
   await expect(page.getByRole("button", { name: "TEST follow-up question?" })).toBeVisible();
-  await expect(page.getByText("1 problem corrected before display")).toBeVisible();
+
+  // The rest is folded under Go deeper: nothing is left out, and it is one click away.
+  const deeper = page.locator("details").filter({ has: page.locator("summary", { hasText: "Go deeper" }) });
+  await expect(deeper.getByRole("heading", { name: "Understanding your situation" })).toBeHidden();
+  await deeper.locator("summary").click();
+  await expect(deeper.getByRole("heading", { name: "Understanding your situation" })).toBeVisible();
+  // Citation markers become links to the cited verse.
+  await expect(deeper.getByRole("link", { name: "BG 2.48" })).toHaveAttribute("href", "/scripture/bhagavad-gita/2/48");
+  await expect(deeper.getByText("TEST FIXTURE alternative reading.")).toBeVisible();
+  await expect(deeper.getByText("1 problem corrected before display")).toBeVisible();
+
+  // Read all the way through, each passage is shown once.
+  const shown = await page
+    .getByRole("article", { name: "Question 1" })
+    .locator("article[aria-label]")
+    .evaluateAll((cards) => cards.map((card) => card.getAttribute("aria-label")));
+  expect(shown.length).toBeGreaterThan(0);
+  expect(new Set(shown).size).toBe(shown.length);
 });
 
 test("a follow-up sends the conversation so far, and Start over clears it", async ({ page }) => {

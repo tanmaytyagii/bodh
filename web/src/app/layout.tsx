@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Instrument_Serif, Literata, Tiro_Devanagari_Sanskrit } from "next/font/google";
+import { Geist, Instrument_Serif, Literata, Noto_Sans_Devanagari, Tiro_Devanagari_Sanskrit } from "next/font/google";
 
+import { T } from "@/components/i18n/T";
+import { PreferencesScript } from "@/components/preferences/PreferencesScript";
+import { PreferencesSync } from "@/components/preferences/PreferencesSync";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeScript } from "@/components/theme/ThemeScript";
@@ -38,6 +41,15 @@ const tiro = Tiro_Devanagari_Sanskrit({
   display: "swap",
 });
 
+// Hindi in the interface. Not preloaded: the browser fetches it only when
+// Devanagari is set in the sans (unicode-range), as in the Hindi interface.
+const notoDeva = Noto_Sans_Devanagari({
+  variable: "--font-noto-deva",
+  subsets: ["devanagari"],
+  display: "swap",
+  preload: false,
+});
+
 // The icons and the link preview image come from the files beside this one
 // (icon.tsx, apple-icon.tsx, opengraph-image.tsx). Link previews take each
 // page's own title and description: openGraph here sets neither, so Next.js
@@ -72,18 +84,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geist.variable} ${literata.variable} ${instrument.variable} ${tiro.variable} antialiased`}
+      className={`${geist.variable} ${literata.variable} ${instrument.variable} ${tiro.variable} ${notoDeva.variable} antialiased`}
     >
       <head>
         <ThemeScript />
+        <PreferencesScript />
       </head>
       <body className="flex min-h-dvh flex-col">
         <ThemeSync />
+        <PreferencesSync />
         <a
           href="#main"
           className="sr-only z-50 rounded-full bg-surface-raised px-4 py-2 text-sm font-medium text-ink shadow-raised focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
         >
-          Skip to content
+          <T k="layout.skip" />
         </a>
         <SiteHeader />
         <main id="main" className="relative flex-1 scroll-mt-20 pt-[calc(4rem+env(safe-area-inset-top))]">

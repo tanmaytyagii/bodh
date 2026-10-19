@@ -8,7 +8,9 @@ Run on every answer before it reaches a user:
 * text the model puts in quotation marks must occur verbatim in one of the
   provided translations; otherwise the quotation marks are removed (the words
   stay, as the model's own wording) so nothing unverified is presented as a
-  quotation.
+  quotation;
+* the "In short" summary gets the same checks, is held to three sentences,
+  and is removed from follow-up replies and clarifications.
 
 Every change is reported, so the API can show that verification ran and what
 it changed.
@@ -26,10 +28,13 @@ MAX_TEACHINGS = 4
 MAX_STEPS = 6
 MAX_RELATED = 3
 MAX_FOLLOW_UPS = 3
+MAX_SUMMARY_SENTENCES = 3
 
 MARKER = re.compile(r"\[\[\s*([a-z0-9][a-z0-9._-]*)\s*\]\]", re.IGNORECASE)
 # Straight or curly double quotes around at least three words.
 _QUOTE = re.compile(r"[\"“]([^\"“”]{12,}?)[\"”]")
+# A sentence ends with a full stop, question or exclamation mark, or a danda.
+_SENTENCE_END = re.compile(r"(?<=[.!?।])\s+")
 
 
 @dataclass
@@ -76,6 +81,18 @@ class Verifier:
 
         value = _QUOTE.sub(quote, value)
         return re.sub(r"[ \t]{2,}", " ", value).strip()
+
+    def summary(self, value: str | None, report: Verification) -> str | None:
+        """The 'In short' lines: checked like all model text, at most three
+        sentences, and nothing at all rather than an empty one."""
+        checked = self.text(value, report, "summary")
+        if not checked:
+            return None
+        sentences = _SENTENCE_END.split(checked)
+        if len(sentences) > MAX_SUMMARY_SENTENCES:
+            report.issues.append(f"summary: shortened to its first {MAX_SUMMARY_SENTENCES} sentences")
+            checked = " ".join(sentences[:MAX_SUMMARY_SENTENCES])
+        return checked
 
     def draft(self, draft: GuidanceDraft) -> tuple[GuidanceDraft, Verification]:
         report = Verification()
@@ -131,6 +148,12 @@ class Verifier:
             "alternative_readings",
         ):
             setattr(d, name, self.text(getattr(d, name), report, name))
+        if d.summary and d.response_kind in ("follow_up", "clarification"):
+            # "In short" opens a full answer; a reply within a conversation has none.
+            report.issues.append(f"summary: removed from a {d.response_kind.replace('_', '-')} reply")
+            d.summary = None
+        else:
+            d.summary = self.summary(d.summary, report)
         for step in d.steps:
             step.title = self.text(step.title, report, "step") or ""
             step.detail = self.text(step.detail, report, "step") or ""

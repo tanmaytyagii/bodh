@@ -1,5 +1,9 @@
+"use client";
+
+import { useT } from "@/lib/i18n/useLocale";
 import type { Resource } from "@/lib/types";
 
+import { T } from "./i18n/T";
 import { Icon } from "./Icon";
 
 /** The first phone number in a contact line ("14416 or 1-800-891-4416" → "14416"). */
@@ -17,9 +21,10 @@ export function SafetyPanel({
   message?: string | null;
   urgent?: boolean;
 }) {
+  const t = useT();
   return (
     <section
-      aria-label="Support you can reach now"
+      aria-label={t("safety.region")}
       className={`rounded-[1.5rem] px-5 py-6 ring-1 sm:px-7 ${urgent ? "bg-danger-bg ring-danger/30" : "bg-warn-bg ring-warn/30"}`}
     >
       <div className="flex items-start gap-3.5">
@@ -31,7 +36,7 @@ export function SafetyPanel({
         </span>
         <div className="min-w-0">
           <h2 className={`display text-[1.75rem] leading-tight ${urgent ? "text-danger" : "text-warn"}`}>
-            {urgent ? "Please reach out to someone now" : "Support is available"}
+            <T k={urgent ? "safety.urgent" : "safety.available"} />
           </h2>
           {message && <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink">{message}</p>}
         </div>
@@ -61,7 +66,7 @@ export function SafetyPanel({
                     className="inline-flex h-11 items-center gap-1.5 rounded-full bg-primary px-4 text-[0.8125rem] font-medium text-primary-ink sm:hidden"
                   >
                     <Icon name="phone" className="size-3.5" />
-                    Call {phone.display}
+                    <T k="safety.call" values={{ number: phone.display }} />
                   </a>
                 )}
               </div>

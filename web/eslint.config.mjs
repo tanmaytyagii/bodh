@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Next.js output wherever it is written, as .gitignore has it: the dev
+    // server can also write chunks to a nested .next (web/web/.next).
+    "**/.next/**",
   ]),
 ]);
 

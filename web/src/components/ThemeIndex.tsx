@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { useDeferredValue, useState } from "react";
 
+import { useT } from "@/lib/i18n/useLocale";
 import { THEME_PATHS } from "@/lib/themePaths";
 
+import { EditorialText } from "./CitedText";
+import { T } from "./i18n/T";
 import { Icon } from "./Icon";
 import { EmptyState } from "./layout/EmptyState";
 import { ThemeExplorer } from "./ThemeExplorer";
@@ -23,6 +26,7 @@ function normalize(text: string): string {
 
 /** The editorial themes, grouped into paths and filterable by name, term, summary or situation. */
 export function ThemeIndex({ themes }: { themes: ThemeSummary[] }) {
+  const translate = useT();
   const [query, setQuery] = useState("");
   const deferred = useDeferredValue(query);
   const needle = normalize(deferred.trim());
@@ -35,8 +39,8 @@ export function ThemeIndex({ themes }: { themes: ThemeSummary[] }) {
     ...THEME_PATHS.map((p) => ({ ...p, items: p.themes.map((id) => byId.get(id)).filter((t) => t !== undefined) })),
     {
       id: "more",
-      title: "More themes",
-      description: "Further themes in the index.",
+      title: "path.more.title" as const,
+      description: "path.more.description" as const,
       themes: [],
       items: themes.filter((t) => !placed.has(t.id)),
     },
@@ -65,7 +69,7 @@ export function ThemeIndex({ themes }: { themes: ThemeSummary[] }) {
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pb-10">
         <div className="group relative w-full max-w-md">
           <label htmlFor="theme-filter" className="sr-only">
-            Filter themes
+            <T k="themes.filter" />
           </label>
           <Icon
             name="search"
@@ -76,12 +80,16 @@ export function ThemeIndex({ themes }: { themes: ThemeSummary[] }) {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter by situation — “anger”, “exam”, “grief”…"
+            placeholder={translate("themes.filter.placeholder")}
             className="h-12 w-full rounded-full bg-surface-raised pr-4 pl-11 text-[0.9375rem] text-ink shadow-card ring-1 ring-field placeholder:text-ink-muted focus:ring-2 focus:ring-accent focus:outline-none"
           />
         </div>
         <p aria-live="polite" className="text-sm text-ink-muted">
-          {needle ? `${shown} of ${themes.length} themes` : `${themes.length} themes in ${THEME_PATHS.length} paths`}
+          {needle ? (
+            <T k="themes.shown" values={{ shown, total: themes.length }} />
+          ) : (
+            <T k="themes.total" values={{ total: themes.length, paths: THEME_PATHS.length }} />
+          )}
         </p>
       </div>
 
@@ -98,9 +106,11 @@ export function ThemeIndex({ themes }: { themes: ThemeSummary[] }) {
                 {String(i + 1).padStart(2, "0")}
               </p>
               <h2 id={`path-${path.id}-title`} className="display mt-3 text-[2.25rem] leading-[1.05] text-ink">
-                {path.title}
+                <T k={path.title} />
               </h2>
-              <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-soft">{path.description}</p>
+              <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-soft">
+                <T k={path.description} />
+              </p>
             </header>
             <ul className="grid grid-cols-1 gap-x-10 sm:grid-cols-2">
               {path.items.map((t) => (
@@ -116,10 +126,12 @@ export function ThemeIndex({ themes }: { themes: ThemeSummary[] }) {
                       />
                     </span>
                     {t.term && <span className="mt-0.5 block font-serif text-sm text-accent italic">{t.term}</span>}
-                    <span className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-soft">{t.summary}</span>
+                    <span className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-soft">
+                      <EditorialText text={t.summary} inline interactive={false} />
+                    </span>
                     {t.life_situations.length > 0 && (
                       <span className="mt-2.5 block text-xs leading-snug text-ink-muted">
-                        For {t.life_situations.slice(0, 3).join(" · ")}
+                        <T k="themes.for" values={{ list: t.life_situations.slice(0, 3).join(" · ") }} />
                       </span>
                     )}
                   </Link>
@@ -129,12 +141,17 @@ export function ThemeIndex({ themes }: { themes: ThemeSummary[] }) {
           </section>
         ))
       ) : (
-        <EmptyState icon="search" title="No themes match">
-          Try another word, or{" "}
-          <button type="button" onClick={() => setQuery("")} className="font-medium text-ink underline underline-offset-2">
-            show all themes
-          </button>
-          .
+        <EmptyState icon="search" title={<T k="themes.none.title" />}>
+          <T
+            k="themes.none.body"
+            values={{
+              showAll: (
+                <button type="button" onClick={() => setQuery("")} className="font-medium text-ink underline underline-offset-2">
+                  <T k="themes.showAll" />
+                </button>
+              ),
+            }}
+          />
         </EmptyState>
       )}
     </div>

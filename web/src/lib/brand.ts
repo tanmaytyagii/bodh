@@ -17,10 +17,16 @@ export const BRAND = {
   name,
   /** बोध: understanding, awareness, discernment, insight. Shown beside the name where there is room. */
   devanagari: ownName ? "बोध" : null,
-  tagline: "Ancient Wisdom. Clearer Living.",
+  /**
+   * The one slogan: the invitation's headline, the title of the home page,
+   * the footer and the link preview. (In the Hindi interface: brand.tagline.)
+   */
+  tagline: "Ancient wisdom. Your life, today.",
+  /**
+   * The one supporting line, after the slogan: the landing story's close, About
+   * and the link preview. From the Gita's own end: reflect fully, then choose (18.63).
+   */
   philosophy: "Understand deeply. Choose consciously.",
-  /** A line in Hindi (lang="hi"), and its sense in English. */
-  hindi: ownName ? { text: "बोध — ज्ञान से समझ तक।", meaning: "From knowledge to understanding." } : null,
   /** For search results and link previews. */
   description:
     "Bring a real-life situation to the Bhagavad Gita and the Upanishads. Read verified passages with the " +

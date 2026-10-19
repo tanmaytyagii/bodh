@@ -147,11 +147,9 @@ test("an answer reads as one column, leads to its sources, survives a theme chan
   await page.goto("/");
   await ask(page);
 
-  // A quiet note first, not a coloured panel.
+  // A quiet note first, not a coloured panel: one line, named for what it says.
   const note = page.getByRole("note").first();
-  await expect(note.getByRole("heading")).toHaveText(
-    /Passages only — no AI interpretation|Interpretation written from these passages/,
-  );
+  await expect(note).toHaveAccessibleName(/Passages only — no AI interpretation|Interpretation written from these passages/);
   expect(await note.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe("rgba(0, 0, 0, 0)");
 
   // The passages, one after another in a single column.

@@ -1,85 +1,174 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 
 import { downloadReflection, downloadReflections } from "@/lib/download";
-import { reflectionsStore, type SavedReflection } from "@/lib/reflections";
+import { useT } from "@/lib/i18n/useLocale";
+import {
+  isSavedPassage,
+  isSavedText,
+  reflectionsStore,
+  type SavedItem,
+  type SavedPassage,
+  type SavedReflection,
+  type SavedText,
+} from "@/lib/reflections";
 import { useHydrated } from "@/lib/useHydrated";
 import { buttonClass } from "@/lib/ui";
 
 import { AnswerPanel } from "./ask/AnswerPanel";
 import { ConfirmButton } from "./ConfirmButton";
+import { T } from "./i18n/T";
 import { Icon } from "./Icon";
+import { Label } from "./Label";
 import { EmptyState } from "./layout/EmptyState";
 import { LoadingState } from "./layout/LoadingState";
+import { ImportReflections } from "./reflections/ImportReflections";
+import { VerseCard } from "./VerseCard";
 
 export function ReflectionsList() {
   const hydrated = useHydrated();
+  const t = useT();
   const items = useSyncExternalStore(
     reflectionsStore.subscribe,
     () => reflectionsStore.getSnapshot(),
     reflectionsStore.getServerSnapshot,
   );
   const [open, setOpen] = useState<string | null>(null);
-  const [status, setStatus] = useState("");
+  const [deleted, setDeleted] = useState(false);
 
   // Saved items live in this browser, so the server cannot know them.
-  if (!hydrated) return <LoadingState label="Loading your reflections" variant="list" />;
+  if (!hydrated) return <LoadingState label={t("reflections.loading")} variant="list" />;
 
-  if (!items.length) {
-    return (
-      <>
-        <p aria-live="polite" className="sr-only">
-          {status}
+  // One toolbar for both states, so an import started on an empty page keeps
+  // its confirmation and its Undo once the reflections appear.
+  return (
+    <div>
+      <div
+        className={`flex flex-wrap items-center justify-between gap-3 ${items.length ? "border-b border-rule pb-5" : "pb-2"}`}
+      >
+        <p aria-live="polite" className="text-sm text-ink-muted">
+          {deleted ? (
+            <T k="reflections.deleted" />
+          ) : items.length ? (
+            <T k={items.length === 1 ? "reflections.count.one" : "reflections.count.other"} values={{ count: items.length }} />
+          ) : null}
         </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportReflections />
+          {items.length > 0 && (
+            <button type="button" onClick={() => downloadReflections(items)} className={buttonClass("secondary", "sm")}>
+              <Icon name="download" className="size-4" />
+              <T k="reflections.exportAll" />
+            </button>
+          )}
+        </div>
+      </div>
+      {items.length ? (
+        <ol className="divide-y divide-rule">
+          {items.map((item) => (
+            <ItemRow
+              key={item.id}
+              item={item}
+              expanded={open === item.id}
+              onToggle={() => setOpen(open === item.id ? null : item.id)}
+              onDelete={() => {
+                reflectionsStore.remove(item.id);
+                setDeleted(true);
+              }}
+            />
+          ))}
+        </ol>
+      ) : (
         <EmptyState
           icon="bookmark"
-          title="Nothing saved yet"
+          title={<T k="reflections.empty.title" />}
           actions={
             <Link href="/" className={buttonClass("primary", "md")}>
-              Ask a question
+              <T k="reflections.empty.ask" />
               <Icon name="arrowRight" className="size-4" />
             </Link>
           }
         >
-          After an answer, choose “Save this reflection” to keep it here, with room for your own notes. It stays in
-          this browser only.
+          <T k="reflections.empty.body" />
         </EmptyState>
-      </>
-    );
-  }
-
-  return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rule pb-5">
-        <p aria-live="polite" className="text-sm text-ink-muted">
-          {status || `${items.length} saved reflection${items.length === 1 ? "" : "s"}`}
-        </p>
-        <button type="button" onClick={() => downloadReflections(items)} className={buttonClass("secondary", "sm")}>
-          <Icon name="download" className="size-4" />
-          Export all (Markdown)
-        </button>
-      </div>
-      <ol className="divide-y divide-rule">
-        {items.map((item) => (
-          <ReflectionItem
-            key={item.id}
-            item={item}
-            expanded={open === item.id}
-            onToggle={() => setOpen(open === item.id ? null : item.id)}
-            onDelete={() => {
-              reflectionsStore.remove(item.id);
-              setStatus("Reflection deleted.");
-            }}
-          />
-        ))}
-      </ol>
+      )}
     </div>
   );
 }
 
-function ReflectionItem({
+function ItemRow(props: { item: SavedItem; expanded: boolean; onToggle: () => void; onDelete: () => void }) {
+  const { item } = props;
+  if (isSavedPassage(item)) return <PassageItem {...props} item={item} />;
+  if (isSavedText(item)) return <TextItem {...props} item={item} />;
+  return <AnswerItem {...props} item={item} />;
+}
+
+/** The date, and what the item rests on, in the left column. */
+function Margin({ savedAt, children }: { savedAt: string; children?: ReactNode }) {
+  return (
+    <div className="text-xs leading-relaxed text-ink-muted">
+      <time dateTime={savedAt} className="eyebrow block">
+        {new Date(savedAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
+      </time>
+      {children}
+    </div>
+  );
+}
+
+function Notes({ item }: { item: SavedItem }) {
+  const t = useT();
+  const noteId = `note-${item.id}`;
+  // A note this browser would not store stays in the box, and the page says so.
+  const [failed, setFailed] = useState(false);
+  return (
+    <>
+      <label htmlFor={noteId} className="eyebrow mt-7 block text-ink-muted">
+        <T k="reflections.notes" />
+      </label>
+      <textarea
+        id={noteId}
+        defaultValue={item.note}
+        onBlur={(e) => setFailed(!reflectionsStore.updateNote(item.id, e.target.value))}
+        aria-describedby={failed ? `${noteId}-failed` : undefined}
+        rows={3}
+        placeholder={t("reflections.notes.placeholder")}
+        className="mt-2 w-full rounded-2xl bg-surface-raised p-4 text-[0.9375rem] leading-relaxed text-ink ring-1 ring-field placeholder:text-ink-muted focus:ring-2 focus:ring-accent focus:outline-none"
+      />
+      {failed && (
+        <p id={`${noteId}-failed`} role="alert" className="mt-2 text-sm text-danger">
+          <T k="reflections.notes.failed" />
+        </p>
+      )}
+    </>
+  );
+}
+
+function Actions({ item, onDelete, children }: { item: SavedItem; onDelete: () => void; children?: ReactNode }) {
+  const t = useT();
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-1">
+      {children}
+      <button type="button" onClick={() => downloadReflection(item)} className={buttonClass("ghost", "sm")}>
+        <Icon name="download" className="size-4" />
+        <T k="reflections.export" />
+      </button>
+      <ConfirmButton
+        className={buttonClass("ghost", "sm", "text-danger hover:bg-danger-bg hover:text-danger")}
+        title={t("reflections.delete.title")}
+        description={t("reflections.delete.body")}
+        confirmLabel={t("reflections.delete")}
+        onConfirm={onDelete}
+      >
+        <Icon name="trash" className="size-4" />
+        <T k="reflections.delete" />
+      </ConfirmButton>
+    </div>
+  );
+}
+
+function AnswerItem({
   item,
   expanded,
   onToggle,
@@ -91,15 +180,9 @@ function ReflectionItem({
   onDelete: () => void;
 }) {
   const refs = item.answer.teachings.map((t) => t.passage.short_ref).join(", ");
-  const noteId = `note-${item.id}`;
   return (
     <li className="reveal grid grid-cols-1 gap-x-12 gap-y-4 py-10 md:grid-cols-[9rem_minmax(0,1fr)]">
-      <div className="text-xs leading-relaxed text-ink-muted">
-        <time dateTime={item.savedAt} className="eyebrow block">
-          {new Date(item.savedAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
-        </time>
-        {refs && <p className="mt-2 font-medium text-source">{refs}</p>}
-      </div>
+      <Margin savedAt={item.savedAt}>{refs && <p className="mt-2 font-medium text-source">{refs}</p>}</Margin>
       <div className="min-w-0">
         <h2 className="display text-[1.75rem] leading-snug text-pretty text-ink">{item.question}</h2>
         {item.answer.reflective_question && (
@@ -112,44 +195,68 @@ function ReflectionItem({
             </p>
           </figure>
         )}
-        <label htmlFor={noteId} className="eyebrow mt-7 block text-ink-muted">
-          Your notes
-        </label>
-        <textarea
-          id={noteId}
-          defaultValue={item.note}
-          onBlur={(e) => reflectionsStore.updateNote(item.id, e.target.value)}
-          rows={3}
-          placeholder="What do you notice when you sit with the question?"
-          className="mt-2 w-full rounded-2xl bg-surface-raised p-4 text-[0.9375rem] leading-relaxed text-ink ring-1 ring-field placeholder:text-ink-muted focus:ring-2 focus:ring-accent focus:outline-none"
-        />
-        <div className="mt-4 flex flex-wrap items-center gap-1">
+        <Notes item={item} />
+        <Actions item={item} onDelete={onDelete}>
           <button type="button" onClick={onToggle} className={buttonClass("ghost", "sm")} aria-expanded={expanded}>
             <Icon name={expanded ? "chevronDown" : "chevronRight"} className="size-4" />
-            {expanded ? "Hide answer" : "Show answer"}
+            <T k={expanded ? "reflections.hideAnswer" : "reflections.showAnswer"} />
           </button>
-          <button
-            type="button"
-            onClick={() => downloadReflection(item)}
-            className={buttonClass("ghost", "sm")}
-          >
-            <Icon name="download" className="size-4" />
-            Export
-          </button>
-          <ConfirmButton
-            className={buttonClass("ghost", "sm", "text-danger hover:bg-danger-bg hover:text-danger")}
-            title="Delete this reflection?"
-            description="The saved answer and your notes will be removed from this browser. This cannot be undone."
-            confirmLabel="Delete"
-            onConfirm={onDelete}
-          >
-            <Icon name="trash" className="size-4" />
-            Delete
-          </ConfirmButton>
-        </div>
+        </Actions>
         {expanded && (
           <div className="mt-8 border-t border-rule pt-8">
             <AnswerPanel question={item.question} answer={item.answer} layout="inline" />
+          </div>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function PassageItem({ item, onDelete }: { item: SavedPassage; onDelete: () => void }) {
+  return (
+    <li className="reveal grid grid-cols-1 gap-x-12 gap-y-4 py-10 md:grid-cols-[9rem_minmax(0,1fr)]">
+      <Margin savedAt={item.savedAt}>
+        <p className="mt-2 font-medium text-source">
+          <T k="reflections.passage" />
+        </p>
+      </Margin>
+      <div className="min-w-0">
+        <div className="-mt-7">
+          <VerseCard passage={item.passage} variant="plain" headingLevel={2} />
+        </div>
+        <Notes item={item} />
+        <Actions item={item} onDelete={onDelete} />
+      </div>
+    </li>
+  );
+}
+
+/** A reflection from an older export, kept as the text it was. */
+function TextItem({ item, expanded, onToggle, onDelete }: { item: SavedText; expanded: boolean; onToggle: () => void; onDelete: () => void }) {
+  return (
+    <li className="reveal grid grid-cols-1 gap-x-12 gap-y-4 py-10 md:grid-cols-[9rem_minmax(0,1fr)]">
+      <Margin savedAt={item.savedAt}>
+        <p className="mt-2">
+          <Label kind="editorial">
+            <T k="reflections.imported" />
+          </Label>
+        </p>
+      </Margin>
+      <div className="min-w-0">
+        <h2 className="display text-[1.75rem] leading-snug text-pretty text-ink">{item.question}</h2>
+        <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+          <T k="reflections.imported.note" />
+        </p>
+        <Notes item={item} />
+        <Actions item={item} onDelete={onDelete}>
+          <button type="button" onClick={onToggle} className={buttonClass("ghost", "sm")} aria-expanded={expanded}>
+            <Icon name={expanded ? "chevronDown" : "chevronRight"} className="size-4" />
+            <T k={expanded ? "reflections.hideText" : "reflections.showText"} />
+          </button>
+        </Actions>
+        {expanded && (
+          <div className="mt-6 max-h-[32rem] overflow-y-auto rounded-2xl bg-surface-sunk/60 p-5 text-[0.9375rem] leading-relaxed whitespace-pre-wrap text-ink-soft ring-1 ring-rule">
+            {item.body}
           </div>
         )}
       </div>

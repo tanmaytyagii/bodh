@@ -1,13 +1,15 @@
 "use client";
 
+import { T } from "@/components/i18n/T";
 import { Icon, type IconName } from "@/components/Icon";
+import type { MessageKey } from "@/lib/i18n/messages";
 import type { ThemePreference } from "@/lib/theme";
 import { useTheme } from "@/lib/useTheme";
 
-const OPTIONS: { value: ThemePreference; label: string; icon: IconName }[] = [
-  { value: "system", label: "System", icon: "monitor" },
-  { value: "light", label: "Light", icon: "sun" },
-  { value: "dark", label: "Dark", icon: "moon" },
+const OPTIONS: { value: ThemePreference; label: MessageKey; icon: IconName }[] = [
+  { value: "system", label: "theme.system", icon: "monitor" },
+  { value: "light", label: "theme.light", icon: "sun" },
+  { value: "dark", label: "theme.dark", icon: "moon" },
 ];
 
 /**
@@ -17,17 +19,17 @@ const OPTIONS: { value: ThemePreference; label: string; icon: IconName }[] = [
 export function ThemeSelector() {
   const { preference, resolved, setPreference } = useTheme();
 
-  let status = "";
-  if (resolved) {
-    status =
-      preference === "system"
-        ? `Following your device, which is set to ${resolved}.`
-        : `Always ${preference}, whatever your device is set to.`;
-  }
+  const status = !resolved ? null : preference === "system" ? (
+    <T k={resolved === "dark" ? "theme.status.systemDark" : "theme.status.systemLight"} />
+  ) : (
+    <T k={preference === "dark" ? "theme.status.dark" : "theme.status.light"} />
+  );
 
   return (
     <fieldset>
-      <legend className="sr-only">Theme</legend>
+      <legend className="sr-only">
+        <T k="theme.label" />
+      </legend>
       <div className="inline-grid w-full max-w-md grid-cols-3 gap-1 rounded-full bg-surface-sunk p-1 ring-1 ring-rule sm:w-auto">
         {OPTIONS.map((option) => (
           <label
@@ -43,7 +45,7 @@ export function ThemeSelector() {
               className="sr-only"
             />
             <Icon name={option.icon} className="size-4" />
-            {option.label}
+            <T k={option.label} />
           </label>
         ))}
       </div>

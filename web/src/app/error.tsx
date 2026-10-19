@@ -1,5 +1,6 @@
 "use client";
 
+import { T } from "@/components/i18n/T";
 import { Icon } from "@/components/Icon";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -12,15 +13,15 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
         <EmptyState
           icon="alert"
           headingLevel={1}
-          title="The texts could not be loaded"
+          title={<T k="pageError.title" />}
           actions={
             <button type="button" onClick={reset} className={buttonClass("primary", "md")}>
               <Icon name="rotateCcw" className="size-4" />
-              Try again
+              <T k="composer.tryAgain" />
             </button>
           }
         >
-          The scripture service may be starting up or temporarily unavailable. Please try again in a moment.
+          <T k="pageError.body" />
           {process.env.NODE_ENV !== "production" && (
             <span className="mt-4 block rounded-lg bg-surface-sunk p-3 text-left font-mono text-xs text-ink-muted">
               {error.message}

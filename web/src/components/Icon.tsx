@@ -163,6 +163,51 @@ const PATHS = {
   stop: <rect x="7" y="7" width="10" height="10" rx="1.5" />,
   plus: <path d="M12 5v14M5 12h14" />,
   list: <path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01" />,
+  copy: (
+    <>
+      <rect x="9" y="9" width="12" height="12" rx="2" />
+      <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+    </>
+  ),
+  share: (
+    <>
+      <path d="M12 3v12" />
+      <path d="m7.5 7.5 4.5-4.5 4.5 4.5" />
+      <path d="M8 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-2" />
+    </>
+  ),
+  upload: (
+    <>
+      <path d="M12 15V3" />
+      <path d="m7 8 5-5 5 5" />
+      <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+    </>
+  ),
+  image: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="1.75" />
+      <path d="m21 16-4.5-4.5L7 20" />
+    </>
+  ),
+  textSize: (
+    <>
+      <path d="M2.5 19 8 5h1l5.5 14" />
+      <path d="M4.6 14h7.8" />
+      <circle cx="18" cy="15.5" r="2.75" />
+      <path d="M20.75 12.5V19" />
+    </>
+  ),
+  languages: (
+    <>
+      <path d="M4 5h9" />
+      <path d="M8.5 3v2" />
+      <path d="M11 5c-1 4-4 7-7 8.5" />
+      <path d="M6.5 9c1.2 2 3 3.6 5 4.5" />
+      <path d="m13 20 4-9 4 9" />
+      <path d="M14.4 17h5.2" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

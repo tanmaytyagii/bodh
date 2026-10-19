@@ -1,9 +1,14 @@
 """The question → guidance workflow, with a fake language model."""
 
+import pytest
+from pydantic import ValidationError
+
 from app.config import get_settings
+from app.generation import safety
 from app.generation.llm import LLMStatus, LLMUnavailable
 from app.generation.schemas import SafetyAssessment
 from app.generation.service import AskRequest, GuidanceService, HistoryTurn
+from app.retrieval import text as search_text
 from app.retrieval.hybrid import HybridRetriever
 from app.storage.memory import MemoryRepository
 from tests.conftest import FakeLLM
@@ -77,6 +82,10 @@ def test_model_flagged_crisis_is_respected(repo, retriever) -> None:  # type: ig
     )
     answer = service(repo, retriever, llm).ask(AskRequest(question="Everything is pointless lately."))
     assert answer.kind == "crisis"
+    # The crisis reply as it always was: its message and resources, no summary, and no drafted answer.
+    assert answer.message == safety.crisis_message("en") and answer.summary is None
+    assert answer.safety and answer.safety.level == "crisis" and answer.safety.resources
+    assert [name for name, _ in llm.calls] == ["Understanding"]
 
 
 def test_concern_withholds_crisis_sensitive_verses(repo, retriever) -> None:  # type: ignore[no-untyped-def]
@@ -126,3 +135,64 @@ def test_language_label_must_match_script(repo, retriever) -> None:  # type: ign
     llm = FakeLLM(understanding={"language": "hi"})
     answer = service(repo, retriever, llm).ask(AskRequest(question="I keep failing interviews and feel low."))
     assert answer.language == "en"
+
+
+def test_the_summary_is_checked_like_the_rest_of_the_answer(repo, retriever, fake_llm) -> None:  # type: ignore[no-untyped-def]
+    answer = service(repo, retriever, fake_llm).ask(AskRequest(question=QUESTION))
+    assert answer.summary
+    # The invented citation is removed; the summary still rests on a cited passage.
+    assert "[[bg.99.99]]" not in answer.summary
+    assert any(f"[[{t.passage.id}]]" in answer.summary for t in answer.teachings)
+    assert answer.verification and any("summary" in issue for issue in answer.verification.issues)
+
+
+def test_crisis_replies_carry_no_summary(repo, retriever, fake_llm) -> None:  # type: ignore[no-untyped-def]
+    answer = service(repo, retriever, fake_llm).ask(AskRequest(question="I don't want to live anymore"))
+    assert answer.kind == "crisis" and answer.summary is None and fake_llm.calls == []
+
+
+def test_passages_only_answers_say_why_each_passage_appeared(repo, retriever) -> None:  # type: ignore[no-untyped-def]
+    answer = service(repo, retriever, None).ask(AskRequest(question="How do I control anger at work?"))
+    assert answer.retrieval
+    matches = {m.passage_id: m for m in answer.retrieval.matches}
+    assert set(matches) == {p.id for p in answer.passages}
+    for passage in answer.passages:
+        match = matches[passage.id]
+        # A matched word is always a word of the passage's own translation, named once.
+        translation = passage.translation.lower()
+        assert all(word in translation for word in match.words)
+        assert len({search_text.stem(word) for word in match.words}) == len(match.words)
+        assert not match.asked_about and not match.from_conversation
+    # Something real is named for the passages at the top.
+    top = matches[answer.passages[0].id]
+    assert top.words or top.themes or top.semantic or top.sanskrit
+
+
+def test_a_half_remembered_verse_is_explained_as_a_sanskrit_match(repo, retriever) -> None:  # type: ignore[no-untyped-def]
+    answer = service(repo, retriever, None).ask(AskRequest(question="karmanye vadhikaraste"))
+    assert answer.retrieval
+    match = next(m for m in answer.retrieval.matches if m.passage_id == "bg.2.47")
+    assert match.sanskrit
+
+
+def test_asking_about_a_passage_searches_it_first(repo, retriever) -> None:  # type: ignore[no-untyped-def]
+    request = AskRequest(question="What could this mean for me?", passage_ids=["bg.2.47"])
+    answer = service(repo, retriever, None).ask(request)
+    assert answer.retrieval and "bg.2.47" in [p.id for p in answer.passages]
+    match = next(m for m in answer.retrieval.matches if m.passage_id == "bg.2.47")
+    assert match.asked_about and not match.from_conversation
+
+
+def test_a_passage_asked_about_reaches_the_model(repo, retriever) -> None:  # type: ignore[no-untyped-def]
+    llm = FakeLLM(understanding={"concept_ids": []})
+    service(repo, retriever, llm).ask(
+        AskRequest(question="How might this apply to my exams?", passage_ids=["bg.6.35"])
+    )
+    assert 'id="bg.6.35"' in llm.calls[-1][1]
+
+
+def test_passage_ids_are_validated() -> None:
+    assert AskRequest(question="x", passage_ids=[" BG.2.47 ", "bg.2.47"]).passage_ids == ["bg.2.47"]
+    for bad in (["../../etc/passwd"], ["bg 2 47"], ["x" * 80], ["a", "b", "c", "d", "e"]):
+        with pytest.raises(ValidationError):
+            AskRequest(question="x", passage_ids=bad)

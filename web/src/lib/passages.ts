@@ -1,3 +1,4 @@
+import type { MessageKey } from "./i18n/messages";
 import type { Passage, PassageLink } from "./types";
 
 // Passage ids are "<prefix>.<division>.<verse>". Answers carry the link for
@@ -25,13 +26,35 @@ export function passageLabel(id: string, known?: PassageLink): string {
   return match && entry ? `${entry.label} ${match[2]}.${match[3]}` : id;
 }
 
-export function speakerLine(passage: Passage): string | null {
+/** "Chapter 2" or "Part 1", as an interface message, from a source's division label. */
+export function divisionKey(label: string): "verse.chapter" | "verse.part" {
+  return label.toLowerCase() === "chapter" ? "verse.chapter" : "verse.part";
+}
+
+// The Gita's speakers, and to whom each speaks.
+const SPEAKER_LINES: Record<string, MessageKey> = {
+  Krishna: "speaker.krishna",
+  Arjuna: "speaker.arjuna",
+  Sanjaya: "speaker.sanjaya",
+  Dhritarashtra: "speaker.dhritarashtra",
+};
+
+const SPEAKER_NAMES: Record<string, MessageKey> = {
+  Krishna: "speaker.name.krishna",
+  Arjuna: "speaker.name.arjuna",
+  Sanjaya: "speaker.name.sanjaya",
+  Dhritarashtra: "speaker.name.dhritarashtra",
+};
+
+/** A speaker's name as an interface message, for the names the interface knows how to write in Hindi. */
+export function speakerNameKey(name: string): MessageKey | undefined {
+  return SPEAKER_NAMES[name];
+}
+
+/** Who is speaking, as an interface message: "Krishna, to Arjuna", or "Yama speaking". */
+export function speakerMessage(passage: Passage): { key: MessageKey; values?: { who: string } } | null {
   const speakers = passage.speakers.length ? passage.speakers : passage.speaker ? [passage.speaker] : [];
   if (!speakers.length) return null;
-  if (speakers.length > 1) return `${speakers.join(", then ")} speaking`;
-  const who = speakers[0];
-  if (who === "Krishna") return "Krishna, to Arjuna";
-  if (who === "Arjuna") return "Arjuna, to Krishna";
-  if (who === "Sanjaya") return "Sanjaya, narrating to Dhritarashtra";
-  return `${who} speaking`;
+  const known = speakers.length === 1 ? SPEAKER_LINES[speakers[0]] : undefined;
+  return known ? { key: known } : { key: "speaker.other", values: { who: speakers.join(", ") } };
 }

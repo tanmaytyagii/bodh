@@ -57,6 +57,7 @@ def test_not_found_and_malformed_requests(make_app) -> None:  # type: ignore[no-
         == 422
     )
     assert client.post("/ask", json={"question": "x" * 4001}).status_code == 422
+    assert client.post("/ask", json={"question": "x", "passage_ids": ["<script>"]}).status_code == 422
     assert client.get("/search", params={"q": ""}).status_code == 422
 
 
@@ -66,6 +67,17 @@ def test_ask_with_model(make_app) -> None:  # type: ignore[no-untyped-def]
     assert answer["kind"] == "guidance"
     assert answer["teachings"] and answer["teachings"][0]["passage"]["sanskrit"]
     assert answer["verification"]["checked"] is True
+    assert answer["summary"] and "[[bg.99.99]]" not in answer["summary"]
+
+
+def test_ask_about_a_passage(make_app) -> None:  # type: ignore[no-untyped-def]
+    client = make_app()
+    answer = client.post(
+        "/ask", json={"question": "What does this mean for me?", "passage_ids": ["bg.2.47"]}
+    ).json()
+    assert answer["kind"] == "retrieval_only"
+    match = next(m for m in answer["retrieval"]["matches"] if m["passage_id"] == "bg.2.47")
+    assert match["asked_about"] is True
 
 
 def test_ask_stream_is_server_sent_events(make_app) -> None:  # type: ignore[no-untyped-def]

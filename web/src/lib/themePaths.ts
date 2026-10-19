@@ -2,18 +2,21 @@
 // from the kind of situation they are in. Themes not listed here appear under
 // "More themes", so a new theme is never hidden.
 
+import type { MessageKey } from "./i18n/messages";
+
 export interface ThemePath {
   id: string;
-  title: string;
-  description: string;
+  /** Interface text (lib/i18n/messages.ts), in the chosen language. */
+  title: MessageKey;
+  description: MessageKey;
   themes: string[];
 }
 
 export const THEME_PATHS: ThemePath[] = [
   {
     id: "work",
-    title: "Work and effort",
-    description: "Results you cannot control, setbacks after hard work, burnout, and work worth doing.",
+    title: "path.work.title",
+    description: "path.work.description",
     themes: [
       "action-without-attachment",
       "no-effort-wasted",
@@ -27,8 +30,8 @@ export const THEME_PATHS: ThemePath[] = [
   },
   {
     id: "mind",
-    title: "The restless mind",
-    description: "Anger, craving, distraction, and the search for steadiness.",
+    title: "path.mind.title",
+    description: "path.mind.description",
     themes: [
       "mastering-the-mind",
       "anger-and-desire",
@@ -42,14 +45,14 @@ export const THEME_PATHS: ThemePath[] = [
   },
   {
     id: "choices",
-    title: "Hard choices",
-    description: "Doubt, conflicting duties, and finding a path that is your own.",
+    title: "path.choices.title",
+    description: "path.choices.description",
     themes: ["dilemma-and-despair", "doubt-and-clarity", "reflect-then-choose", "own-path", "courage"],
   },
   {
     id: "self",
-    title: "Self and character",
-    description: "Self-worth, comparison, ego, and the qualities worth growing.",
+    title: "path.self.title",
+    description: "path.self.description",
     themes: [
       "self-as-friend",
       "comparison-and-envy",
@@ -62,14 +65,14 @@ export const THEME_PATHS: ThemePath[] = [
   },
   {
     id: "others",
-    title: "With other people",
-    description: "Forgiveness, honest and kind speech, compassion, and fairness.",
+    title: "path.others.title",
+    description: "path.others.description",
     themes: ["forgiveness", "goodwill-toward-all", "right-speech", "equal-regard"],
   },
   {
     id: "meaning",
-    title: "Loss, faith and meaning",
-    description: "Grief, trust, devotion, and what endures.",
+    title: "path.meaning.title",
+    description: "path.meaning.description",
     themes: ["grief-and-the-self", "faith-and-self-trust", "refuge-and-trust", "devotion"],
   },
 ];
