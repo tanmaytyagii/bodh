@@ -1,5 +1,6 @@
 "use client";
 
+import { T } from "@/components/i18n/T";
 import { Icon } from "@/components/Icon";
 import { buttonClass } from "@/lib/ui";
 
@@ -17,7 +18,7 @@ export function ReturnToQuestion() {
         input.focus({ preventScroll: true });
       }}
     >
-      Ask a question
+      <T k="landing.ask" />
       <Icon name="arrowRight" className="size-4" />
     </button>
   );

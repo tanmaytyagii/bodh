@@ -3,8 +3,11 @@ import { expect, test, type Page } from "@playwright/test";
 import { BRAND, DEFAULT_TITLE } from "../src/lib/brand";
 
 // The product is BODH everywhere: in the navigation and the footer, in every
-// page title and link preview, and in the icons. The brand is in the details,
-// not in slogans: the tagline appears once in the interface.
+// page title and link preview, and in the icons. It has one slogan, the
+// invitation's headline, repeated only by the footer; and one supporting line,
+// at the close of the landing story and on About. Earlier lines are retired.
+
+const RETIRED = ["Ancient Wisdom. Clearer Living.", "From knowledge to understanding"];
 
 const ROUTES: [path: string, title: string][] = [
   ["/", DEFAULT_TITLE],
@@ -36,28 +39,35 @@ test("every page names the product in its title, its header and its link preview
 test("the name in Devanagari is marked as Hindi, beside the name", async ({ page }) => {
   test.skip(!BRAND.devanagari, "shown only with the default name");
   await page.goto("/about");
-  const native = page.getByRole("banner").locator("[lang=hi]");
+  // Inside the wordmark: every interface label also carries a hidden Hindi twin.
+  const native = page.getByRole("banner").getByRole("link", { name: BRAND.name, exact: true }).locator("[lang=hi]");
   await expect(native).toHaveText(BRAND.devanagari as string);
   await expect(native).toBeVisible();
-  // It says what the name means, in English and in Hindi.
+  // It says what the name means.
   const header = page.locator("main header").first();
   await expect(header.getByText(/means understanding/)).toBeVisible();
-  await expect(header.locator("[lang=hi]").filter({ hasText: BRAND.hindi?.text })).toBeVisible();
+  await expect(header.getByText(BRAND.philosophy)).toBeVisible();
 });
 
-test("the footer carries the wordmark and the tagline, which appears nowhere else", async ({ page }) => {
+test("the slogan is the invitation's headline and the footer's line, and nothing older survives", async ({ page }) => {
   await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1, name: BRAND.tagline })).toBeVisible();
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByText(BRAND.name, { exact: true })).toBeVisible();
   await expect(footer.getByText(BRAND.tagline)).toBeVisible();
-  await expect(page.getByText(BRAND.tagline)).toHaveCount(1);
+  for (const path of ["/", "/about"]) {
+    await page.goto(path);
+    for (const line of RETIRED) await expect(page.locator("body"), `${path}: ${line}`).not.toContainText(line);
+  }
 });
 
 test("the landing story carries the name: in the understanding chapter, and at its close", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#invitation").getByText(`${BRAND.name} helps you explore`)).toBeVisible();
   if (BRAND.devanagari) {
-    await expect(page.locator("#understanding [lang=hi]").first()).toHaveText(BRAND.devanagari);
+    const name = page.locator("#understanding").getByText(BRAND.devanagari, { exact: true });
+    await expect(name).toHaveAttribute("lang", "hi");
+    await expect(name).toBeVisible();
   }
   await expect(page.locator("#return").getByText(BRAND.philosophy)).toBeAttached();
 });

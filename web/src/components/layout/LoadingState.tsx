@@ -1,12 +1,16 @@
+import type { ReactNode } from "react";
+
+import { T } from "@/components/i18n/T";
+
 /**
  * Placeholder shown while a page's data streams in. The shapes roughly match
  * the content they stand for, which keeps the layout from jumping.
  */
 export function LoadingState({
-  label = "Loading",
+  label = <T k="common.loading" />,
   variant = "page",
 }: {
-  label?: string;
+  label?: ReactNode;
   variant?: "page" | "cards" | "verse" | "list";
 }) {
   return (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { T } from "@/components/i18n/T";
 import { Label } from "@/components/Label";
 import { LoadingState } from "@/components/layout/LoadingState";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -18,23 +19,23 @@ export default function ConceptsPage() {
   return (
     <PageContainer width="wide">
       <PageHeader
-        eyebrow="Themes"
-        title="Paths into the texts, from where you are"
+        eyebrow={<T k="nav.themes" />}
+        title={<T k="themes.title" />}
         description={
           <>
             <p className="max-w-2xl">
-              Start from what you are going through. Each theme gathers the passages that speak to it, with a short
-              summary and the cautions worth keeping in mind.
+              <T k="themes.lede" />
             </p>
             <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-muted">
               <Label kind="editorial" />
-              The summaries are the editors’ paraphrase; every quotation in them is checked word-for-word against the
-              linked verses.
+              <span>
+                <T k="themes.editorial" />
+              </span>
             </p>
           </>
         }
       />
-      <Suspense fallback={<LoadingState label="Loading themes" variant="cards" />}>
+      <Suspense fallback={<LoadingState label={<T k="themes.loading" />} variant="cards" />}>
         <Themes />
       </Suspense>
     </PageContainer>

@@ -74,6 +74,7 @@ def _draft(**overrides) -> GuidanceDraft:  # type: ignore[no-untyped-def]
         framework=None,
         reflective_question="x",
         follow_up_message=None,
+        summary=None,
         related=[],
         evidence="strong",
         evidence_note=None,
@@ -105,6 +106,43 @@ def test_verifier_checks_quotations(corpus: Corpus) -> None:
     assert "“Thy business is with the action only”" in out.situation  # verbatim: kept
     assert '"' not in out.reflective_question  # not in the sources: unquoted
     assert any("quotation marks removed" in issue for issue in report.issues)
+
+
+def test_verifier_checks_the_summary_and_keeps_it_short(corpus: Corpus) -> None:
+    allowed = {"bg.2.47": corpus.passage_map()["bg.2.47"]}
+    draft = _draft(
+        summary=(
+            "Your effort is yours to give; the result is not [[bg.2.47]][[bg.18.66]]. "
+            'As it says, "success will surely come to you if you work hard". '
+            "Start small. Keep going. Rest when you need to."
+        )
+    )
+    out, report = Verifier(allowed).draft(draft)
+    assert out.summary is not None
+    assert "[[bg.2.47]]" in out.summary and "[[bg.18.66]]" not in out.summary
+    # Wording the sources do not contain is not presented as a quotation.
+    assert '"' not in out.summary
+    assert out.summary.endswith("Start small.")
+    assert "summary: shortened to its first 3 sentences" in report.issues
+    assert any("summary: removed citation of bg.18.66" in issue for issue in report.issues)
+
+
+def test_an_empty_summary_becomes_none(corpus: Corpus) -> None:
+    allowed = {"bg.2.47": corpus.passage_map()["bg.2.47"]}
+    out, _ = Verifier(allowed).draft(_draft(summary="  [[bg.18.66]]  "))
+    assert out.summary is None
+    out, _ = Verifier(allowed).draft(_draft(summary=None))
+    assert out.summary is None
+
+
+def test_follow_ups_and_clarifications_never_carry_a_summary(corpus: Corpus) -> None:
+    # The prompt asks for null; a model that sends one anyway is corrected, and it is reported.
+    allowed = {"bg.2.47": corpus.passage_map()["bg.2.47"]}
+    for kind in ("follow_up", "clarification"):
+        draft = _draft(response_kind=kind, follow_up_message="x", summary="Keep going [[bg.2.47]].")
+        out, report = Verifier(allowed).draft(draft)
+        assert out.summary is None, kind
+        assert any("summary" in issue for issue in report.issues), kind
 
 
 def test_guidance_without_valid_teachings_is_downgraded(corpus: Corpus) -> None:

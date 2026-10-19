@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { Suspense, type ReactNode } from "react";
 
 import { BrandMark } from "@/components/brand/BrandMark";
+import { Both, T } from "@/components/i18n/T";
 import { Icon } from "@/components/Icon";
 import { Label } from "@/components/Label";
 import { Ornament } from "@/components/Ornament";
@@ -11,7 +12,8 @@ import { ThemeExplorer, type ExplorerPath } from "@/components/ThemeExplorer";
 import { VerseLines } from "@/components/VerseCard";
 import { getConcepts, getPassage } from "@/lib/api";
 import { BRAND } from "@/lib/brand";
-import { speakerLine } from "@/lib/passages";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { speakerMessage } from "@/lib/passages";
 import { THEME_PATHS } from "@/lib/themePaths";
 import type { Concept, Passage, PassageDetail } from "@/lib/types";
 import { buttonClass } from "@/lib/ui";
@@ -40,6 +42,20 @@ async function passage(id: string): Promise<PassageDetail | null> {
   }
 }
 
+/** Who is speaking, in the interface language. */
+function Speaker({ passage }: { passage: Passage }) {
+  const who = speakerMessage(passage);
+  return who && <T k={who.key} values={who.values} />;
+}
+
+/** The link to a passage's printed page, or to its source text. */
+function PageLink({ passage, short = false }: { passage: Passage; short?: boolean }) {
+  const { citation } = passage;
+  if (!citation.scan_url) return <T k="verse.sourceText" />;
+  if (!citation.page) return <T k="verse.printedPageAlone" />;
+  return <T k={short ? "landing.page" : "verse.printedPage"} values={{ page: citation.page }} />;
+}
+
 /** Chapters two to five of the landing story; the first, the invitation, belongs to the conversation. */
 export function LandingStory() {
   return (
@@ -50,11 +66,14 @@ export function LandingStory() {
         className="relative z-10 scroll-mt-16 overflow-x-clip pt-28 pb-24 sm:pt-40 sm:pb-32"
       >
         <div className={FRAME}>
-          <ChapterHeading number={2} label="Teachings" id="teachings-title" title="Read the words themselves.">
+          <ChapterHeading
+            number={2}
+            label={<T k="landing.teachings.label" />}
+            id="teachings-title"
+            title={<T k="landing.teachings.title" />}
+          >
             <p className="max-w-2xl">
-              Passages from the Bhagavad Gita and the Upanishads, exactly as printed in public-domain editions: the
-              Sanskrit, a transliteration and the translation, each linked to the page it comes from. A different
-              selection each day.
+              <T k="landing.teachings.lede" />
             </p>
           </ChapterHeading>
           <Suspense fallback={<LeavesSkeleton />}>
@@ -62,7 +81,7 @@ export function LandingStory() {
           </Suspense>
           <div className="reveal mt-16 flex justify-center">
             <Link href="/explore" className={buttonClass("secondary", "lg", "bg-paper/70 backdrop-blur-md")}>
-              Explore the library
+              <T k="landing.exploreLibrary" />
               <Icon name="arrowRight" className="size-4" />
             </Link>
           </div>
@@ -71,10 +90,14 @@ export function LandingStory() {
 
       <section id="themes" aria-labelledby="themes-title" className="relative z-10 scroll-mt-16 overflow-x-clip py-24 sm:py-32">
         <div className={FRAME}>
-          <ChapterHeading number={3} label="Themes" id="themes-title" title="Find your way in.">
+          <ChapterHeading
+            number={3}
+            label={<T k="nav.themes" />}
+            id="themes-title"
+            title={<T k="landing.themes.title" />}
+          >
             <p className="max-w-2xl">
-              Start from the kind of situation you are in. Each path gathers the themes the texts speak to, and each
-              theme the passages behind it.
+              <T k="landing.themes.lede" />
             </p>
           </ChapterHeading>
           <div className="mt-14 sm:mt-16">
@@ -104,28 +127,39 @@ export function LandingStory() {
           <div className="max-w-[38rem] short-landscape:max-w-[min(38rem,58vw)]">
             <ChapterHeading
               number={5}
-              label="Return"
+              label={<T k="landing.return.label" />}
               id="return-title"
               title={
-                <>
-                  What would you like <em className="text-accent">to understand?</em>
-                </>
+                <Both
+                  en={
+                    <>
+                      What would you like <em className="text-accent">to understand?</em>
+                    </>
+                  }
+                  hi={
+                    <>
+                      आप क्या <em className="text-accent not-italic">समझना चाहेंगे?</em>
+                    </>
+                  }
+                />
               }
             >
               <p className="max-w-lg">
-                Bring it in your own words. The passages, their sources and room to think will be there with you.
+                <T k="landing.return.lede" />
               </p>
             </ChapterHeading>
             <div className="reveal mt-10 flex flex-wrap items-center gap-3">
               <ReturnToQuestion />
               <Link href="/explore" className={buttonClass("secondary", "lg", "bg-paper/70 backdrop-blur-md")}>
-                Explore the library
+                <T k="landing.exploreLibrary" />
               </Link>
             </div>
             {/* The story closes as the name promises. */}
             <p className="reveal mt-12 flex items-center gap-3 text-[0.9375rem] text-ink-soft">
               <BrandMark className="size-6 text-ink" />
-              {BRAND.philosophy}
+              <span>
+                <T k="brand.philosophy" />
+              </span>
             </p>
           </div>
         </div>
@@ -145,7 +179,7 @@ async function Leaves() {
   if (!details.length) {
     return (
       <p className="mt-14 max-w-xl text-ink-muted">
-        The texts can’t be reached right now. They will be back shortly; you can still ask a question.
+        <T k="landing.textsUnavailable" />
       </p>
     );
   }
@@ -169,14 +203,17 @@ function LeavesSkeleton() {
 
 /**
  * A passage set as a leaf of a pothi, the long, loose-leaf manuscript of
- * Indian texts, with its binding holes. Nothing on it is generated.
+ * Indian texts, with its binding holes. Nothing on it is generated. The
+ * reading preferences apply to it as to any passage.
  */
 function Leaf({ passage, themes, index }: { passage: Passage; themes: { id: string; name: string }[]; index: number }) {
   const place =
-    passage.source_id === "bhagavad-gita"
-      ? passage.chapter_title && `Chapter ${passage.chapter}: ${passage.chapter_title}`
-      : passage.chapter_title;
-  const meta = [speakerLine(passage), place].filter(Boolean).join(" · ");
+    passage.source_id === "bhagavad-gita" && passage.chapter_title ? (
+      <T k="verse.chapterTitle" values={{ chapter: passage.chapter ?? "", title: passage.chapter_title }} />
+    ) : (
+      passage.chapter_title
+    );
+  const speaker = speakerMessage(passage) !== null;
   const align = ["lg:mr-auto", "lg:ml-auto", "lg:mx-auto"][index % 3];
   return (
     <li className={`max-w-[62rem] ${align}`}>
@@ -189,7 +226,13 @@ function Leaf({ passage, themes, index }: { passage: Passage; themes: { id: stri
                 {passage.ref}
               </Link>
             </h3>
-            {meta && <p className="mt-1 text-[0.8125rem] text-ink-muted">{meta}</p>}
+            {(speaker || place) && (
+              <p className="mt-1 text-[0.8125rem] text-ink-muted">
+                <Speaker passage={passage} />
+                {speaker && place && " · "}
+                {place}
+              </p>
+            )}
           </div>
           <ProvenanceBadge provenance={passage.provenance} />
         </header>
@@ -197,7 +240,7 @@ function Leaf({ passage, themes, index }: { passage: Passage; themes: { id: stri
         {passage.sanskrit && (
           <p
             lang="sa"
-            className="deva relative mt-9 text-center text-[clamp(1.25rem,2.3vw,1.875rem)] whitespace-pre-line text-ink [overflow-wrap:anywhere]"
+            className="verse-sanskrit deva relative mt-9 text-center text-[calc(clamp(1.25rem,2.3vw,1.875rem)*var(--reading-scale))] whitespace-pre-line text-ink [overflow-wrap:anywhere]"
           >
             <VerseLines text={passage.sanskrit} />
           </p>
@@ -205,15 +248,15 @@ function Leaf({ passage, themes, index }: { passage: Passage; themes: { id: stri
         {passage.transliteration && (
           <p
             lang="sa-Latn"
-            className="relative mt-3 text-center font-serif text-[0.9375rem] leading-relaxed whitespace-pre-line text-ink-muted italic [overflow-wrap:anywhere]"
+            className="verse-transliteration verse-centred relative mt-3 text-center font-serif text-[calc(0.9375rem*var(--reading-scale))] leading-relaxed whitespace-pre-line text-ink-muted italic [overflow-wrap:anywhere]"
           >
             <VerseLines text={passage.transliteration} />
           </p>
         )}
-        {passage.sanskrit && <Ornament className="relative mx-auto mt-8 w-28 text-gold/70" />}
+        {passage.sanskrit && <Ornament className="verse-ornament relative mx-auto mt-8 w-28 text-gold/70" />}
 
         <blockquote
-          className={`relative font-serif text-[clamp(1.1875rem,2vw,1.5625rem)] leading-[1.7] text-pretty text-ink ${
+          className={`relative font-serif text-[calc(clamp(1.1875rem,2vw,1.5625rem)*var(--reading-scale))] leading-[1.7] text-pretty text-ink ${
             passage.sanskrit ? "mt-8" : "mt-9"
           }`}
         >
@@ -222,7 +265,7 @@ function Leaf({ passage, themes, index }: { passage: Passage; themes: { id: stri
 
         <footer className="relative mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gold/25 pt-4 text-[0.8125rem] text-ink-muted">
           <span>
-            Translated by <span className="text-ink-soft">{passage.translator}</span>
+            <T k="verse.translatedBy" values={{ translator: <span className="text-ink-soft">{passage.translator}</span> }} />
           </span>
           <a
             href={passage.citation.scan_url ?? passage.citation.url}
@@ -231,13 +274,13 @@ function Leaf({ passage, themes, index }: { passage: Passage; themes: { id: stri
             title={passage.citation.label}
             className="font-medium text-ink-soft underline decoration-rule-strong underline-offset-[3px] transition-colors hover:text-ink hover:decoration-accent"
           >
-            {passage.citation.scan_url
-              ? `Printed page${passage.citation.page ? ` ${passage.citation.page}` : ""} ↗`
-              : "Source text ↗"}
+            <PageLink passage={passage} /> ↗
           </a>
           {themes.length > 0 && (
             <span className="flex flex-wrap items-center gap-x-2">
-              <Label kind="editorial">Theme</Label>
+              <Label kind="editorial">
+                <T k="landing.theme" />
+              </Label>
               {themes.map((theme, i) => (
                 <span key={theme.id}>
                   <Link href={`/concepts/${theme.id}`} className="text-ink-soft hover:text-ink hover:underline">
@@ -252,7 +295,7 @@ function Leaf({ passage, themes, index }: { passage: Passage; themes: { id: stri
             href={passage.path}
             className="group inline-flex items-center gap-1 font-medium text-ink-soft transition-colors hover:text-ink sm:ml-auto"
           >
-            Read in context
+            <T k="landing.readInContext" />
             <Icon name="arrowRight" className="size-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </footer>
@@ -282,19 +325,23 @@ async function Themes() {
       .map((c) => ({ id: c.id, name: c.name, summary: c.summary })),
   })).filter((path) => path.themes.length > 0);
   if (!paths.length) {
-    return <p className="max-w-xl text-ink-muted">The themes can’t be reached right now.</p>;
+    return (
+      <p className="max-w-xl text-ink-muted">
+        <T k="landing.themesUnavailable" />
+      </p>
+    );
   }
   return <ThemeExplorer paths={paths} pathLinks="page" />;
 }
 
 /* ------------------------------------------------------------ Understanding */
 
-const STEPS = [
-  { id: "step-describe", title: "Describe a real situation" },
-  { id: "step-discover", title: "Discover relevant passages" },
-  { id: "step-examine", title: "Examine their context and source" },
-  { id: "step-consider", title: "Consider an interpretation, when available" },
-  { id: "step-decide", title: "Make your own decision" },
+const STEPS: { id: string; title: MessageKey }[] = [
+  { id: "step-describe", title: "landing.step.describe" },
+  { id: "step-discover", title: "landing.step.discover" },
+  { id: "step-examine", title: "landing.step.examine" },
+  { id: "step-consider", title: "landing.step.consider" },
+  { id: "step-decide", title: "landing.step.decide" },
 ];
 
 async function Understanding() {
@@ -307,13 +354,15 @@ async function Understanding() {
         {/* बोध is understanding: the chapter carries the name. */}
         <ChapterHeading
           number={4}
-          label="Understanding"
+          label={<T k="landing.understanding.label" />}
           devanagari={BRAND.devanagari}
           id="understanding-title"
           size="md"
-          title="From reflection to understanding."
+          title={<T k="landing.understanding.title" />}
         >
-          <p>What happens when you ask, step by step, and where the texts end and the interpretation begins.</p>
+          <p>
+            <T k="landing.understanding.lede" />
+          </p>
         </ChapterHeading>
         <StepList steps={STEPS} />
       </div>
@@ -321,25 +370,27 @@ async function Understanding() {
       <ol className="space-y-6 lg:space-y-[18vh] lg:pt-[8vh] lg:pb-[20vh]">
         <Step index={0}>
           <p>
-            Write it as you would tell a friend you trust, in English, <span lang="hi">हिन्दी</span> or Hinglish. A
-            situation helps more than an abstract question: what happened, what you are weighing, what you fear.
+            <T k="landing.describe.text" values={{ hindi: <span lang="hi">हिन्दी</span> }} />
           </p>
           <figure className="mt-7 rounded-2xl bg-surface-raised/90 p-6 shadow-card ring-1 ring-rule backdrop-blur-md">
-            <figcaption className="eyebrow text-ink-muted">For example</figcaption>
+            <figcaption className="eyebrow text-ink-muted">
+              <T k="landing.example" />
+            </figcaption>
             <blockquote className="display mt-3 text-[1.625rem] leading-snug text-ink">
-              “My exams are next month and I can’t concentrate. I keep comparing myself with my friends.”
+              <T k="landing.example.text" />
             </blockquote>
             <p className="mt-4 flex items-center gap-1.5 text-xs text-ink-muted">
               <Icon name="lock" className="size-3.5" />
-              Your question is not stored on our server.
+              <span>
+                <T k="landing.private" />
+              </span>
             </p>
           </figure>
         </Step>
 
         <Step index={1}>
           <p>
-            The situation is matched against a verified collection by meaning, by the words of the translation and by
-            theme. Only passages that are in the texts can come back.
+            <T k="landing.discover.text" />
           </p>
           {shown && (
             <figure aria-label={shown.ref} className="leaf leaf-compact mt-7">
@@ -348,18 +399,21 @@ async function Understanding() {
                 <ProvenanceBadge provenance={shown.provenance} />
               </p>
               {shown.sanskrit && (
-                <p lang="sa" className="deva relative mt-5 text-center text-[1.1875rem] whitespace-pre-line text-ink [overflow-wrap:anywhere]">
+                <p
+                  lang="sa"
+                  className="verse-sanskrit deva relative mt-5 text-center text-[calc(1.1875rem*var(--reading-scale))] whitespace-pre-line text-ink [overflow-wrap:anywhere]"
+                >
                   <VerseLines text={shown.sanskrit} />
                 </p>
               )}
-              <blockquote className="relative mt-5 font-serif text-[1.125rem] leading-[1.7] text-pretty text-ink">
+              <blockquote className="relative mt-5 font-serif text-[calc(1.125rem*var(--reading-scale))] leading-[1.7] text-pretty text-ink">
                 {shown.translation}
               </blockquote>
               <figcaption className="relative mt-4 text-[0.8125rem] text-ink-muted">
                 <Link href={shown.path} className="font-medium text-ink-soft hover:text-ink hover:underline">
                   {shown.ref}
                 </Link>{" "}
-                · tr. {shown.translator}
+                · <T k="landing.tr" values={{ translator: shown.translator }} />
               </figcaption>
             </figure>
           )}
@@ -367,35 +421,34 @@ async function Understanding() {
 
         <Step index={2}>
           <p>
-            Every passage shows who is speaking and where, the translator and the edition, and a link to the printed
-            page. Any verse opens among the verses around it.
+            <T k="landing.examine.text" />
           </p>
           {shown && (
             <dl className="mt-7 divide-y divide-rule rounded-2xl bg-surface-raised/90 px-6 text-[0.9375rem] shadow-card ring-1 ring-rule backdrop-blur-md">
-              <Fact term="Passage">{shown.ref}</Fact>
-              {speakerLine(shown) && <Fact term="Speaking">{speakerLine(shown)}</Fact>}
-              {shown.chapter_title && <Fact term="Chapter">{shown.chapter_title}</Fact>}
-              <Fact term="Translation">{shown.translator}</Fact>
-              <Fact term="Sanskrit">
+              <Fact term="landing.fact.passage">{shown.ref}</Fact>
+              {speakerMessage(shown) && (
+                <Fact term="landing.fact.speaking">
+                  <Speaker passage={shown} />
+                </Fact>
+              )}
+              {shown.chapter_title && <Fact term="landing.fact.chapter">{shown.chapter_title}</Fact>}
+              <Fact term="landing.fact.translation">{shown.translator}</Fact>
+              <Fact term="landing.fact.sanskrit">
                 <ProvenanceBadge provenance={shown.provenance} />
               </Fact>
-              <Fact term="Printed page">
+              <Fact term="landing.fact.page">
                 <a
                   href={shown.citation.scan_url ?? shown.citation.url}
                   target="_blank"
                   rel="noreferrer"
                   className="font-medium text-ink underline decoration-rule-strong underline-offset-[3px] hover:decoration-accent"
                 >
-                  {shown.citation.scan_url
-                    ? shown.citation.page
-                      ? `Page ${shown.citation.page} ↗`
-                      : "Printed page ↗"
-                    : "Source text ↗"}
+                  <PageLink passage={shown} short /> ↗
                 </a>
               </Fact>
-              <Fact term="In context">
+              <Fact term="landing.fact.context">
                 <Link href={shown.path} className="font-medium text-ink underline decoration-rule-strong underline-offset-[3px] hover:decoration-accent">
-                  Read the surrounding verses
+                  <T k="landing.surrounding" />
                 </Link>
               </Fact>
             </dl>
@@ -404,53 +457,56 @@ async function Understanding() {
 
         <Step index={3}>
           <p>
-            When a language model is available, it explains how the passages might bear on your situation and
-            suggests small next steps. It may cite only the passages that were found, and every citation is checked
-            before you see it. When no model is available, you get the passages alone, clearly marked.
+            <T k="landing.consider.text" />
           </p>
           <ul className="mt-7 space-y-3 text-[0.9375rem]">
             <li className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-surface-raised/90 px-5 py-4 shadow-card ring-1 ring-rule backdrop-blur-md">
               <Label kind="source" />
-              <span className="text-ink-soft">The texts, exactly as printed, in a serif face.</span>
+              <span className="text-ink-soft">
+                <T k="landing.kind.source" />
+              </span>
             </li>
             <li className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-ai-bg/95 px-5 py-4 ring-1 ring-ai/20">
               <Label kind="ai" />
-              <span className="text-ink-soft">The model’s reading, always labelled, in the interface face.</span>
+              <span className="text-ink-soft">
+                <T k="landing.kind.ai" />
+              </span>
             </li>
             <li className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-info-bg/95 px-5 py-4 ring-1 ring-info/20">
               <span className="inline-flex items-center gap-1.5 text-[0.8125rem] font-semibold text-info">
                 <Icon name="info" className="size-4" />
-                Passages only
+                <T k="landing.passagesOnly" />
               </span>
-              <span className="text-ink-soft">What you see when no model is configured: no interpretation at all.</span>
+              <span className="text-ink-soft">
+                <T k="landing.kind.passages" />
+              </span>
             </li>
           </ul>
         </Step>
 
         <Step index={4}>
           <p>
-            The Gita ends its teaching the same way: reflect on it fully, then choose. Keep what helped, with your own
-            notes, in this browser.
+            <T k="landing.decide.text" />
           </p>
           {decided && (
             <figure aria-label={decided.passage.ref} className="leaf leaf-compact mt-7">
               <p className="relative">
                 <Label kind="source" />
               </p>
-              <blockquote className="relative mt-4 font-serif text-[1.1875rem] leading-[1.7] text-pretty text-ink">
+              <blockquote className="relative mt-4 font-serif text-[calc(1.1875rem*var(--reading-scale))] leading-[1.7] text-pretty text-ink">
                 {decided.passage.translation}
               </blockquote>
               <figcaption className="relative mt-4 text-[0.8125rem] text-ink-muted">
                 <Link href={decided.passage.path} className="font-medium text-ink-soft hover:text-ink hover:underline">
                   {decided.passage.ref}
                 </Link>{" "}
-                · tr. {decided.passage.translator}
+                · <T k="landing.tr" values={{ translator: decided.passage.translator }} />
               </figcaption>
             </figure>
           )}
           <Link href="/reflections" className="group mt-7 inline-flex items-center gap-2 font-medium text-ink">
             <Icon name="bookmark" className="size-4" />
-            Your reflections
+            <T k="save.yourReflections" />
             <Icon name="arrowRight" className="size-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </Step>
@@ -466,16 +522,20 @@ function Step({ index, children }: { index: number; children: ReactNode }) {
       <p aria-hidden className="font-serif text-[2.75rem] leading-none text-gold tabular-nums">
         {String(index + 1).padStart(2, "0")}
       </p>
-      <h3 className="display mt-4 text-[clamp(1.875rem,3vw,2.625rem)] leading-[1.05] text-ink">{step.title}</h3>
+      <h3 className="display mt-4 text-[clamp(1.875rem,3vw,2.625rem)] leading-[1.05] text-ink">
+        <T k={step.title} />
+      </h3>
       <div className="mt-4 max-w-2xl text-[1.0625rem] leading-relaxed text-ink-soft">{children}</div>
     </li>
   );
 }
 
-function Fact({ term, children }: { term: string; children: ReactNode }) {
+function Fact({ term, children }: { term: MessageKey; children: ReactNode }) {
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5">
-      <dt className="text-ink-muted">{term}</dt>
+      <dt className="text-ink-muted">
+        <T k={term} />
+      </dt>
       <dd className="text-right text-ink">{children}</dd>
     </div>
   );

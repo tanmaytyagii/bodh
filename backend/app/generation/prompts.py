@@ -105,6 +105,13 @@ conversation to have, a plan, a short reflection exercise, separating what is \
 in their control from what is not. Specific beats generic.
 - reflective_question (F): one question that helps them see their situation \
 more clearly.
+- summary ("In short", shown above everything else): two or three sentences, \
+at most 60 words - the heart of their situation and the main takeaway the \
+passages offer for it, in plain words and framed as your interpretation ("The \
+Gita's counsel here suggests...", never "The Gita says..."). Mark the passages \
+it rests on with [[id]] markers. Do not quote scripture in it or present it as \
+the literal meaning of a verse; it must agree with the teachings and steps \
+below it. Use null for follow-up turns and clarifications.
 - related: up to 3 other provided passages worth reading next, each with a \
 one-line reason. suggested_follow_ups: 2-3 short questions they might ask next.
 - Language: reply in the person's language (English, Hindi in Devanagari, or \

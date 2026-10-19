@@ -2,70 +2,79 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { T } from "@/components/i18n/T";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { LanguageSelector } from "@/components/preferences/LanguageSelector";
+import { ReadingSettings } from "@/components/preferences/ReadingSettings";
 import { ReflectionSettings } from "@/components/settings/ReflectionSettings";
 import { ThemeSelector } from "@/components/settings/ThemeSelector";
 import { BRAND } from "@/lib/brand";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { textLink } from "@/lib/ui";
 
 export const metadata: Metadata = {
   title: "Settings",
-  description: `Appearance, and the data ${BRAND.name} keeps in your browser.`,
+  description: `Appearance, language, reading, and the data ${BRAND.name} keeps in your browser.`,
 };
 
-const STORED: { what: string; where: string }[] = [
-  { what: "Your appearance choice", where: "This browser, until you change it." },
-  { what: "Saved reflections and your notes", where: "This browser, until you delete them or clear your browser data." },
-  { what: "The current conversation", where: "This tab only. It disappears when you close the tab." },
-  {
-    what: "On our server",
-    where:
-      "Nothing you type is stored. Questions are sent to the language-model provider to write a reply. A report you send is kept, and includes your question only if you tick the box.",
-  },
+const STORED: { what: MessageKey; where: MessageKey }[] = [
+  { what: "settings.stored.choices", where: "settings.stored.choices.where" },
+  { what: "settings.stored.reflections", where: "settings.stored.reflections.where" },
+  { what: "settings.stored.conversation", where: "settings.stored.conversation.where" },
+  { what: "settings.stored.server", where: "settings.stored.server.where" },
 ];
 
 export default function SettingsPage() {
   return (
     <PageContainer width="medium">
       <PageHeader
-        eyebrow="Preferences"
-        title="Settings"
-        description={`How ${BRAND.name} looks, and what it keeps. There is no account: everything here applies to this browser only.`}
+        eyebrow={<T k="settings.eyebrow" />}
+        title={<T k="nav.settings" />}
+        description={<T k="settings.description" values={{ name: BRAND.name }} />}
       />
 
       <div className="border-b border-rule">
-        <SettingsRow
-          id="appearance"
-          title="Appearance"
-          description="System follows your device’s light or dark setting, and changes when it does."
-        >
+        <SettingsRow id="appearance" title="settings.appearance" description="settings.appearance.description">
           <ThemeSelector />
         </SettingsRow>
 
-        <SettingsRow
-          id="reflections"
-          title="Saved reflections"
-          description="Answers you saved with “Save this reflection”, and your notes on them."
-        >
+        <SettingsRow id="language" title="prefs.language" description="settings.language.description">
+          <LanguageSelector showNote />
+        </SettingsRow>
+
+        <SettingsRow id="reading" title="settings.reading" description="settings.reading.description">
+          <ReadingSettings showNote />
+        </SettingsRow>
+
+        <SettingsRow id="reflections" title="settings.reflections" description="settings.reflections.description">
           <ReflectionSettings />
         </SettingsRow>
 
-        <SettingsRow id="privacy" title="Privacy" description="What is stored, and where.">
+        <SettingsRow id="privacy" title="footer.privacy" description="settings.privacy.description">
           <dl className="divide-y divide-rule border-y border-rule">
             {STORED.map((item) => (
               <div key={item.what} className="grid gap-1 py-3.5 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-6">
-                <dt className="text-sm font-medium text-ink">{item.what}</dt>
-                <dd className="text-sm leading-relaxed text-ink-soft">{item.where}</dd>
+                <dt className="text-sm font-medium text-ink">
+                  <T k={item.what} />
+                </dt>
+                <dd className="text-sm leading-relaxed text-ink-soft">
+                  <T k={item.where} />
+                </dd>
               </div>
             ))}
           </dl>
           <p className="mt-4 text-sm text-ink-muted">
-            More detail in{" "}
-            <Link href="/about#privacy" className={textLink}>
-              About · Privacy
-            </Link>
-            .
+            <T
+              k="settings.privacy.more"
+              values={{
+                link: (
+                  <Link href="/about#privacy" className={textLink}>
+                    <T k="settings.privacy.link" />
+                  </Link>
+                ),
+              }}
+            />
           </p>
         </SettingsRow>
       </div>
@@ -80,20 +89,23 @@ function SettingsRow({
   children,
 }: {
   id: string;
-  title: string;
-  description: string;
+  title: MessageKey;
+  description: MessageKey;
   children: ReactNode;
 }) {
   return (
     <section
+      id={id}
       aria-labelledby={`${id}-title`}
-      className="grid grid-cols-1 gap-x-12 gap-y-5 border-t border-rule py-10 md:grid-cols-[15rem_minmax(0,1fr)]"
+      className="grid scroll-mt-24 grid-cols-1 gap-x-12 gap-y-5 border-t border-rule py-10 md:grid-cols-[15rem_minmax(0,1fr)]"
     >
       <div>
         <h2 id={`${id}-title`} className="display text-[1.875rem] leading-tight text-ink">
-          {title}
+          <T k={title} />
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-ink-muted">{description}</p>
+        <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+          <T k={description} />
+        </p>
       </div>
       <div className="min-w-0 md:pt-1">{children}</div>
     </section>

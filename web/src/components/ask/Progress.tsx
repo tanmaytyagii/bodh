@@ -1,20 +1,24 @@
 "use client";
 
 import { BrandMark } from "@/components/brand/BrandMark";
+import { T } from "@/components/i18n/T";
 import { Icon } from "@/components/Icon";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { useT } from "@/lib/i18n/useLocale";
 import type { Stage } from "@/lib/types";
 
-const STAGES: { key: Stage; label: string }[] = [
-  { key: "understanding", label: "Understanding your situation" },
-  { key: "retrieving", label: "Searching the texts" },
-  { key: "writing", label: "Writing a grounded reply" },
+const STAGES: { key: Stage; label: MessageKey }[] = [
+  { key: "understanding", label: "progress.understanding" },
+  { key: "retrieving", label: "progress.retrieving" },
+  { key: "writing", label: "progress.writing" },
 ];
 
 /** The three stages of a reply, laid out as a path. The stage under way is the mark, its bead travelling. */
 export function Progress({ stage, passagesFound }: { stage: Stage | "sending"; passagesFound?: number }) {
+  const t = useT();
   const current = STAGES.findIndex((s) => s.key === stage);
   return (
-    <ol className="grid gap-4 sm:grid-cols-3 sm:gap-0" aria-label="Progress">
+    <ol className="grid gap-4 sm:grid-cols-3 sm:gap-0" aria-label={t("progress.label")}>
       {STAGES.map((s, i) => {
         const done = current > i;
         const active = current === i || (stage === "sending" && i === 0);
@@ -38,9 +42,11 @@ export function Progress({ stage, passagesFound }: { stage: Stage | "sending"; p
               </span>
             )}
             <span className={`text-sm ${done || active ? "text-ink" : "text-ink-muted"}`}>
-              {s.label}
+              <T k={s.label} />
               {s.key === "retrieving" && done && passagesFound ? (
-                <span className="block text-ink-muted">{passagesFound} passages found</span>
+                <span className="block text-ink-muted">
+                  <T k="progress.found" values={{ count: passagesFound }} />
+                </span>
               ) : null}
             </span>
           </li>

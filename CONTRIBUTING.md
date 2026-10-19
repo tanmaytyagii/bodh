@@ -34,7 +34,7 @@ After the first time, `make db`, `make api` and `make web` are enough (with Dock
 | --- | --- |
 | `make lint` | ruff, ruff format, mypy; the TypeScript check and ESLint |
 | `make test` | Backend tests. No Docker or model key needed; the first run downloads the embedding model (about 130 MB). |
-| `make e2e` | Playwright tests on desktop Chrome and a Pixel 7, with axe accessibility checks in both themes. Start `make api` first, and install the browser once with `cd web && npx playwright install chromium`. |
+| `make e2e` | Playwright tests on desktop Chrome and a Pixel 7, with axe accessibility checks in both themes. They build and serve their own copy of the web app on port 3100, so `make web` can keep running. Start `make api` first, and install the browser once with `cd web && npx playwright install chromium`. |
 | `make eval` | Retrieval evaluation on the labelled questions |
 | `make corpus` | Rebuild `backend/data/processed` from the sources, with validation |
 

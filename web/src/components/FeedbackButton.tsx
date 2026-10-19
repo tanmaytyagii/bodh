@@ -2,33 +2,35 @@
 
 import { useId, useRef, useState } from "react";
 
+import type { MessageKey } from "@/lib/i18n/messages";
 import { passageLabel } from "@/lib/passages";
 import type { FeedbackKind } from "@/lib/types";
 import { buttonClass } from "@/lib/ui";
 
+import { T } from "./i18n/T";
 import { Icon } from "./Icon";
 
-const KINDS: { value: FeedbackKind; label: string }[] = [
-  { value: "incorrect_citation", label: "A citation or quotation is wrong" },
-  { value: "irrelevant_passage", label: "A passage is not relevant" },
-  { value: "inaccurate_interpretation", label: "An interpretation misrepresents the text" },
-  { value: "unhelpful_advice", label: "The advice was not helpful" },
-  { value: "safety_concern", label: "Something here could cause harm" },
-  { value: "helpful", label: "This was helpful" },
-  { value: "other", label: "Something else" },
+const KINDS: { value: FeedbackKind; label: MessageKey }[] = [
+  { value: "incorrect_citation", label: "feedback.kind.incorrect_citation" },
+  { value: "irrelevant_passage", label: "feedback.kind.irrelevant_passage" },
+  { value: "inaccurate_interpretation", label: "feedback.kind.inaccurate_interpretation" },
+  { value: "unhelpful_advice", label: "feedback.kind.unhelpful_advice" },
+  { value: "safety_concern", label: "feedback.kind.safety_concern" },
+  { value: "helpful", label: "feedback.kind.helpful" },
+  { value: "other", label: "feedback.kind.other" },
 ];
 
 export function FeedbackButton({
   passageId,
   answerId,
   question,
-  label = "Report an issue",
+  label = "feedback.report",
   variant = "secondary",
 }: {
   passageId?: string;
   answerId?: string;
   question?: string;
-  label?: string;
+  label?: MessageKey;
   variant?: "secondary" | "toolbar" | "link";
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -76,7 +78,7 @@ export function FeedbackButton({
         className={trigger}
       >
         {variant !== "link" && <Icon name="flag" className="size-4" />}
-        {label}
+        <T k={label} />
       </button>
       <dialog
         ref={dialog}
@@ -89,15 +91,14 @@ export function FeedbackButton({
               <Icon name="check" className="size-5" />
             </span>
             <h2 id={`${formId}-title`} className="mt-4 font-serif text-xl font-semibold">
-              Thank you
+              <T k="feedback.thanks" />
             </h2>
             <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-soft">
-              Your report was recorded and will be reviewed. Reports like this are how the
-              citations and interpretations get better.
+              <T k="feedback.thanks.detail" />
             </p>
             <div className="mt-6 flex justify-end">
               <button type="button" onClick={() => dialog.current?.close()} className={buttonClass("primary", "md")}>
-                Close
+                <T k="common.close" />
               </button>
             </div>
           </div>
@@ -112,7 +113,7 @@ export function FeedbackButton({
           >
             <div className="flex items-start justify-between gap-4">
               <h2 id={`${formId}-title`} className="font-serif text-xl font-semibold">
-                {passageId ? `Report an issue with ${passageLabel(passageId)}` : "Report an issue"}
+                {passageId ? <T k="feedback.reportWith" values={{ ref: passageLabel(passageId) }} /> : <T k="feedback.report" />}
               </h2>
               <button
                 type="button"
@@ -120,11 +121,15 @@ export function FeedbackButton({
                 className="-mt-1 -mr-2 flex size-9 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-sunk hover:text-ink"
               >
                 <Icon name="close" className="size-5" />
-                <span className="sr-only">Close</span>
+                <span className="sr-only">
+                  <T k="common.close" />
+                </span>
               </button>
             </div>
             <fieldset className="mt-4 space-y-1.5">
-              <legend className="sr-only">What kind of issue?</legend>
+              <legend className="sr-only">
+                <T k="feedback.kinds" />
+              </legend>
               {KINDS.map((kind, i) => (
                 <label
                   key={kind.value}
@@ -137,12 +142,16 @@ export function FeedbackButton({
                     defaultChecked={i === 0}
                     className="mt-0.5 size-4 accent-[var(--accent)]"
                   />
-                  {kind.label}
+                  <span>
+                    <T k={kind.label} />
+                  </span>
                 </label>
               ))}
             </fieldset>
             <label className="mt-4 block text-sm">
-              <span className="font-medium text-ink-soft">Details (optional)</span>
+              <span className="font-medium text-ink-soft">
+                <T k="feedback.details" />
+              </span>
               <textarea
                 name="comment"
                 maxLength={2000}
@@ -153,20 +162,22 @@ export function FeedbackButton({
             {question && (
               <label className="mt-3 flex items-start gap-2.5 text-sm text-ink-soft">
                 <input type="checkbox" name="include_question" className="mt-0.5 size-4 accent-[var(--accent)]" />
-                Include my question so reviewers can see the context. It is not stored otherwise.
+                <span>
+                  <T k="feedback.includeQuestion" />
+                </span>
               </label>
             )}
             {state === "error" && (
               <p role="alert" className="mt-3 text-sm text-danger">
-                The report could not be sent. Please try again.
+                <T k="feedback.error" />
               </p>
             )}
             <div className="mt-6 flex justify-end gap-2">
               <button type="button" onClick={() => dialog.current?.close()} className={buttonClass("ghost", "md")}>
-                Cancel
+                <T k="feedback.cancel" />
               </button>
               <button type="submit" disabled={state === "sending"} className={buttonClass("primary", "md")}>
-                {state === "sending" ? "Sending…" : "Send report"}
+                {state === "sending" ? <T k="feedback.sending" /> : <T k="feedback.send" />}
               </button>
             </div>
           </form>

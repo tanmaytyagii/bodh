@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import { T } from "@/components/i18n/T";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { useT } from "@/lib/i18n/useLocale";
 import { journey } from "@/lib/journey";
 
 /**
@@ -9,7 +12,8 @@ import { journey } from "@/lib/journey";
  * step crossing the middle of the screen is marked, and the instrument's
  * bead moves on with it.
  */
-export function StepList({ steps }: { steps: { id: string; title: string }[] }) {
+export function StepList({ steps }: { steps: { id: string; title: MessageKey }[] }) {
+  const t = useT();
   const [active, setActive] = useState(0);
   const ids = steps.map((step) => step.id).join(" ");
 
@@ -32,7 +36,7 @@ export function StepList({ steps }: { steps: { id: string; title: string }[] }) 
   }, [ids]);
 
   return (
-    <nav aria-label="Steps" className="mt-12 hidden lg:block">
+    <nav aria-label={t("landing.steps")} className="mt-12 hidden lg:block">
       <ol className="relative space-y-1 border-l border-rule-strong">
         {steps.map((step, i) => {
           const current = i === active;
@@ -46,7 +50,9 @@ export function StepList({ steps }: { steps: { id: string; title: string }[] }) 
                 }`}
               >
                 <span className="w-4 font-serif text-sm text-accent tabular-nums">{i + 1}</span>
-                <span className={current ? "font-medium" : ""}>{step.title}</span>
+                <span className={current ? "font-medium" : ""}>
+                  <T k={step.title} />
+                </span>
               </a>
             </li>
           );

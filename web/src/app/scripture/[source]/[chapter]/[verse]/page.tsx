@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { T } from "@/components/i18n/T";
 import { Icon } from "@/components/Icon";
 import { Label } from "@/components/Label";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
@@ -10,6 +11,7 @@ import { LoadingState } from "@/components/layout/LoadingState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SourceMetadata } from "@/components/SourceMetadata";
 import { VerseCard } from "@/components/VerseCard";
+import { VerseKeyboardNav } from "@/components/VerseKeyboardNav";
 import { getPassageAt } from "@/lib/api";
 import type { Passage } from "@/lib/types";
 
@@ -41,19 +43,19 @@ async function VerseView({ params }: { params: Props["params"] }) {
   const { passage } = data;
   const previous = data.before[data.before.length - 1];
   const next = data.after[0];
-  const division = passage.source_id === "bhagavad-gita" ? "Chapter" : "Part";
+  const division = passage.source_id === "bhagavad-gita" ? "verse.chapter" : "verse.part";
 
   return (
     <>
       <Breadcrumbs
         items={[
-          { label: "Explore", href: "/explore" },
+          { label: <T k="nav.explore" />, href: "/explore" },
           { label: passage.source_title, href: `/scripture/${passage.source_id}` },
           {
-            label: `${division} ${passage.chapter}`,
+            label: <T k={division} values={{ n: passage.chapter ?? "" }} />,
             href: `/scripture/${passage.source_id}/${passage.chapter}#v${passage.verse}`,
           },
-          { label: `Verse ${passage.verse}` },
+          { label: <T k="verse.verse" values={{ n: passage.verse ?? "" }} /> },
         ]}
       />
 
@@ -64,9 +66,11 @@ async function VerseView({ params }: { params: Props["params"] }) {
           <VerseCard passage={passage} headingLevel={1} showVerseLink={false} />
           {data.stories.length > 0 && (
             <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-ink-soft">
-              <Label kind="editorial">Story</Label>
+              <Label kind="editorial">
+                <T k="verse.story" />
+              </Label>
               <span>
-                Part of{" "}
+                <T k="verse.partOf" />{" "}
                 {data.stories.map((s, i) => (
                   <span key={s.id}>
                     {i > 0 && ", "}
@@ -85,7 +89,11 @@ async function VerseView({ params }: { params: Props["params"] }) {
         <div className="hidden xl:block">{next && <SideLink passage={next} direction="next" />}</div>
       </div>
 
-      <nav aria-label="Verses" className="mx-auto mt-6 grid max-w-[52rem] grid-cols-2 gap-3 xl:hidden">
+      <VerseKeyboardNav previous={previous?.path} next={next?.path} />
+      <nav aria-labelledby="verse-nav-label" className="mx-auto mt-6 grid max-w-[52rem] grid-cols-2 gap-3 xl:hidden">
+        <span id="verse-nav-label" className="sr-only">
+          <T k="verse.verses" />
+        </span>
         {previous ? (
           <Link href={previous.path} className="group flex items-center gap-2 py-2 text-sm">
             <Icon name="arrowLeft" className="size-4 text-ink-muted transition-transform group-hover:-translate-x-0.5" />
@@ -106,16 +114,20 @@ async function VerseView({ params }: { params: Props["params"] }) {
         {data.before.length + data.after.length > 0 && (
           <section aria-labelledby="context" className="reveal">
             <h2 id="context" className={SECTION_TITLE}>
-              Surrounding verses
+              <T k="verse.surrounding" />
             </h2>
-            <p className="mt-2 text-sm text-ink-muted">Read the verse in its place in the text.</p>
+            <p className="mt-2 text-sm text-ink-muted">
+              <T k="verse.surrounding.note" />
+            </p>
             <ol className="mt-6 border-l border-rule-strong">
               {data.before.map((p) => (
                 <ContextVerse key={p.id} passage={p} />
               ))}
               <li className="relative -ml-px border-l-2 border-accent py-4 pr-2 pl-6">
                 <span aria-hidden className="absolute top-[1.45rem] -left-[5px] size-2 rotate-45 bg-accent" />
-                <p className="text-xs font-semibold text-accent">{passage.ref} · this verse</p>
+                <p className="text-xs font-semibold text-accent">
+                  {passage.ref} · <T k="verse.thisVerse" />
+                </p>
                 <p className="mt-1 font-serif text-[1.0625rem] leading-relaxed text-ink">{passage.translation}</p>
               </li>
               {data.after.map((p) => (
@@ -130,7 +142,7 @@ async function VerseView({ params }: { params: Props["params"] }) {
             <section aria-labelledby="themes" className="reveal">
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <h2 id="themes" className={SECTION_TITLE}>
-                  Themes
+                  <T k="nav.themes" />
                 </h2>
                 <Label kind="editorial" />
               </div>
@@ -155,7 +167,7 @@ async function VerseView({ params }: { params: Props["params"] }) {
           {data.related.length > 0 && (
             <section aria-labelledby="related" className="reveal">
               <h2 id="related" className={SECTION_TITLE}>
-                Related passages
+                <T k="answer.related" />
               </h2>
               <ul className="mt-6 divide-y divide-rule border-y border-rule">
                 {data.related.map(({ passage: p, reason, kind }) => (
@@ -195,7 +207,9 @@ function SideLink({ passage, direction }: { passage: Passage; direction: "previo
       <span className="flex size-11 items-center justify-center rounded-full ring-1 ring-rule-strong transition-colors group-hover:ring-gold">
         <Icon name={previous ? "arrowLeft" : "arrowRight"} className="size-4 text-ink" />
       </span>
-      <span className="text-xs text-ink-muted">{previous ? "Previous" : "Next"}</span>
+      <span className="text-xs text-ink-muted">
+        <T k={previous ? "verse.previous" : "verse.next"} />
+      </span>
       <span className="text-sm font-semibold text-ink">{passage.short_ref}</span>
     </Link>
   );

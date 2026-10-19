@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 
+import { T } from "@/components/i18n/T";
 import { Icon } from "@/components/Icon";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { LoadingState } from "@/components/layout/LoadingState";
@@ -11,6 +12,7 @@ import { Ornament } from "@/components/Ornament";
 import { ProvenanceBadge } from "@/components/ProvenanceBadge";
 import { VerseLines } from "@/components/VerseCard";
 import { getChapter } from "@/lib/api";
+import { divisionKey, speakerNameKey } from "@/lib/passages";
 import type { Chapter, Passage } from "@/lib/types";
 
 type Props = PageProps<"/scripture/[source]/[chapter]">;
@@ -40,15 +42,15 @@ async function ChapterView({ params }: { params: Props["params"] }) {
   const data = await getChapter(source, chapter);
   if (!data) notFound();
   const { chapter: division } = data;
-  const label = data.source.division_label;
+  const label = divisionKey(data.source.division_label);
 
   return (
     <>
       <Breadcrumbs
         items={[
-          { label: "Explore", href: "/explore" },
+          { label: <T k="nav.explore" />, href: "/explore" },
           { label: data.source.title, href: `/scripture/${data.source.id}` },
-          { label: `${label} ${division.number}` },
+          { label: <T k={label} values={{ n: division.number }} /> },
         ]}
       />
 
@@ -58,7 +60,7 @@ async function ChapterView({ params }: { params: Props["params"] }) {
         <div className="min-w-0">
           <header className="text-center">
             <p className="eyebrow text-accent">
-              {label} {division.number}
+              <T k={label} values={{ n: division.number }} />
             </p>
             <h1 className="display mt-4 text-[2.75rem] leading-[1.02] text-balance text-ink sm:text-title">
               {division.title ?? data.source.title}
@@ -68,7 +70,9 @@ async function ChapterView({ params }: { params: Props["params"] }) {
                 {division.title_original}
               </p>
             )}
-            <p className="mt-3 text-sm text-ink-muted">{division.passage_count} verses</p>
+            <p className="mt-3 text-sm text-ink-muted">
+              <T k="explore.summary.verses" values={{ count: division.passage_count }} />
+            </p>
             <Ornament className="mx-auto mt-8 w-32 text-gold/70" />
           </header>
 
@@ -78,7 +82,10 @@ async function ChapterView({ params }: { params: Props["params"] }) {
             ))}
           </ol>
 
-          <nav aria-label={`${label}s`} className="mt-10 grid gap-3 sm:grid-cols-2">
+          <nav aria-labelledby="chapter-pages" className="mt-10 grid gap-3 sm:grid-cols-2">
+            <span id="chapter-pages" className="sr-only">
+              <T k={label === "verse.chapter" ? "chapter.previousNext" : "chapter.previousNextPart"} />
+            </span>
             {data.previous !== null ? (
               <Link
                 href={`/scripture/${data.source.id}/${data.previous}`}
@@ -86,9 +93,11 @@ async function ChapterView({ params }: { params: Props["params"] }) {
               >
                 <Icon name="arrowLeft" className="size-4 text-ink-muted transition-transform group-hover:-translate-x-0.5" />
                 <span className="text-sm">
-                  <span className="block text-ink-muted">Previous</span>
+                  <span className="block text-ink-muted">
+                    <T k="verse.previous" />
+                  </span>
                   <span className="display text-xl text-ink">
-                    {label} {data.previous}
+                    <T k={label} values={{ n: data.previous }} />
                   </span>
                 </span>
               </Link>
@@ -101,9 +110,11 @@ async function ChapterView({ params }: { params: Props["params"] }) {
                 className="group flex items-center justify-end gap-3 border-t border-rule py-4 text-right transition-colors"
               >
                 <span className="text-sm">
-                  <span className="block text-ink-muted">Next</span>
+                  <span className="block text-ink-muted">
+                    <T k="verse.next" />
+                  </span>
                   <span className="display text-xl text-ink">
-                    {label} {data.next}
+                    <T k={label} values={{ n: data.next }} />
                   </span>
                 </span>
                 <Icon name="arrowRight" className="size-4 text-ink-muted transition-transform group-hover:translate-x-0.5" />
@@ -119,8 +130,15 @@ async function ChapterView({ params }: { params: Props["params"] }) {
 /** Every chapter of the source as a compact strip, the current one marked. */
 function ChapterStrip({ data }: { data: Chapter }) {
   const current = String(data.chapter.number);
+  const division = divisionKey(data.source.division_label);
   return (
-    <nav aria-label={`${data.source.division_label}s of ${data.source.title}`} className="mt-6">
+    <nav aria-labelledby="chapter-strip" className="mt-6">
+      <span id="chapter-strip" className="sr-only">
+        <T
+          k={division === "verse.chapter" ? "explore.chapters" : "chapter.parts"}
+          values={{ title: data.source.title }}
+        />
+      </span>
       <ol className="flex flex-wrap gap-1.5">
         {data.source.divisions.map((d) => {
           const active = String(d.number) === current;
@@ -130,14 +148,17 @@ function ChapterStrip({ data }: { data: Chapter }) {
                 href={`/scripture/${data.source.id}/${d.number}`}
                 aria-current={active ? "page" : undefined}
                 title={d.title ?? undefined}
-                aria-label={`${data.source.division_label} ${d.number}${d.title ? `: ${d.title}` : ""}`}
                 className={`flex size-10 items-center justify-center rounded-full font-serif text-base tabular-nums transition-colors ${
                   active
                     ? "bg-primary text-primary-ink"
                     : "text-ink-soft ring-1 ring-rule hover:bg-surface-raised hover:text-ink hover:ring-gold"
                 }`}
               >
-                {d.number}
+                <span aria-hidden>{d.number}</span>
+                <span className="sr-only">
+                  <T k={division} values={{ n: d.number }} />
+                  {d.title && `: ${d.title}`}
+                </span>
               </Link>
             </li>
           );
@@ -158,24 +179,40 @@ function VerseRow({ passage, showSpeaker }: { passage: Passage; showSpeaker: boo
     <li id={`v${passage.verse}`} className="reveal scroll-mt-24 border-b border-rule py-7 last:border-b-0">
       {showSpeaker && passage.speakers.length > 0 && (
         <p className="mb-4 text-center text-xs font-semibold tracking-[0.15em] text-ink-muted uppercase">
-          {passage.speakers.join(" · then ")}
+          {passage.speakers.map((name, i) => {
+            const key = speakerNameKey(name);
+            return (
+              <Fragment key={`${name}-${i}`}>
+                {i > 0 && <T k="speaker.then" />}
+                {key ? <T k={key} /> : name}
+              </Fragment>
+            );
+          })}
         </p>
       )}
       <div className="grid grid-cols-[2.75rem_minmax(0,1fr)] gap-x-4 sm:gap-x-5">
-        <Link
-          href={passage.path}
-          className="pt-1 text-right font-serif text-sm text-accent tabular-nums hover:underline"
-          aria-label={`${passage.ref}: context and details`}
-        >
-          {passage.chapter}.{passage.verse}
+        <Link href={passage.path} className="pt-1 text-right font-serif text-sm text-accent tabular-nums hover:underline">
+          <span aria-hidden>
+            {passage.chapter}.{passage.verse}
+          </span>
+          <span className="sr-only">
+            <T k="chapter.verseLink" values={{ ref: passage.ref }} />
+          </span>
         </Link>
         <div className="min-w-0">
           {passage.sanskrit && (
-            <p lang="sa" className="deva text-lg whitespace-pre-line text-ink [overflow-wrap:anywhere]">
+            <p
+              lang="sa"
+              className="verse-sanskrit deva text-[calc(1.125rem*var(--reading-scale))] whitespace-pre-line text-ink [overflow-wrap:anywhere]"
+            >
               <VerseLines text={passage.sanskrit} />
             </p>
           )}
-          <p className={`font-serif text-[1.0625rem] leading-relaxed text-pretty text-ink ${passage.sanskrit ? "mt-2.5" : ""}`}>
+          <p
+            className={`font-serif text-[calc(1.0625rem*var(--reading-scale))] leading-relaxed text-pretty text-ink ${
+              passage.sanskrit ? "mt-2.5" : ""
+            }`}
+          >
             {passage.translation}
           </p>
           {passage.provenance.status !== "verified" && (

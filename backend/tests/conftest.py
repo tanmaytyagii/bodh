@@ -111,6 +111,10 @@ class FakeLLM:
             framework=None,
             reflective_question="What would you do if the result were already decided?",
             follow_up_message=None,
+            summary=(
+                f"You can keep working well without letting each result decide your worth [[{first}]]. "
+                "The steps below start with what is in your hands [[bg.99.99]]."
+            ),
             related=[RelatedDraft(passage_id=second, reason="Same theme.")],
             evidence="moderate",
             evidence_note=None,

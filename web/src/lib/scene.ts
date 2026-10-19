@@ -1,3 +1,5 @@
+import type { MessageKey } from "./i18n/messages";
+
 // The celestial instrument behind the Ask and Explore pages: modes, framing,
 // and the poses it takes through the landing page's scroll story.
 //
@@ -42,12 +44,12 @@ export function orientationFor(aspect: number, height: number): Orientation {
 
 /** The chapters of the landing story, in order. Each is a section with this id. */
 export const STORY_CHAPTERS = [
-  { id: "invitation", label: "Invitation" },
-  { id: "teachings", label: "Teachings" },
-  { id: "themes", label: "Themes" },
-  { id: "understanding", label: "Understanding" },
-  { id: "return", label: "Return" },
-] as const;
+  { id: "invitation", label: "landing.invitation.label" },
+  { id: "teachings", label: "landing.teachings.label" },
+  { id: "themes", label: "nav.themes" },
+  { id: "understanding", label: "landing.understanding.label" },
+  { id: "return", label: "landing.return.label" },
+] as const satisfies readonly { id: string; label: MessageKey }[];
 
 /** A chapter's place in the story. */
 export function chapterIndex(id: (typeof STORY_CHAPTERS)[number]["id"]): number {
@@ -67,21 +69,21 @@ const p = (cx: number, cy: number, d: number, yaw: number, pitch: number, glow: 
 
 // The story, chapter by chapter: arrival beside the headline and the question
 // box; vast and faint behind the passages; turning beside the themes; rising
-// from a corner while the method is told; and back where it began for the
-// return.
+// from the lower right while the method is told, below its step list and its
+// example; and back where it began for the return.
 export const STORY_POSES: Record<Orientation, Pose[]> = {
   wide: [
     p(0.7, 0.54, 0.84, 0, 0.2, 1, 1),
     p(0.56, 0.8, 2, 0.4, 0.12, 0.3, 0.22),
     p(0.84, 0.58, 0.95, 0.9, 0.3, 0.9, 0.55),
-    p(0.16, 1.1, 0.95, 1.6, 0.45, 0.8, 0.45),
+    p(0.84, 1.22, 0.8, 1.6, 0.45, 0.8, 0.45),
     p(0.7, 0.52, 0.84, 0, 0.22, 1.1, 1),
   ],
   square: [
     p(0.76, 0.37, 0.56, 0, 0.2, 1, 1),
     p(0.56, 0.78, 1.8, 0.4, 0.12, 0.3, 0.22),
     p(0.86, 0.3, 0.56, 0.9, 0.3, 0.9, 0.5),
-    p(0.16, 1.08, 0.8, 1.6, 0.45, 0.8, 0.4),
+    p(0.86, 1.2, 0.68, 1.6, 0.45, 0.8, 0.4),
     p(0.76, 0.37, 0.56, 0, 0.22, 1.1, 1),
   ],
   short: [
@@ -125,7 +127,8 @@ export const SCENE_FRAMING: Record<SceneMode, Record<Orientation, Framing>> = {
     wide: { cx: 0.74, cy: 0.47, d: 0.78 },
     square: { cx: 0.8, cy: 0.34, d: 0.6 },
     short: { cx: 0.84, cy: 0.56, d: 0.64 },
-    portrait: { cx: 0.78, cy: 0.2, d: 0.5, dMax: 0.26 },
+    // On a phone, below the search box, so the search comes first.
+    portrait: { cx: 0.78, cy: 0.76, d: 0.5, dMax: 0.26 },
   },
 };
 
@@ -180,7 +183,7 @@ export interface HeroFrame {
  * Where the instrument rests beside a conversation, in pixels of the stage: in
  * the margin to the right of the reading column when `beside` (BESIDE_QUERY
  * matches), otherwise small and centred above the question (the conversation
- * leaves space for it there). `width` and `height` are the stage's own size,
+ * leaves space for it there, as COLUMN in Conversation.tsx). `width` and `height` are the stage's own size,
  * in which the reading column is centred. The same arithmetic places the still
  * drawing, in globals.css.
  */
@@ -197,7 +200,8 @@ export function conversationFraming(
     const size = Math.min(room, height * (mode === "thinking" ? 0.42 : 0.36), 440);
     return { x: left + room / 2, y: header + 32 + size / 2, size, beside: true };
   }
-  const size = Math.min(width * 0.3, height * 0.16, 170);
+  // Small above the question, so the answer itself starts on the first screen of a phone.
+  const size = Math.min(width * 0.2, height * 0.1, 96);
   return { x: width / 2, y: header + 8 + size / 2, size, beside: false };
 }
 

@@ -1,5 +1,5 @@
 import { BRAND } from "./brand";
-import { reflectionToMarkdown, type SavedReflection } from "./reflections";
+import { exportDocument, type SavedItem } from "./reflections";
 
 export function downloadFile(filename: string, content: string, type: string): void {
   const url = URL.createObjectURL(new Blob([content], { type }));
@@ -13,10 +13,12 @@ export function downloadFile(filename: string, content: string, type: string): v
 /** File names start with the product's name: "bodh-reflections.md". */
 const named = (file: string) => (BRAND.slug ? `${BRAND.slug}-${file}` : file);
 
-export function downloadReflections(items: SavedReflection[]): void {
-  downloadFile(named("reflections.md"), items.map(reflectionToMarkdown).join("\n\n"), "text/markdown");
+/** Every saved item, as Markdown to read that can also be imported again. */
+export function downloadReflections(items: SavedItem[]): void {
+  downloadFile(named("reflections.md"), exportDocument(items), "text/markdown");
 }
 
-export function downloadReflection(item: SavedReflection): void {
-  downloadFile(named(`reflection-${item.id.slice(0, 8)}.md`), reflectionToMarkdown(item), "text/markdown");
+export function downloadReflection(item: SavedItem): void {
+  const id = item.id.replace(/^passage:/, "").replace(/[^a-z0-9.-]+/gi, "-").slice(0, 24);
+  downloadFile(named(`reflection-${id}.md`), exportDocument([item]), "text/markdown");
 }

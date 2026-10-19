@@ -1,19 +1,26 @@
 // Client for the streaming ask endpoint (server-sent events over a POST).
 
-import type { Answer, HistoryTurn, Passage, Stage } from "./types";
+import type { MessageKey } from "./i18n/messages";
+import type { Answer, HistoryTurn, Passage, Retrieval, Stage } from "./types";
 
 export interface StreamHandlers {
   onStage?: (stage: Stage) => void;
   onUnderstanding?: (data: { language: string; request_type: string; summary: string }) => void;
-  onPassages?: (passages: Passage[]) => void;
+  onPassages?: (passages: Passage[], retrieval: Retrieval | null) => void;
   onAnswer: (answer: Answer) => void;
   onError?: (message: string) => void;
 }
 
+/**
+ * Why a question could not be answered: an interface message (`key`, shown
+ * in the chosen language), or the server's own explanation (`message`).
+ */
 export class AskError extends Error {
   constructor(
     message: string,
     readonly status?: number,
+    readonly key?: MessageKey,
+    readonly values?: Record<string, string | number>,
   ) {
     super(message);
   }
@@ -24,21 +31,23 @@ export async function askStream(
   history: HistoryTurn[],
   handlers: StreamHandlers,
   signal?: AbortSignal,
+  /** Passages the question is about ("Ask about this verse"), searched first. */
+  passageIds: string[] = [],
 ): Promise<void> {
   let response: Response;
   try {
     response = await fetch("/api/ask/stream", {
       method: "POST",
       headers: { "content-type": "application/json", accept: "text/event-stream" },
-      body: JSON.stringify({ question, history }),
+      body: JSON.stringify(passageIds.length ? { question, history, passage_ids: passageIds } : { question, history }),
       signal,
     });
   } catch (error) {
     if ((error as Error).name === "AbortError") throw error;
-    throw new AskError("Could not reach the server. Check your connection and try again.");
+    throw new AskError("Could not reach the server. Check your connection and try again.", undefined, "error.network");
   }
   if (!response.ok || !response.body) {
-    throw new AskError(await errorMessage(response), response.status);
+    throw await responseError(response);
   }
 
   const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -59,7 +68,7 @@ export async function askStream(
       boundary = buffer.indexOf("\n\n");
     }
   }
-  if (!answered) throw new AskError("The answer was interrupted. Please try again.");
+  if (!answered) throw new AskError("The answer was interrupted. Please try again.", undefined, "error.interrupted");
 }
 
 function parseEvent(block: string): { type: string; data: unknown } | null {
@@ -85,9 +94,11 @@ function dispatch(type: string, data: unknown, handlers: StreamHandlers): boolea
     case "understanding":
       handlers.onUnderstanding?.(data as { language: string; request_type: string; summary: string });
       return false;
-    case "passages":
-      handlers.onPassages?.((data as { passages: Passage[] }).passages);
+    case "passages": {
+      const payload = data as { passages: Passage[]; retrieval?: Retrieval | null };
+      handlers.onPassages?.(payload.passages, payload.retrieval ?? null);
       return false;
+    }
     case "answer":
       handlers.onAnswer(data as Answer);
       return true;
@@ -99,18 +110,23 @@ function dispatch(type: string, data: unknown, handlers: StreamHandlers): boolea
   }
 }
 
-async function errorMessage(response: Response): Promise<string> {
-  if (response.status === 429) {
-    return "You have asked several questions in a short time. Please wait a minute and try again.";
+async function responseError(response: Response): Promise<AskError> {
+  const status = response.status;
+  if (status === 429) {
+    return new AskError(
+      "You have asked several questions in a short time. Please wait a minute and try again.",
+      status,
+      "error.rateLimited",
+    );
+  }
+  if (status === 502 || status === 503) {
+    return new AskError("The guidance service is not available right now. Please try again shortly.", status, "error.unavailable");
   }
   try {
     const body = (await response.json()) as { detail?: unknown };
-    if (typeof body.detail === "string") return body.detail;
+    if (typeof body.detail === "string") return new AskError(body.detail, status);
   } catch {
     // fall through
   }
-  if (response.status === 502 || response.status === 503) {
-    return "The guidance service is not available right now. Please try again shortly.";
-  }
-  return `Something went wrong (${response.status}). Please try again.`;
+  return new AskError(`Something went wrong (${status}). Please try again.`, status, "error.status", { status });
 }

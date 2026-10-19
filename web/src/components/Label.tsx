@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 
+import type { MessageKey } from "@/lib/i18n/messages";
+
+import { T } from "./i18n/T";
 import { SourceSeal } from "./Icon";
 
 // Every block of content says what it is. These four kinds are styled
@@ -15,11 +18,11 @@ const STYLES: Record<ContentKind, { text: string; marker: string }> = {
   ai: { text: "text-ai", marker: "size-[7px] rounded-full" },
 };
 
-const TEXT: Record<ContentKind, string> = {
-  source: "Source text",
-  note: "Translator’s note",
-  editorial: "Editorial",
-  ai: "AI interpretation",
+const TEXT: Record<ContentKind, MessageKey> = {
+  source: "label.source",
+  note: "label.note",
+  editorial: "label.editorial",
+  ai: "label.ai",
 };
 
 export function Label({ kind, children }: { kind: ContentKind; children?: ReactNode }) {
@@ -33,7 +36,7 @@ export function Label({ kind, children }: { kind: ContentKind; children?: ReactN
       ) : (
         <span aria-hidden className={`inline-block bg-current ${style.marker}`} />
       )}
-      {children ?? TEXT[kind]}
+      <span>{children ?? <T k={TEXT[kind]} />}</span>
     </span>
   );
 }

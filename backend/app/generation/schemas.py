@@ -100,6 +100,13 @@ class GuidanceDraft(BaseModel):
     follow_up_message: str | None = Field(
         description="For follow-up turns and clarifications: the main reply. null otherwise."
     )
+    summary: str | None = Field(
+        description="'In short', shown first: two or three sentences (at most 60 words) with the "
+        "heart of the person's situation and the main takeaway the passages offer, framed as "
+        "interpretation and marked with [[id]] for the passages it rests on. Never a quotation, "
+        "and never presented as what a verse literally says. null for follow-up turns and "
+        "clarifications."
+    )
     related: list[RelatedDraft] = Field(
         description="Up to 3 other provided passages worth reading next, with a reason."
     )

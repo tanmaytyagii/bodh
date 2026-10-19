@@ -17,7 +17,7 @@ export function ChapterHeading({
   size = "lg",
 }: {
   number: number;
-  label: string;
+  label: ReactNode;
   devanagari?: string | null;
   id: string;
   title: ReactNode;

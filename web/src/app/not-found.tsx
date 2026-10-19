@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { T } from "@/components/i18n/T";
 import { Icon } from "@/components/Icon";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -11,21 +12,20 @@ export default function NotFound() {
       <EmptyState
         icon="compass"
         headingLevel={1}
-        title="This page isn’t here"
+        title={<T k="notFound.title" />}
         actions={
           <>
             <Link href="/explore" className={buttonClass("primary", "md")}>
-              Explore the texts
+              <T k="notFound.explore" />
               <Icon name="arrowRight" className="size-4" />
             </Link>
             <Link href="/" className={buttonClass("secondary", "md")}>
-              Ask a question
+              <T k="landing.ask" />
             </Link>
           </>
         }
       >
-        The verse, chapter or theme you were looking for does not exist in the collection. Check the
-        reference, or browse from the library.
+        <T k="notFound.body" />
       </EmptyState>
     </PageContainer>
   );

@@ -233,9 +233,10 @@
   --color-ok-bg: var(--ok-bg);
   --color-focus: var(--focus);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-literata), Georgia, "Times New Roman", serif;
-  --font-display: var(--font-instrument), var(--font-literata), Georgia, serif;
+  /* Hindi in the interface: Noto Sans Devanagari beside Geist, Tiro beside the serifs. */
+  --font-sans: var(--font-geist-sans), var(--font-noto-deva), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-literata), var(--font-tiro), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-instrument), var(--font-literata), var(--font-tiro), Georgia, serif;
   --font-deva: var(--font-tiro), "Noto Serif Devanagari", serif;
 
   --shadow-card: var(--elevation-1);
@@ -330,6 +331,85 @@ body {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+/*
+ * The interface language (lib/i18n/locale.ts). Every label is in the page in
+ * English and Hindi (components/i18n/T.tsx); the one not chosen is hidden,
+ * which also keeps it out of accessible names.
+ */
+:root:not([data-locale="hi"]) [data-locale-text="hi"],
+:root[data-locale="hi"] [data-locale-text="en"] {
+  display: none;
+}
+/* Devanagari needs room above and below for its vowel signs, even in tightly set headlines. */
+/* Devanagari has no capitals, and spacing its letters apart breaks up its words. */
+[data-locale-text="hi"] {
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+.eyebrow [data-locale-text="hi"],
+.uppercase [data-locale-text="hi"] {
+  font-size: 1.15em;
+}
+
+/*
+ * A verse, a half-verse to a line (VerseCard's VerseLines). A line too long
+ * for the screen wraps into balanced halves, its continuation indented so it
+ * still reads as one half-verse; centred plates are not indented.
+ */
+.verse-line {
+  display: block;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  padding-left: 1.25em;
+  text-indent: -1.25em;
+}
+.verse-centred .verse-line {
+  padding-left: 0;
+  text-indent: 0;
+}
+
+/*
+ * A row that scrolls sideways (the answer's toolbar): its ends fade where
+ * there is more to scroll to, so a cut-off label reads as "more", not a clip.
+ */
+.scroll-fade {
+  --fade-start: 0px;
+  --fade-end: 0px;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--fade-start),
+    #000 calc(100% - var(--fade-end)),
+    transparent
+  );
+}
+.scroll-fade[data-fade-start] {
+  --fade-start: 2rem;
+}
+.scroll-fade[data-fade-end] {
+  --fade-end: 2.5rem;
+}
+
+/*
+ * Reading preferences (lib/reading.ts): a larger size for the text you read
+ * (passages and answers, through --reading-scale), and passages without their
+ * Sanskrit or transliteration. Only how they are shown changes.
+ */
+:root {
+  --reading-scale: 1;
+}
+:root[data-text-size="lg"] {
+  --reading-scale: 1.125;
+}
+:root[data-text-size="xl"] {
+  --reading-scale: 1.25;
+}
+:root[data-hide-sanskrit] .verse-sanskrit,
+:root[data-hide-sanskrit] .verse-ornament,
+:root[data-hide-transliteration] .verse-transliteration {
+  display: none;
 }
 
 kbd {
@@ -546,6 +626,52 @@ details > summary::-webkit-details-marker {
 }
 
 /*
+ * Behind the floating navigation, once the page has scrolled: the paper,
+ * fading into the page, so text passing under the pills never collides with
+ * them. Clear at the top of the page, as designed; never takes a click.
+ */
+.header-veil {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  /* The navigation's own band, so it never washes over a toolbar stuck beneath it. */
+  height: calc(4rem + env(safe-area-inset-top));
+  background: linear-gradient(to bottom, var(--paper) 0%, var(--paper) 62%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+[data-scrolled="true"] > .header-veil {
+  opacity: 1;
+}
+
+/*
+ * Where the page meets the footer, the stage behind it (the instrument)
+ * fades into the paper across the footer's top margin, instead of being cut
+ * off by its edge.
+ */
+.footer-fade::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 7rem;
+  background: linear-gradient(to bottom, transparent, var(--paper));
+  pointer-events: none;
+}
+
+/* The invitation's "Scroll to explore" fades as soon as the page moves, before it can reach the navigation. */
+.scroll-cue {
+  transition:
+    opacity 0.4s,
+    color 0.15s;
+}
+header[data-scrolled="true"] ~ main .scroll-cue {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*
  * The stage: a fixed, full-viewport layer behind the content of the Ask and
  * Explore pages. It uses the large viewport height so that mobile browser
  * chrome appearing and disappearing never resizes it.
@@ -626,11 +752,11 @@ details > summary::-webkit-details-marker {
 }
 /*
  * Beside a conversation (conversationFraming in lib/scene.ts): small and
- * centred above the question, or, from 1280px, in the margin to the right of
- * the 46rem reading column.
+ * centred above the question, leaving the first screen to the answer, or,
+ * from 1280px, in the margin to the right of the 46rem reading column.
  */
 .stage:is([data-mode="thinking"], [data-mode="reading"]) {
-  --scene-diameter: min(30vw, 16lvh, 170px);
+  --scene-diameter: min(20vw, 10lvh, 96px);
   --scene-x: 50%;
   --scene-y: calc(72px + var(--scene-diameter) / 2);
   --scene-glow-size: calc(var(--scene-diameter) * 0.9);

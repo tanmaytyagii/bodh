@@ -1,14 +1,19 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 
+import { Both, T } from "@/components/i18n/T";
 import { Icon } from "@/components/Icon";
 import { JourneyObserver } from "@/components/landing/JourneyObserver";
 import { StoryRail } from "@/components/landing/StoryRail";
 import { InstrumentFrame } from "@/components/scene/InstrumentFrame";
 import { Stage } from "@/components/scene/Stage";
+import { VerseCard } from "@/components/VerseCard";
 import { CONVERSATION_HASH, SHOW_INVITATION } from "@/lib/askNavigation";
+import { ASK_PREFILL_EVENT, readPrefill, type AskPrefill } from "@/lib/askPrefill";
 import { BRAND } from "@/lib/brand";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { useT } from "@/lib/i18n/useLocale";
 import { historyFor, loadConversation, storeConversation, type Turn } from "@/lib/reflections";
 import type { SceneMode } from "@/lib/scene";
 import { AskError, askStream } from "@/lib/stream";
@@ -17,8 +22,9 @@ import { buttonClass } from "@/lib/ui";
 
 import { AnswerPanel } from "./AnswerPanel";
 import { ExampleQuestions } from "./ExampleQuestions";
+import { FollowUpDock } from "./FollowUpDock";
 import { Progress } from "./Progress";
-import { QuestionComposer } from "./QuestionComposer";
+import { MAX_QUESTION_CHARS, QuestionComposer } from "./QuestionComposer";
 
 interface Pending {
   question: string;
@@ -31,19 +37,34 @@ interface Pending {
 
 type View = "invitation" | "conversation";
 
-const STAGE_ANNOUNCEMENT: Record<string, string> = {
-  understanding: "Understanding your situation…",
-  retrieving: "Searching the texts…",
-  writing: "Writing a grounded reply…",
+/** What a question from the invitation is about ("Ask about this"): shown by the box, sent with the question. */
+interface About {
+  label: string;
+  passageIds: string[];
+}
+
+/** Why the last question could not be answered: an interface message, or the server's own words. */
+interface ErrorState {
+  view: View;
+  key?: MessageKey;
+  values?: Record<string, string | number>;
+  text?: string;
+}
+
+const STAGE_ANNOUNCEMENT: Record<string, MessageKey> = {
+  understanding: "announce.understanding",
+  retrieving: "announce.retrieving",
+  writing: "announce.writing",
 };
 
 /**
- * The conversation's reading column (46rem). Below 1280px the instrument sits
- * above the question, so the column leaves room for it (conversationFraming
- * in lib/scene.ts); from 1280px it rests in the margin beside the column.
+ * The conversation's reading column (46rem). Below 1280px a small instrument
+ * sits above the question, so the column leaves room for it
+ * (conversationFraming in lib/scene.ts); from 1280px it rests in the margin
+ * beside the column.
  */
 const COLUMN =
-  "relative z-10 mx-auto w-full max-w-[46rem] px-5 pt-[calc(min(30vw,16lvh,170px)+1.5rem)] pb-24 sm:px-8 xl:px-0 xl:pt-12";
+  "relative z-10 mx-auto w-full max-w-[46rem] px-5 pt-[calc(min(20vw,10lvh,96px)+1.5rem)] pb-24 sm:px-8 xl:px-0 xl:pt-12";
 
 /**
  * The Ask page, in two views at one address.
@@ -51,22 +72,26 @@ const COLUMN =
  * The invitation (no active question): the headline and the question box
  * over the 3D instrument, a few example questions, and the landing story
  * below (`below`). A conversation from earlier in this tab is never shown
- * here, but it is offered: one link takes you back to it.
+ * here, but it is offered: one link takes you back to it. "Ask about this"
+ * elsewhere fills its question box (see lib/askPrefill.ts).
  *
  * The conversation (#conversation): each question with its answer in a
  * reading column, the follow-up box after the latest answer, and the
- * instrument quietly beside it. Refresh, back and forward keep the view;
- * links to Ask bring back the invitation.
+ * instrument quietly beside it. While an answer is being written, the
+ * passages it will rest on are already there to read. Refresh, back and
+ * forward keep the view; links to Ask bring back the invitation.
  */
 export function Conversation({ below }: { below?: ReactNode }) {
+  const t = useT();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [pending, setPending] = useState<Pending | null>(null);
   const [view, setView] = useState<View>("invitation");
   const [draft, setDraft] = useState("");
+  const [about, setAbout] = useState<About | null>(null);
   const [followUpDraft, setFollowUpDraft] = useState("");
   // An error belongs to the box it came from: the invitation's, or the follow-up's.
-  const [error, setError] = useState<{ view: View; message: string } | null>(null);
-  const [announcement, setAnnouncement] = useState("");
+  const [error, setError] = useState<ErrorState | null>(null);
+  const [announcement, setAnnouncement] = useState<MessageKey | null>(null);
   const abort = useRef<AbortController | null>(null);
   // Why the request was cancelled: "stop" keeps the question for editing.
   const cancelled = useRef<"stop" | "reset" | null>(null);
@@ -82,22 +107,46 @@ export function Conversation({ below }: { below?: ReactNode }) {
   const firstHeadingRef = useRef<HTMLHeadingElement>(null);
   const latestRef = useRef<HTMLElement>(null);
 
+  /** "Ask about this": the invitation, its box filled and ready to finish; nothing is sent. */
+  const applyPrefill = useCallback((prefill: AskPrefill) => {
+    setError(null);
+    setDraft(prefill.question.slice(0, MAX_QUESTION_CHARS));
+    setAbout(
+      prefill.about || prefill.passageIds.length
+        ? { label: prefill.about ?? prefill.passageIds.join(", "), passageIds: prefill.passageIds }
+        : null,
+    );
+    setView("invitation");
+    window.scrollTo({ top: 0 });
+    requestAnimationFrame(() => {
+      const input = inputRef.current;
+      if (!input) return;
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    });
+  }, []);
+
   // Restore this tab's conversation, before the first paint so a refresh
   // never flashes the invitation. It is shown only when the address asks for
   // it (a refresh, or back/forward); otherwise the invitation offers it.
   // This also runs each time the page is shown again: Next.js keeps it, state
   // and all, while another page is open, so a link back to Ask must bring the
-  // invitation here, as it does on the page itself.
+  // invitation here, as it does on the page itself. An address carrying an
+  // "Ask about this" prefill fills the box, and is then cleared.
   useLayoutEffect(() => {
     const restored = loadConversation();
-    const asked = window.location.hash === CONVERSATION_HASH;
+    const prefill = readPrefill(window.location.search);
+    if (prefill) window.history.replaceState(null, "", window.location.pathname);
+    const asked = !prefill && window.location.hash === CONVERSATION_HASH;
     if (asked && !restored.length) window.history.replaceState(null, "", window.location.pathname);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the view follows the address whenever the page is shown
     if (!asked) setView("invitation");
-    if (!restored.length) return;
-    setTurns(restored);
-    if (asked) setView("conversation");
-  }, []);
+    if (restored.length) {
+      setTurns(restored);
+      if (asked) setView("conversation");
+    }
+    if (prefill) applyPrefill(prefill);
+  }, [applyPrefill]);
 
   // Keep it as soon as it changes, so a refresh straight after an answer keeps
   // it too. Only "Start over" clears it, so nothing here can erase a
@@ -107,7 +156,7 @@ export function Conversation({ below }: { below?: ReactNode }) {
   }, [turns]);
 
   // Back and forward move between the two views; a link to Ask from the
-  // conversation brings back the invitation.
+  // conversation brings back the invitation; "Ask about this" on this page fills it.
   useEffect(() => {
     const onPopState = () => setView(window.location.hash === CONVERSATION_HASH ? "conversation" : "invitation");
     const onShowInvitation = () => {
@@ -115,13 +164,19 @@ export function Conversation({ below }: { below?: ReactNode }) {
       setView("invitation");
       window.scrollTo({ top: 0 });
     };
+    const onPrefill = (event: Event) => {
+      if (window.location.hash) window.history.pushState(null, "", window.location.pathname);
+      applyPrefill((event as CustomEvent<AskPrefill>).detail);
+    };
     window.addEventListener("popstate", onPopState);
     window.addEventListener(SHOW_INVITATION, onShowInvitation);
+    window.addEventListener(ASK_PREFILL_EVENT, onPrefill);
     return () => {
       window.removeEventListener("popstate", onPopState);
       window.removeEventListener(SHOW_INVITATION, onShowInvitation);
+      window.removeEventListener(ASK_PREFILL_EVENT, onPrefill);
     };
-  }, []);
+  }, [applyPrefill]);
 
   const hasConversation = turns.length > 0 || pending !== null;
   const showConversation = view === "conversation" && hasConversation;
@@ -134,9 +189,10 @@ export function Conversation({ below }: { below?: ReactNode }) {
     sending.current = true;
     const fresh = !showConversation;
     const history = fresh ? [] : historyFor(turns);
+    const passageIds = fresh ? (about?.passageIds ?? []) : [];
     let pushed = false;
     setError(null);
-    setAnnouncement("Sending your question…");
+    setAnnouncement("announce.sending");
     abort.current = new AbortController();
     cancelled.current = null;
     try {
@@ -159,17 +215,19 @@ export function Conversation({ below }: { below?: ReactNode }) {
         {
           onStage: (stage) => {
             setPending((p) => (p ? { ...p, stage } : p));
-            setAnnouncement(STAGE_ANNOUNCEMENT[stage] ?? "");
+            setAnnouncement(STAGE_ANNOUNCEMENT[stage] ?? null);
           },
           onUnderstanding: (u) => setPending((p) => (p ? { ...p, summary: u.summary } : p)),
           onPassages: (passages) => setPending((p) => (p ? { ...p, passages } : p)),
           onAnswer: (answer) => {
             setTurns((t) => (fresh ? [{ question: text, answer }] : [...t, { question: text, answer }]));
             setPending(null);
-            setAnnouncement("Your answer is ready.");
+            if (fresh) setAbout(null);
+            setAnnouncement("announce.ready");
           },
         },
         abort.current.signal,
+        passageIds,
       );
     } catch (err) {
       setPending(null);
@@ -183,14 +241,18 @@ export function Conversation({ below }: { below?: ReactNode }) {
         setFollowUpDraft(text);
       }
       if (stopped) {
-        setAnnouncement("Stopped. Your question is back in the box.");
+        setAnnouncement("announce.stopped");
         return;
       }
-      setError({
-        view: fresh ? "invitation" : "conversation",
-        message: err instanceof AskError ? err.message : "Something went wrong. Please try again.",
-      });
-      setAnnouncement("The question could not be answered.");
+      const where: View = fresh ? "invitation" : "conversation";
+      setError(
+        err instanceof AskError
+          ? err.key
+            ? { view: where, key: err.key, values: err.values }
+            : { view: where, text: err.message }
+          : { view: where, key: "error.generic" },
+      );
+      setAnnouncement("announce.failed");
     } finally {
       abort.current = null;
       sending.current = false;
@@ -252,9 +314,10 @@ export function Conversation({ below }: { below?: ReactNode }) {
     setPending(null);
     setError(null);
     setDraft("");
+    setAbout(null);
     setFollowUpDraft("");
     setView("invitation");
-    setAnnouncement("Started a new conversation.");
+    setAnnouncement("announce.startOver");
     if (window.location.hash === CONVERSATION_HASH) window.history.replaceState(null, "", window.location.pathname);
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0 });
@@ -284,12 +347,16 @@ export function Conversation({ below }: { below?: ReactNode }) {
   const sceneMode: SceneMode = !showConversation ? "hero" : pending ? "thinking" : "reading";
   // A reply to someone who may be at risk is no place for decoration.
   const sceneQuiet = showConversation && !pending && latest?.answer.kind === "crisis";
+  const errorFor = (where: View): ReactNode =>
+    error?.view === where ? error.key ? <T k={error.key} values={error.values} /> : error.text : null;
 
   const followUpSection = (
-    <section aria-label="Continue the conversation" id="follow-up" className="scroll-mt-28">
+    <section aria-label={t("conversation.continue")} id="follow-up" className="scroll-mt-28">
       {suggestions.length > 0 && (
         <div className="mb-6">
-          <p className="eyebrow text-ink-muted">Continue the conversation</p>
+          <p className="eyebrow text-ink-muted">
+            <T k="conversation.continue" />
+          </p>
           <ul className="mt-3 divide-y divide-rule border-y border-rule">
             {suggestions.map((q) => (
               <li key={q}>
@@ -315,7 +382,7 @@ export function Conversation({ below }: { below?: ReactNode }) {
         onStop={stop}
         onStartOver={startOver}
         pending={false}
-        error={error?.view === "conversation" ? error.message : null}
+        error={errorFor("conversation")}
         onRetry={() => void ask(followUpDraft)}
         inputRef={followUpRef}
       />
@@ -325,7 +392,7 @@ export function Conversation({ below }: { below?: ReactNode }) {
   return (
     <>
       <p className="sr-only" aria-live="polite">
-        {announcement}
+        {announcement && <T k={announcement} />}
       </p>
       <Stage mode={sceneMode} quiet={sceneQuiet} story={!showConversation} />
 
@@ -342,20 +409,34 @@ export function Conversation({ below }: { below?: ReactNode }) {
                   <div className="hero-recede">
                     <p className="eyebrow flex items-center gap-3 text-accent">
                       <span aria-hidden className="h-px w-8 bg-accent" />
-                      Bhagavad Gita · Upanishads
+                      <T k="hero.eyebrow" />
                     </p>
                     <h1
                       id="hero-title"
                       className="display mt-(--hero-gap-xs) text-[clamp(2.75rem,7.2vw,6.25rem)] leading-[0.95] text-balance text-ink hero-split:text-[clamp(2.75rem,min(16.5cqi,11svh),10rem)]"
                     >
-                      <span className="block">Ancient wisdom.</span>{" "}
-                      <span className="block">
-                        Your life, <em className="text-accent">today.</em>
-                      </span>
+                      <Both
+                        en={
+                          <>
+                            <span className="block">Ancient wisdom.</span>{" "}
+                            <span className="block">
+                              Your life, <em className="text-accent">today.</em>
+                            </span>
+                          </>
+                        }
+                        hi={
+                          // Devanagari sets wider: never larger than lets each half fit its line (about 7.7em wide).
+                          <span className="block text-[min(1em,12cqi)] leading-[1.25]">
+                            <span className="block">प्राचीन ज्ञान।</span>{" "}
+                            <span className="block">
+                              आपका जीवन, <em className="text-accent not-italic">आज।</em>
+                            </span>
+                          </span>
+                        }
+                      />
                     </h1>
                     <p className="mt-(--hero-gap-sm) max-w-[30em] text-[1.0625em] leading-relaxed text-pretty text-ink-soft sm:text-[1.125em]">
-                      Bring the questions life leaves you with. {BRAND.name} helps you explore what ancient teachings
-                      can offer, examine the original sources, and find room to think.
+                      <T k="hero.lede" values={{ name: BRAND.name }} />
                     </p>
                   </div>
                   <div ref={composerRef} className="mt-(--hero-gap) max-w-[46em]">
@@ -366,9 +447,10 @@ export function Conversation({ below }: { below?: ReactNode }) {
                       onSubmit={() => void ask(draft)}
                       onStop={stop}
                       pending={pending !== null}
-                      error={error?.view === "invitation" ? error.message : null}
+                      error={errorFor("invitation")}
                       onRetry={() => void ask(draft)}
                       inputRef={inputRef}
+                      about={about && { label: about.label, onClear: () => setAbout(null) }}
                     />
                   </div>
                   {hasConversation && (
@@ -380,15 +462,25 @@ export function Conversation({ below }: { below?: ReactNode }) {
                           onClick={showConversationAgain}
                           className="font-medium text-ink underline decoration-rule-strong underline-offset-[3px] transition-colors hover:decoration-accent"
                         >
-                          Return to your conversation
+                          <T k="conversation.return" />
                         </button>
-                        {pending ? " — your question is still being answered." : "."}{" "}
-                        <span className="text-ink-muted">A new question here starts a new one.</span>
+                        {pending ? (
+                          <>
+                            {" "}
+                            <T k="conversation.return.pending" />
+                          </>
+                        ) : (
+                          "."
+                        )}{" "}
+                        <span className="text-ink-muted">
+                          <T k="conversation.return.note" />
+                        </span>
                       </span>
                     </p>
                   )}
                   <div className="mt-(--hero-gap) max-w-[46em]">
                     <ExampleQuestions
+                      value={draft}
                       onPick={(text) => {
                         setDraft(text);
                         inputRef.current?.focus();
@@ -401,10 +493,10 @@ export function Conversation({ below }: { below?: ReactNode }) {
             </div>
             <a
               href="#teachings"
-              className="relative z-10 mx-auto mb-6 hidden items-center gap-2 rounded-full px-4 py-2 text-xs font-medium tracking-wide text-ink-muted transition-colors hover:text-ink [@media(min-height:760px)]:flex"
+              className="scroll-cue relative z-10 mx-auto mb-6 hidden items-center gap-2 rounded-full px-4 py-2 text-xs font-medium tracking-wide text-ink-muted transition-colors hover:text-ink [@media(min-height:760px)]:flex"
             >
               <Icon name="chevronDown" className="size-4" />
-              Scroll to explore
+              <T k="hero.scroll" />
             </a>
           </section>
           {below}
@@ -413,14 +505,16 @@ export function Conversation({ below }: { below?: ReactNode }) {
         </>
       ) : (
         <div className={COLUMN}>
-          <h1 className="sr-only">Your conversation</h1>
+          <h1 className="sr-only">
+            <T k="conversation.title" />
+          </h1>
           {visibleTurns.map((turn, i) => {
             const isLatest = !pending && i === visibleTurns.length - 1;
             return (
               <article
                 key={turn.answer.id}
                 ref={isLatest ? latestRef : undefined}
-                aria-label={`Question ${i + 1}`}
+                aria-label={t("conversation.question", { n: i + 1 })}
                 className="rise scroll-mt-20 pb-20 [view-timeline-name:--answer] not-first-of-type:border-t not-first-of-type:border-rule not-first-of-type:pt-16"
               >
                 <QuestionHeading
@@ -431,7 +525,7 @@ export function Conversation({ below }: { below?: ReactNode }) {
                     i === 0 ? (
                       <button type="button" onClick={showInvitation} className={buttonClass("ghost", "sm")}>
                         <Icon name="plus" className="size-4" />
-                        New question
+                        <T k="conversation.new" />
                       </button>
                     ) : undefined
                   }
@@ -443,7 +537,7 @@ export function Conversation({ below }: { below?: ReactNode }) {
           {pending && (
             <article
               ref={latestRef}
-              aria-label="Current question"
+              aria-label={t("conversation.current")}
               aria-busy="true"
               className="scroll-mt-20 pb-20 not-first-of-type:border-t not-first-of-type:border-rule not-first-of-type:pt-16"
             >
@@ -456,31 +550,57 @@ export function Conversation({ below }: { below?: ReactNode }) {
                 <Progress stage={pending.stage} passagesFound={pending.passages?.length} />
                 {pending.summary && (
                   <p className="mt-6 text-[1.0625rem] leading-relaxed text-ink-soft">
-                    <span className="font-medium text-ink">As understood: </span>
+                    <span className="font-medium text-ink">
+                      <T k="pending.understood" />{" "}
+                    </span>
                     {pending.summary}
                   </p>
                 )}
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                   <p className="text-sm text-ink-muted">
-                    {pending.passages && pending.passages.length > 0
-                      ? `Reading ${pending.passages.map((p) => p.short_ref).join(", ")}`
-                      : "This takes a few seconds."}
+                    {pending.passages && pending.passages.length > 0 ? (
+                      <T k="pending.reading" values={{ refs: pending.passages.map((p) => p.short_ref).join(", ") }} />
+                    ) : (
+                      <T k="pending.wait" />
+                    )}
                   </p>
                   <button type="button" onClick={stop} className={buttonClass("secondary", "sm")}>
                     <Icon name="stop" className="size-4" />
-                    Stop
+                    <T k="composer.stop" />
                   </button>
                 </div>
               </div>
+              {/* Where "In short" will be, once it is written. */}
               <div aria-hidden className="rise mt-10 space-y-3">
                 <div className="skeleton h-4 w-1/4" />
-                <div className="skeleton h-8 w-2/5" />
-                <div className="skeleton mt-6 h-5 w-full" />
-                <div className="skeleton h-5 w-11/12" />
-                <div className="skeleton h-5 w-4/5" />
-                <div className="skeleton h-5 w-3/5" />
+                <div className="skeleton mt-4 h-6 w-full" />
+                <div className="skeleton h-6 w-11/12" />
+                <div className="skeleton h-6 w-3/5" />
               </div>
+              {pending.passages && pending.passages.length > 0 && (
+                <section aria-labelledby="pending-passages-title" className="rise mt-14">
+                  <h3 id="pending-passages-title" className="eyebrow text-ink-muted">
+                    <T
+                      k={pending.passages.length === 1 ? "answer.found.one" : "answer.found.other"}
+                      values={{ count: pending.passages.length }}
+                    />
+                  </h3>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-muted">
+                    <T k={pending.stage === "writing" ? "pending.writing" : "pending.found"} />
+                  </p>
+                  <ol className="mt-5">
+                    {pending.passages.map((p) => (
+                      <li key={p.id}>
+                        <VerseCard passage={p} variant="reading" headingLevel={4} actions={false} />
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              )}
             </article>
+          )}
+          {latest && !pending && latest.answer.kind !== "crisis" && (
+            <FollowUpDock targetId="follow-up" inputRef={followUpRef} />
           )}
         </div>
       )}
@@ -504,7 +624,7 @@ function QuestionHeading({
       <div className="flex min-h-9 items-center justify-between gap-4">
         <p className="eyebrow flex items-center gap-3 text-accent">
           <span aria-hidden className="h-px w-8 bg-accent" />
-          {followUp ? "You followed up" : "You asked"}
+          <T k={followUp ? "conversation.followedUp" : "conversation.asked"} />
         </p>
         {action}
       </div>

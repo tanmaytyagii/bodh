@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 
+import { T } from "@/components/i18n/T";
+import { useT } from "@/lib/i18n/useLocale";
 import { journey } from "@/lib/journey";
 import { STORY_CHAPTERS } from "@/lib/scene";
 
@@ -12,6 +14,7 @@ import { STORY_CHAPTERS } from "@/lib/scene";
  * screens.
  */
 export function StoryRail() {
+  const t = useT();
   const chapter = useSyncExternalStore(journey.subscribe, journey.getChapter, () => 0);
   const line = useRef<HTMLDivElement>(null);
 
@@ -26,7 +29,7 @@ export function StoryRail() {
 
   return (
     <>
-      <nav aria-label="Chapters" className="fixed top-1/2 right-4 z-30 hidden -translate-y-1/2 lg:block xl:right-7">
+      <nav aria-label={t("landing.chapters")} className="fixed top-1/2 right-4 z-30 hidden -translate-y-1/2 lg:block xl:right-7">
         <ol className="flex flex-col items-end gap-1">
           {STORY_CHAPTERS.map((item, i) => {
             const current = i === chapter;
@@ -41,7 +44,7 @@ export function StoryRail() {
                     className="pointer-events-none translate-x-1 rounded-full bg-paper/85 px-2.5 py-1 text-xs font-medium text-ink opacity-0 shadow-card ring-1 ring-rule backdrop-blur-md transition-[opacity,translate] duration-300 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
                   >
                     <span className="mr-1.5 font-serif text-accent tabular-nums">{String(i + 1).padStart(2, "0")}</span>
-                    {item.label}
+                    <T k={item.label} />
                   </span>
                   <span
                     aria-hidden

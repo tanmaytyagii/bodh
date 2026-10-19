@@ -1,10 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Browser tests run against a running stack: start the API (`make api`) first.
-// Playwright starts the web app itself unless one is already on the port
-// (3000, or PORT). The tests pass whether or not a language model is configured.
+// Playwright builds and starts the web app itself, on a port of its own (3100,
+// or PORT), unless a server is already there. Not the development server on
+// 3000: Next.js lets only localhost use its dev-only connections, so pages it
+// serves to 127.0.0.1 never become interactive. The tests pass whether or not a
+// language model is configured.
 
-const PORT = Number(process.env.PORT ?? 3000);
+const PORT = Number(process.env.PORT ?? 3100);
 const BASE_URL = process.env.BASE_URL ?? `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
