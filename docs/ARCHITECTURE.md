@@ -120,11 +120,11 @@ The stream's events are `status` (`understanding`, `retrieving`, `writing`), `un
 
 ## Retrieval
 
-`HybridRetriever` (`backend/app/retrieval/hybrid.py`) fuses several ranked lists with reciprocal rank fusion. Each list contributes `weight / (60 + rank)` to a passage's score.
+`HybridRetriever` (`backend/app/retrieval/hybrid.py`) fuses several ranked lists with reciprocal rank fusion. Each list contributes `weight / (k + rank)` to a passage's score, with `k = 30` (`RRF_K`).
 
 | Channel | What it matches | Weight |
 | --- | --- | --- |
-| `vector` | Cosine similarity between query and passage embeddings, one list per query | 1.0 for the model's queries, 0.5 for the raw question (`RETRIEVAL_RAW_VECTOR_WEIGHT`) |
+| `vector` | Cosine similarity between query and passage embeddings, one list per query | 1.0 for the model's queries, 0.25 for the raw question (`RETRIEVAL_RAW_VECTOR_WEIGHT`) |
 | `lexical` | PostgreSQL full-text search. The translation is weight A; translator's notes and concept vocabulary are weight B. | 1.0 |
 | `roman` | Trigram `word_similarity` of the question against romanized Sanskrit, so `karmanye vadhikaraste` finds 2.47 | 4.0 |
 | `concept_llm` | Passages of the concepts the model chose | 2.0 |

@@ -28,7 +28,7 @@
       "speaker:applied": 1
     },
     "concepts": 36,
-    "stories": 1
+    "stories": 4
   },
   "inputs": {
     "github-gita-json": {
@@ -62,7 +62,7 @@
       "concepts.yaml": "59165108576ebfb4a460fa02b3d65c99af4a11e618fbc783b17b91e9aa90e866",
       "reviews.yaml": "a6d78e35f996579a674a07640fe7b0ed04e784d252ea746eec2e2e7bc606eec1",
       "sensitivities.yaml": "41afadc8f1d3d84819a4b086877185c52816ef4e6395d9f1cdcd5e8eb9fd5f9f",
-      "stories.yaml": "99f96801dd0b3f525143123fd345735622126724ca247026c70ea4787e9dea01"
+      "stories.yaml": "39a5686d7e2257f3d6440ba4268a68b014b2e71b73022068d9ca87da0da7c7c6"
     }
   }
 }

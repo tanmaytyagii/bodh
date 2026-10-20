@@ -5,105 +5,148 @@ This document covers two evaluations and the automated tests:
 - **Retrieval:** does the app find passages that address the question? It needs no model and runs in seconds.
 - **Answers:** does the full pipeline produce grounded, well-behaved guidance? It needs a configured model and makes real model calls.
 
-All numbers below were measured on 2026-10-10 against the current corpus of 872 passages, unless a section says otherwise.
+Retrieval figures were measured on 2026-10-19, the others on 2026-10-10, against the current corpus of 872 passages, unless a section says otherwise.
 
 ## Retrieval
 
 ```bash
-make eval                                                        # memory backend
-cd backend && .venv/bin/python -m app.evaluation.retrieval --backend postgres
-.venv/bin/python -m app.evaluation.retrieval --channels lexical,concept   # ablation
-.venv/bin/python -m app.evaluation.retrieval --with-llm          # include the model's query rewriting
+make eval                                                              # memory backend, all 190 questions
+cd backend && .venv/bin/python -m app.evaluation.retrieval --split test    # only the held-out questions
+.venv/bin/python -m app.evaluation.retrieval --backend postgres
+.venv/bin/python -m app.evaluation.retrieval --channels lexical,concept    # ablation
+.venv/bin/python -m app.evaluation.retrieval --with-llm                    # include the model's query rewriting
+.venv/bin/python -m app.evaluation.experiments themes|hinglish|rerank      # the experiments below
 ```
+
+Run them from `backend/` (or through `make`): the `app` package lives there, so `python -m app...` from the repository root fails with `ModuleNotFoundError: No module named 'app'`.
 
 ### The question set
 
-`backend/app/evaluation/dataset.yaml` has 74 questions:
+`backend/app/evaluation/dataset.yaml` has 190 questions, 178 in scope and 12 out of scope. The first 74 were written earlier; 116 were added on 2026-10-19.
 
-| Group | Questions | Notes |
-| --- | --- | --- |
-| Life situations, English | 37 | Career, study, family, anger, grief, comparison, habits, ethics and more, including 2 that target the Katha Upanishad |
-| Knowledge and lookup, English | 17 | "What does Krishna say about the kinds of food people prefer?", a half-remembered romanized verse, a Devanagari line, and 2 questions about the Katha Upanishad |
-| Hindi (Devanagari) | 8 | Life situations |
-| Hinglish (romanized) | 8 | Life situations |
-| Out of scope | 4 | A coding question, stocks, a recipe, a capital city |
+| | English | Hindi (Devanagari) | Hinglish (romanized) | All |
+| --- | --- | --- | --- | --- |
+| Life situations | 95 | 21 | 23 | 139 |
+| Knowledge about the texts | 32 | 2 | 1 | 35 |
+| Verse lookups by their words | 4 | | | 4 |
+| Out of scope | 10 | 1 | 1 | 12 |
+| **All** | **141** | **24** | **25** | **190** |
+
+Life situations cover career and study pressure, family, relationships, grief, anger, habits, decisions, purpose and spirituality; knowledge questions ask about the Gita, the Katha, Isha and Kena Upanishads, and their imagery and episodes.
 
 Each in-scope question lists:
 
-- `expected`: verses that clearly address it. The list is not exhaustive.
+- `expected`: verses that clearly address it. Every one was read against its question in the corpus before it was listed. The list is not exhaustive.
 - `concepts`: the editorial themes that fit it.
 
 A retrieved passage counts as relevant if it is in `expected` or belongs to one of the listed themes.
 
+**Held-out split.** 57 of the added questions carry `split: test` (41 English, 8 Hindi, 8 Hinglish). They are held out: settings are chosen on the other 133 (`dev`), and the test split is only reported. The original 74 are all dev, because earlier settings were tuned on them.
+
+**Corrections.** One label was corrected, with the reason beside it in the file: `k-food` now also expects 17.7, where Krishna introduces the three kinds of food.
+
 ### Metrics
 
-Over the 70 in-scope questions, k = 8 (the number of passages an answer is built from):
+Over in-scope questions, k = 8 (the number of passages an answer is built from):
 
 | Metric | Meaning |
 | --- | --- |
-| **hit@5**, **hit@8** | Share of questions with at least one relevant passage in the top 5 or top 8 |
-| **MRR** | Mean reciprocal rank of the first relevant passage |
+| **hit@5**, **hit@8** | Share of questions with at least one expected verse in the top 5 or top 8 |
+| **MRR** | Mean reciprocal rank of the first expected verse |
+| **misses** | Questions with no expected verse in the top 8 |
 | **precision@8** | Share of the top 8 that is relevant. Unlabelled relevant verses count as misses, so this is a lower bound. |
 | **concept recall** | Share of the expected themes that retrieval matched |
 | **evidence** | How `assess_evidence` labelled each result: strong, moderate or weak |
-| **latency** | Median retrieval time, embedding of the question included |
+| **latency** | Median and 95th-percentile retrieval time, embedding of the question included |
+
+The report breaks every metric down by split, language, question type and category.
 
 ### Results without the model
 
-This is the raw question only, as in the no-key mode. With a model, the understanding step adds rewritten queries and chosen themes; that path has not been measured with a capable model yet.
+The raw question only, as in the no-key mode. With a model, the understanding step adds rewritten queries and chosen themes; that path has not been measured with a capable model yet. Measured on 2026-10-19.
 
-| Backend | hit@5 | hit@8 | MRR | precision@8 | p50 latency |
+| Backend | Split | hit@5 | hit@8 | MRR | precision@8 | misses | p50 / p95 latency |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| PostgreSQL (default) | all | 0.646 | 0.697 | 0.438 | 0.275 | 54 | 23 / 27 ms |
+| | test | 0.585 | 0.642 | 0.315 | 0.229 | | |
+| In-memory | all | 0.674 | 0.736 | 0.469 | 0.282 | 47 | 3 / 6 ms |
+| | test | 0.566 | 0.642 | 0.321 | 0.238 | | |
+
+By language, hit@5 / hit@8 / MRR, before the changes below and after:
+
+| Language | n | In-memory before | In-memory after | PostgreSQL before | PostgreSQL after |
 | --- | --- | --- | --- | --- | --- |
-| PostgreSQL (default) | 0.686 | 0.743 | 0.497 | 0.302 | 23 ms |
-| In-memory | 0.686 | 0.757 | 0.522 | 0.307 | 3 ms |
+| English | 131 | 0.618 / 0.718 / 0.460 | 0.725 / 0.786 / 0.504 | 0.641 / 0.695 / 0.454 | 0.672 / 0.733 / 0.478 |
+| Hindi | 23 | 0.609 / 0.609 / 0.373 | 0.652 / 0.652 / 0.489 | 0.609 / 0.609 / 0.326 | 0.652 / 0.652 / 0.417 |
+| Hinglish | 24 | 0.333 / 0.458 / 0.200 | 0.417 / 0.542 / 0.264 | 0.292 / 0.458 / 0.179 | 0.500 / 0.542 / 0.234 |
 
-The in-memory figures were reproduced exactly with `make eval` on 2026-10-13.
+These mix dev and held-out questions. On the held-out questions alone (in-memory), English hit@8 rose from 0.658 to 0.737 (n = 38) and Hinglish from 3 to 4 of 8, while Hindi stayed at 2 of 7: its gain above is on dev questions only.
 
-By language, PostgreSQL first and in-memory in brackets:
-
-| Language | n | hit@8 | MRR |
-| --- | --- | --- | --- |
-| English | 54 | 0.722 (0.741) | 0.528 (0.536) |
-| Hindi | 8 | 1.000 (1.000) | 0.490 (0.667) |
-| Hinglish | 8 | 0.625 (0.625) | 0.292 (0.283) |
+By type (in-memory): life situations 0.647 / 0.705 / 0.448, knowledge 0.743 / 0.829 / 0.534, lookups 1.000 / 1.000 / 0.646.
 
 The backends differ only in lexical ranking: PostgreSQL full-text search against BM25.
 
-**Evidence labels.**
+### What changed on 2026-10-19, and what each change did
 
-- In-scope questions: PostgreSQL labelled them 26 strong, 40 moderate and 4 weak.
-- Out-of-scope questions:
-  - In memory, all 4 are weak.
-  - On PostgreSQL, 3 are weak and the recipe question is moderate. "Paneer butter masala" shares "butter" with the offering verses (9.16), and both the lexical and the vector channel rank that verse, so the agreement counts as evidence.
+The baseline is production retrieval on the 190-question set before any change. On it, the earlier figures (hit@5 0.686 on 74 questions) turned out to be optimistic: the new held-out questions scored much lower than the questions the settings had been tuned on.
 
-With a model configured, the understanding step decides `out_of_scope` itself and the evidence label does not gate it. In no-key mode, such a question gets passages labelled "moderate". The evidence heuristic is a hint, not a classifier.
+| Step (cumulative; in-memory) | dev hit@5 | test hit@5 | test hit@8 | test MRR | misses |
+| --- | --- | --- | --- | --- | --- |
+| Baseline | 0.624 | 0.472 | 0.566 | 0.314 | 59 |
+| 1. Synonyms also found for other forms of a word ("cravings", "grudges") | 0.632 | 0.472 | 0.566 | 0.309 | 58 |
+| 2. A few more words mapped to the translation's vocabulary ("charity" → alms, gift; "bright" → splendour; quarrel, smoking and drinking; तुलना, झगड़ा) | 0.656 | 0.491 | 0.585 | 0.315 | 53 |
+| Label correction (`k-food`, above) | 0.664 | 0.491 | 0.585 | 0.315 | 52 |
+| 3. Fusion: raw-question vector weight 0.5 → 0.25, `RRF_K` 60 → 30 | 0.720 | 0.566 | 0.642 | 0.321 | 47 |
+
+On PostgreSQL the same changes take all-question hit@5 from 0.590 to 0.646, MRR from 0.400 to 0.438, misses from 62 to 54, and test hit@5 from 0.547 to 0.585.
+
+Steps 2 and 3 were chosen by looking at dev questions, so the dev gains are optimistic; the test columns are the honest measure. Step 3 was the best of a 12-setting grid on dev; on test it improved 9 questions and worsened 3.
+
+**Evidence labels moved in the safer direction.** Questions labelled moderate or strong although no expected verse was retrieved fell from 54 to 43 on PostgreSQL (51 to 36 in memory); questions labelled weak although an expected verse was retrieved rose from 4 to 7 (3 to 7). Out-of-scope questions are unchanged: 6 of the 12 are labelled weak, and 5 moderate and 1 strong. Unrelated questions often share words or meaning with the battle and victory verses ("Who won the cricket world cup?"), and theme similarities of unrelated and related questions overlap (0.73–0.80 against 0.78 and up). With a model, the understanding step decides `out_of_scope` itself; in no-key mode the label is a hint, not a classifier.
+
+### Experiments not adopted
+
+Each was measured on the same questions and candidates as production retrieval, with `app/evaluation/experiments.py`.
+
+**Hinglish in Devanagari** (`experiments hinglish`). `app/retrieval/hinglish.py` detects romanized Hindi (two or more unambiguous Hindi function words) and renders its Hindi words in Devanagari from a lexicon of about 400 common words, keeping English words as typed; it never touches English, Devanagari or romanized Sanskrit lookups. Searching with the rendering instead of the question, beside it, or also for theme matching all lowered Hinglish hit@8 (0.458 → 0.333–0.375), with English and Hindi unchanged. It helped three dev questions, the ones looked at while building the lexicon, and hurt mostly held-out ones. A rule-based transliteration of unknown words (ITRANS with Hindi spelling) did no better. Not used in production; the module and its tests are kept for the record.
+
+**Semantic theme routing** (`experiments themes`). Only 27% of the themes matched for English questions (12% for Hinglish) were among the labelled ones. Yet no stricter setting (similarity 0.82 or 0.84, at most 1 or 2 themes, a margin to the best theme, half weight) or turning semantic themes off did better than production on dev: wrong themes cost less than right ones gain, and the labels are not exhaustive.
+
+**Cross-encoder reranking** (`experiments rerank`), on the first 30 (or 15) candidates of production retrieval, scored against each passage's translation:
+
+| Reranker (all on CPU, Apple M-series, 10 cores) | Mode | all hit@5 | test hit@5 | test hit@8 | test MRR | ms per question |
+| --- | --- | --- | --- | --- | --- | --- |
+| none (production) | | 0.674 | 0.566 | 0.642 | 0.321 | 3 |
+| `Xenova/ms-marco-MiniLM-L-6-v2` (80 MB, English) | rerank | 0.399* | 0.377* | 0.453* | 0.250* | 77 |
+| | fuse | 0.511* | 0.434* | 0.566* | 0.335* | 77 |
+| `BAAI/bge-reranker-v2-m3` int8 (570 MB, multilingual) | rerank | 0.522* | 0.509* | 0.566* | 0.321* | 1 204 |
+| | fuse | 0.702 | 0.623 | 0.623 | 0.386 | 1 232 |
+| | fuse, 15 candidates | 0.685 | 0.566 | 0.623 | 0.393 | 677 |
+
+\* Measured before steps 1–3, against that baseline (all hit@5 0.579, test 0.472 / 0.566 / 0.314).
+
+"rerank" orders the candidates by the model alone; "fuse" combines its order with production's by reciprocal rank. The multilingual model in fuse mode ranks better (all MRR 0.469 → 0.505; test MRR 0.321 → 0.386) but does not find more: all hit@8 is unchanged at 0.736 (0.742 with 15 candidates), test hit@8 falls from 0.642 to 0.623, and Hinglish hit@8 from 0.542 to 0.500. It costs 0.7–1.2 s per question and 1.4 GB of memory, against 3–25 ms today. Not integrated; a GPU, or reranking only when evidence is weak, would be the next things to try. `jinaai/jina-reranker-v2-base-multilingual` was not tried: its licence (CC BY-NC 4.0) forbids commercial use.
 
 ### Ablations
 
-In-memory backend, without the model, hit@8 / MRR:
+In-memory backend, without the model, current settings, hit@8 / MRR:
 
 | Channels | All | English | Hindi | Hinglish |
 | --- | --- | --- | --- | --- |
-| vector only | 0.343 / 0.194 | 0.407 / 0.247 | 0.250 / 0.031 | 0.000 / 0.000 |
-| lexical only | 0.671 / 0.540 | 0.630 / 0.503 | 0.875 / 0.750 | 0.750 / 0.580 |
-| concept only | 0.529 / 0.339 | 0.519 / 0.361 | 0.750 / 0.385 | 0.375 / 0.150 |
-| lexical + concept + roman | 0.771 / 0.539 | 0.759 / 0.529 | 1.000 / 0.854 | 0.625 / 0.292 |
-| all (default) | 0.757 / 0.522 | 0.741 / 0.536 | 1.000 / 0.667 | 0.625 / 0.283 |
+| vector only | 0.320 / 0.196 | 0.412 / 0.262 | 0.130 / 0.024 | 0.000 / 0.000 |
+| lexical only | 0.596 / 0.419 | 0.649 / 0.447 | 0.522 / 0.420 | 0.375 / 0.263 |
+| concept only | 0.472 / 0.282 | 0.504 / 0.303 | 0.435 / 0.221 | 0.333 / 0.225 |
+| lexical + concept + roman | 0.725 / 0.438 | 0.771 / 0.460 | 0.652 / 0.482 | 0.542 / 0.272 |
+| all (default) | 0.736 / 0.469 | 0.786 / 0.504 | 0.652 / 0.489 | 0.542 / 0.264 |
 
-What the ablations show:
-
-- **Semantic search on the raw question is weak on its own.** People ask in modern language about exams and offers; Besant's translation speaks of "fruits of action" and "the pairs of opposites". The lexical channel bridges this gap with a synonym map and a Hindi/Hinglish keyword map, and the concept channel bridges it through the theme descriptions.
-- **Dropping the passage-vector channel scores slightly higher on this set:** 0.771 against 0.757, a single question. The channel is kept for two reasons:
-  - It is the only one that can match a paraphrase sharing no words with either the translation or the theme index. The question set favours the other channels (see the caveats below).
-  - The model's rewritten queries are searched semantically at full weight, a path this table does not exercise.
-
-  Its weight on the raw question was already halved to 0.5 after earlier ablations. Re-measure with `--with-llm` once a key is configured. If the channel still does not help, set `RETRIEVAL_RAW_VECTOR_WEIGHT=0`.
-- **Hinglish is the weakest language.** Romanized Hindi has no stemmer, the embedding model handles it poorly, and the keyword map covers only common words. Extending `CROSS_LINGUAL` in `retrieval/text.py` and adding Hinglish cases is the cheapest improvement.
+- **Semantic search on the raw question is weak on its own**, and useless for Hinglish: people ask in modern language, and Besant's translation speaks of "fruits of action" and "the pairs of opposites". The lexical channel bridges the gap with a synonym map and a Hindi/Hinglish keyword map, and the concept channel through the theme descriptions.
+- **With the current settings the vector channel helps**: all channels together beat lexical + concept + roman (0.736 / 0.469 against 0.725 / 0.438). On the earlier 74-question set it did not.
+- **Hinglish is still the weakest language.** Romanized Hindi has no stemmer and the embedding model handles it poorly. Extending `CROSS_LINGUAL` with more words helped where it applied; the Devanagari rendering did not (above). With a model configured, the understanding step rewrites the question in English, which this table does not exercise.
 
 ### Caveats: why these numbers are likely optimistic
 
-1. **The labels and the theme index have the same authors.** The question set, its expected passages and the editorial theme index were all written during this project's development, with AI assistance. A passage also counts as relevant when it belongs to a listed theme. The concept channel therefore retrieves exactly what the metric rewards. An independent set, written by people who have not seen the theme index, is the most valuable next step.
-2. **The set is small.** It has 70 labelled questions, of which only 8 are Hindi and 8 Hinglish. One question moves Hindi or Hinglish hit@8 by 12.5 points.
+1. **The labels and the theme index have the same authors.** The questions, their expected passages and the editorial theme index were all written during this project's development, with AI assistance, and the held-out questions too. A passage also counts as relevant when it belongs to a listed theme, so the concept channel retrieves exactly what the metric rewards. An independent set, written by people who have not seen the theme index, is still the most valuable next step.
+2. **The set is still small for some slices.** The held-out split has 8 Hindi and 8 Hinglish questions; one question moves their hit rates by 12.5 points.
 3. **The labels are not exhaustive.** Precision is a lower bound, and a different relevant verse in the top 8 counts as a miss.
 4. **Retrieval quality is not answer quality.** The model chooses which retrieved passages to use, and can say that none fit.
 

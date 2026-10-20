@@ -214,10 +214,13 @@
   question: Is there a verse comparing a steady mind to a flame that doesn't move when there is no wind?
   category: knowledge
   expected: [bg.6.19]
+# Corrected 2026-10-19: bg.17.7 added; it is where Krishna introduces the three
+# kinds of food (17.8–17.10 describe them), and as a selected verse it holds 17.8
+# as its context, so 17.8 itself cannot appear in the results.
 - id: k-food
   question: What does Krishna say about the kinds of food people prefer?
   category: knowledge
-  expected: [bg.17.8, bg.17.9, bg.17.10]
+  expected: [bg.17.7, bg.17.8, bg.17.9, bg.17.10]
 - id: k-charity
   question: What is the right way to give charity, according to the Gita?
   category: knowledge
@@ -387,4 +390,663 @@
 - id: oos-capital
   question: What is the capital of Australia?
   category: out-of-scope
+  out_of_scope: true
+
+# =============================================================================
+# Added 2026-10-19: 116 cases. Every expected passage was read against its
+# question in the corpus before it was listed. Cases marked `split: test` are
+# held out: they are not used to choose or tune anything, only to report;
+# everything else (all cases above, and the rest below) is the dev split.
+# =============================================================================
+
+# --- English (added) ---------------------------------------------------------------
+- id: dream-company-rejection
+  question: I got rejected by my dream company after five rounds of interviews. How do I stop feeling like a failure?
+  category: career
+  expected: [bg.2.47, bg.2.48, bg.2.38, bg.2.40, bg.6.40, bg.2.14, bg.2.56]
+  concepts: [action-without-attachment, equanimity, no-effort-wasted]
+- id: undervalued-at-work
+  question: My manager gives all the interesting projects to someone else. I feel invisible and undervalued.
+  category: career
+  split: test
+  expected: [bg.3.35, bg.18.47, bg.2.47, bg.4.22, bg.12.13]
+  concepts: [own-path, comparison-and-envy, action-without-attachment]
+- id: thesis-defense-fear
+  question: My thesis defense is next week and I am terrified that I will freeze in front of the committee.
+  category: fear
+  expected: [bg.2.3, bg.2.14, bg.2.38, bg.2.56, bg.4.42, bg.2.47]
+  concepts: [courage, equanimity, action-without-attachment]
+- id: boring-job-meaning
+  question: My job is repetitive and boring. Does it even matter if I do it well?
+  category: work
+  split: test
+  expected: [bg.18.45, bg.18.46, bg.18.47, bg.2.50, bg.3.8, bg.3.19]
+  concepts: [work-as-offering, own-path, acting-not-escaping]
+- id: money-vs-calling
+  question: Should I take a well-paid job I don't believe in, or a lower-paid one that suits who I am?
+  category: decisions
+  expected: [bg.3.35, bg.18.47, bg.18.48, bg.18.63, bg.2.7]
+  concepts: [own-path, reflect-then-choose]
+- id: exam-cheating-guilt
+  question: I cheated in an exam years ago and the guilt still eats at me.
+  category: character
+  split: test
+  expected: [bg.4.36, bg.9.30, bg.9.31, bg.6.5, bg.18.66]
+  concepts: [self-as-friend, refuge-and-trust]
+- id: batchmates-abroad
+  question: All my batchmates have moved abroad for higher studies and I feel left behind.
+  category: comparison
+  expected: [bg.4.22, bg.3.35, bg.18.47, bg.6.5, bg.12.19]
+  concepts: [comparison-and-envy, own-path, contentment]
+- id: unfinished-projects
+  question: I start new projects with great excitement but never finish any of them.
+  category: discipline
+  split: test
+  expected: [bg.6.26, bg.18.26, bg.18.33, bg.3.8, bg.2.40, bg.6.35]
+  concepts: [mastering-the-mind, acting-not-escaping]
+- id: ambition-and-wealth
+  question: Is it wrong to be ambitious and want to become rich?
+  category: money
+  expected: [bg.2.44, bg.16.13, bg.16.14, bg.2.47, bg.3.19, bg.16.21]
+  concepts: [action-without-attachment, three-gates]
+- id: team-failure-responsibility
+  question: My team's launch failed because of a decision I made. How do I take responsibility without falling apart?
+  category: leadership
+  split: test
+  expected: [bg.18.14, bg.18.15, bg.18.16, bg.2.38, bg.2.48, bg.6.5]
+  concepts: [five-factors-of-action, equanimity, self-as-friend]
+- id: team-disrespect
+  question: I was made team lead but my team doesn't take me seriously.
+  category: leadership
+  expected: [bg.3.21, bg.3.20, bg.3.25, bg.3.26, bg.12.13]
+  concepts: [leading-by-example, goodwill-toward-all]
+- id: colleague-undermines
+  question: A colleague keeps undermining me in meetings. How should I respond?
+  category: anger
+  split: test
+  expected: [bg.12.18, bg.12.13, bg.6.9, bg.16.3, bg.2.56, bg.2.62]
+  concepts: [goodwill-toward-all, equanimity, forgiveness]
+- id: politics-arguments-father
+  question: Every conversation with my father turns into an argument about politics.
+  category: family
+  expected: [bg.17.15, bg.16.2, bg.12.15, bg.12.13, bg.2.62]
+  concepts: [right-speech, goodwill-toward-all, anger-and-desire]
+- id: ageing-parents
+  question: My parents are getting old and frail, and I feel helpless watching them.
+  category: family
+  split: test
+  expected: [bg.2.13, bg.2.14, bg.2.27, bg.13.9, bg.9.22, bg.18.66]
+  concepts: [impermanence-and-endurance, grief-and-the-self, refuge-and-trust]
+- id: sibling-property-dispute
+  question: My brother and I have not spoken for years because of a property dispute.
+  category: family
+  expected: [bg.16.21, bg.16.3, bg.12.13, bg.6.9, bg.13.8]
+  concepts: [forgiveness, three-gates, goodwill-toward-all]
+- id: interfering-in-laws
+  question: My in-laws interfere in every decision we make and I am running out of patience.
+  category: family
+  split: test
+  expected: [bg.12.15, bg.2.14, bg.16.3, bg.2.56, bg.12.18]
+  concepts: [equanimity, forgiveness, impermanence-and-endurance]
+- id: worried-parent
+  question: As a parent I worry all the time about my children's future.
+  category: family
+  expected: [bg.2.47, bg.9.22, bg.18.66, bg.2.14, bg.12.15]
+  concepts: [action-without-attachment, refuge-and-trust]
+- id: mother-compares-cousins
+  question: My mother keeps comparing me with my cousins and it makes me feel worthless.
+  category: family
+  split: test
+  expected: [bg.3.35, bg.6.5, bg.6.6, bg.4.22, bg.2.14]
+  concepts: [own-path, self-as-friend, comparison-and-envy]
+- id: friend-died-accident
+  question: My best friend died in an accident last month. Why do things like this happen?
+  category: grief
+  expected: [bg.2.27, bg.2.20, bg.2.22, bg.2.28, bg.2.11, katha.2.18]
+  concepts: [grief-and-the-self]
+- id: lost-pet
+  question: Our dog died last week and the house feels empty without him.
+  category: grief
+  split: test
+  expected: [bg.2.27, bg.2.14, bg.2.28, bg.2.13]
+  concepts: [grief-and-the-self, impermanence-and-endurance]
+- id: grandfather-not-recovering
+  question: How do I accept that my grandfather is not going to recover?
+  category: grief
+  expected: [bg.2.27, bg.2.13, bg.2.22, bg.2.14, bg.2.20]
+  concepts: [grief-and-the-self, impermanence-and-endurance]
+- id: shouting-at-kids
+  question: I shout at my children when I'm tired and then feel terrible about it.
+  category: anger
+  split: test
+  expected: [bg.2.62, bg.2.63, bg.3.37, bg.16.21, bg.17.15, bg.6.17]
+  concepts: [anger-and-desire, right-speech, balanced-living]
+- id: road-rage
+  question: Someone cut me off in traffic and I almost got into a fight with him.
+  category: anger
+  expected: [bg.2.62, bg.2.63, bg.5.23, bg.5.26, bg.3.37]
+  concepts: [anger-and-desire]
+- id: forgive-humiliation
+  question: How can I forgive someone who humiliated me in front of everyone?
+  category: anger
+  split: test
+  expected: [bg.16.3, bg.12.13, bg.12.18, bg.12.19, bg.13.8]
+  concepts: [forgiveness, goodwill-toward-all, equanimity]
+- id: holding-grudges
+  question: I hold grudges for years. How do I let go?
+  category: anger
+  expected: [bg.12.13, bg.16.3, bg.12.17, bg.5.3, bg.2.71]
+  concepts: [forgiveness, goodwill-toward-all]
+- id: unrequited-love
+  question: I love someone who doesn't love me back and I can't stop thinking about her.
+  category: relationships
+  split: test
+  expected: [bg.2.62, bg.2.55, bg.2.71, bg.2.14, bg.6.35, bg.5.21]
+  concepts: [senses-and-desire, steady-wisdom, mastering-the-mind]
+- id: possessive-partner
+  question: My partner is very possessive and gets jealous whenever I meet my friends.
+  category: relationships
+  expected: [bg.2.71, bg.12.13, bg.18.53, bg.3.37, bg.16.3]
+  concepts: [goodwill-toward-all, steady-wisdom]
+- id: lonely-in-crowd
+  question: I feel lonely even when I am surrounded by people.
+  category: relationships
+  split: test
+  expected: [isha.1.6, isha.1.7, bg.6.29, bg.6.30, bg.6.5]
+  concepts: [equal-regard, self-as-friend]
+- id: friend-owes-money
+  question: A friend borrowed money from me and now avoids my calls.
+  category: relationships
+  expected: [bg.12.18, bg.12.13, bg.16.3, bg.16.21, bg.2.56]
+  concepts: [goodwill-toward-all, forgiveness, equanimity]
+- id: stay-in-marriage
+  question: Should I stay in a marriage where we no longer respect each other?
+  category: decisions
+  split: test
+  expected: [bg.18.63, bg.2.7, bg.4.42, bg.18.30, bg.18.31]
+  concepts: [reflect-then-choose, doubt-and-clarity, dilemma-and-despair]
+- id: one-sided-friendships
+  question: My friends only call me when they need something from me.
+  category: relationships
+  expected: [bg.12.18, bg.6.9, bg.12.13, bg.4.22, bg.12.19]
+  concepts: [goodwill-toward-all, equanimity, contentment]
+- id: stress-eating
+  question: I binge eat whenever I am stressed.
+  category: habits
+  split: test
+  expected: [bg.6.16, bg.6.17, bg.2.58, bg.2.60, bg.3.34]
+  concepts: [balanced-living, senses-and-desire]
+- id: cannot-wake-early
+  question: I can't wake up early no matter how many alarms I set.
+  category: habits
+  expected: [bg.6.16, bg.6.17, bg.14.8, bg.18.39, bg.3.8]
+  concepts: [balanced-living, three-qualities, pleasure-and-lasting-good]
+- id: weekend-drinking
+  question: I drink too much every weekend and regret it every Monday.
+  category: habits
+  split: test
+  expected: [bg.18.37, bg.18.38, bg.18.39, bg.5.22, bg.6.17, bg.3.34]
+  concepts: [pleasure-and-lasting-good, senses-and-desire, balanced-living]
+- id: meditation-restless-mind
+  question: I have tried meditating but my mind will not stay still for even a minute.
+  category: spirituality
+  expected: [bg.6.26, bg.6.34, bg.6.35, bg.6.19, bg.6.12]
+  concepts: [meditation, mastering-the-mind]
+- id: build-self-discipline
+  question: How do I build real self-discipline?
+  category: discipline
+  split: test
+  expected: [bg.6.5, bg.6.6, bg.6.36, bg.17.14, bg.18.33, bg.2.58]
+  concepts: [mastering-the-mind, self-as-friend]
+- id: endless-videos
+  question: I spend hours watching videos online and feel empty afterwards.
+  category: habits
+  expected: [bg.18.38, bg.5.22, bg.2.62, bg.3.41, bg.2.67, bg.6.35]
+  concepts: [pleasure-and-lasting-good, senses-and-desire]
+- id: breakup-or-try
+  question: I can't decide whether to end my relationship or keep trying.
+  category: decisions
+  split: test
+  expected: [bg.18.63, bg.2.7, bg.4.42, bg.18.30, bg.2.41]
+  concepts: [reflect-then-choose, doubt-and-clarity]
+- id: needs-approval
+  question: I can never make a decision without asking all my friends for their approval first.
+  category: decisions
+  expected: [bg.4.40, bg.18.30, bg.6.5, bg.18.63, bg.3.35]
+  concepts: [doubt-and-clarity, faith-and-self-trust, own-path]
+- id: both-choices-good
+  question: How do I know which choice is right when both options seem good?
+  category: decisions
+  split: test
+  expected: [bg.18.30, bg.18.31, bg.18.63, bg.3.35, bg.2.41]
+  concepts: [doubt-and-clarity, reflect-then-choose]
+- id: success-feels-empty
+  question: I have achieved everything I wanted, but I still feel empty inside.
+  category: purpose
+  expected: [bg.2.70, bg.2.71, bg.5.22, bg.2.55, bg.6.22, isha.1.1]
+  concepts: [contentment, steady-wisdom, pleasure-and-lasting-good]
+- id: retired-no-direction
+  question: Since I retired my days feel aimless and I don't know what to do with myself.
+  category: purpose
+  split: test
+  expected: [bg.3.8, bg.3.19, bg.3.20, bg.3.25, bg.18.45, bg.2.47]
+  concepts: [acting-not-escaping, work-as-offering, leading-by-example]
+- id: selfish-to-seek-peace
+  question: Is it selfish to focus on my own inner peace instead of helping others?
+  category: spirituality
+  expected: [bg.3.20, bg.3.25, bg.5.25, bg.12.4, bg.6.32]
+  concepts: [equal-regard, leading-by-example]
+- id: why-keep-doing-good
+  question: Why should I keep doing good when good people seem to suffer anyway?
+  category: purpose
+  split: test
+  expected: [bg.6.40, bg.2.40, bg.9.31, bg.2.47, bg.6.41]
+  concepts: [no-effort-wasted, action-without-attachment]
+- id: wasting-potential
+  question: I feel like I am wasting my potential and drifting through life.
+  category: purpose
+  expected: [bg.6.5, bg.3.8, bg.18.47, bg.2.47, bg.6.6]
+  concepts: [self-as-friend, acting-not-escaping, own-path]
+- id: change-own-nature
+  question: Can a person really change their nature?
+  category: character
+  split: test
+  expected: [bg.3.33, bg.18.59, bg.18.60, bg.6.5, bg.6.35]
+  concepts: [mastering-the-mind, self-as-friend]
+- id: success-own-effort
+  question: My success is entirely the result of my own effort, isn't it?
+  category: character
+  expected: [bg.18.14, bg.18.15, bg.18.16, bg.3.27, bg.5.8]
+  concepts: [five-factors-of-action, ego-and-humility]
+- id: praise-and-blame
+  question: How do I stay the same whether people praise me or blame me?
+  category: character
+  split: test
+  expected: [bg.12.18, bg.12.19, bg.14.24, bg.14.25, bg.6.7, bg.2.38]
+  concepts: [equanimity]
+- id: what-will-people-say
+  question: I want to change careers but I'm afraid of what people will say.
+  category: career
+  expected: [bg.3.35, bg.18.47, bg.12.18, bg.12.19, bg.6.7, bg.2.3]
+  concepts: [own-path, equanimity, courage]
+- id: is-pleasure-wrong
+  question: Is it wrong to enjoy pleasure?
+  category: character
+  split: test
+  expected: [bg.7.11, bg.2.64, bg.5.22, bg.18.38, bg.2.62]
+  concepts: [senses-and-desire, pleasure-and-lasting-good]
+- id: proud-of-giving
+  question: I donate to charity but I feel proud of myself for it. Is that wrong?
+  category: ethics
+  expected: [bg.17.20, bg.17.21, bg.17.22, bg.16.15, bg.3.27]
+  concepts: [ego-and-humility]
+- id: white-lie
+  question: Is it okay to tell a lie to protect someone's feelings?
+  category: ethics
+  split: test
+  expected: [bg.17.15, bg.16.2]
+  concepts: [right-speech]
+- id: which-god
+  question: Does it matter which god I worship?
+  category: spirituality
+  expected: [bg.7.21, bg.9.23, bg.4.11, bg.7.22]
+  concepts: [devotion, faith-and-self-trust]
+- id: practice-surrender
+  question: What does it mean to surrender to God, and how do I actually do it?
+  category: spirituality
+  split: test
+  expected: [bg.18.66, bg.18.62, bg.9.22, bg.9.27, bg.12.6]
+  concepts: [refuge-and-trust, devotion]
+- id: meditation-or-service
+  question: Is meditation better than doing good work in the world?
+  category: spirituality
+  expected: [bg.12.12, bg.6.46, bg.5.2, bg.3.8, bg.6.1]
+  concepts: [meditation, action-without-attachment]
+- id: see-god-in-all
+  question: How can I learn to see the divine in every person?
+  category: spirituality
+  split: test
+  expected: [bg.6.29, bg.6.30, bg.6.31, isha.1.6, isha.1.7, bg.5.18]
+  concepts: [equal-regard]
+- id: quit-job-for-spirituality
+  question: Do I have to give up my job and worldly life to be spiritual?
+  category: spirituality
+  expected: [bg.3.4, bg.3.8, bg.5.2, bg.3.19, bg.2.47, bg.18.7]
+  concepts: [acting-not-escaping, action-without-attachment]
+- id: k-born-age-after-age
+  question: Where does Krishna say he is born age after age to protect the good?
+  category: knowledge
+  split: test
+  expected: [bg.4.8, bg.4.7]
+- id: k-tortoise
+  question: What is the image of the tortoise in the Gita about?
+  category: knowledge
+  expected: [bg.2.58]
+- id: k-mind-like-wind
+  question: Which verse says the mind is as hard to control as the wind?
+  category: knowledge
+  split: test
+  expected: [bg.6.34]
+- id: k-smaller-than-small
+  question: Where does the Katha Upanishad describe the Self as subtler than the subtle and greater than the great?
+  category: knowledge
+  expected: [katha.2.20]
+- id: k-three-austerities
+  question: What are the austerities of body, speech and mind in the Gita?
+  category: knowledge
+  split: test
+  expected: [bg.17.14, bg.17.15, bg.17.16]
+- id: k-weapons-fire
+  question: Which verse says the Self cannot be cut by weapons or burnt by fire?
+  category: knowledge
+  expected: [bg.2.23, bg.2.24]
+- id: k-field-and-knower
+  question: What are the field and the knower of the field?
+  category: knowledge
+  split: test
+  expected: [bg.13.2, bg.13.1, bg.13.3]
+- id: k-yaksha-kena
+  question: What happened when Brahman appeared before the gods in the Kena Upanishad?
+  category: knowledge
+  expected: [kena.3.1, kena.3.2, kena.3.3, kena.3.12, kena.4.1]
+- id: k-vidya-avidya
+  question: What does the Isha Upanishad say about knowledge and ignorance?
+  category: knowledge
+  split: test
+  expected: [isha.1.9, isha.1.10, isha.1.11]
+- id: k-dear-devotee
+  question: How does Krishna describe the devotee who is dear to him?
+  category: knowledge
+  expected: [bg.12.13, bg.12.14, bg.12.15, bg.12.16, bg.12.17, bg.12.18, bg.12.19, bg.12.20]
+- id: k-limbs-fail
+  question: Where does Arjuna say his limbs fail and his mouth is parched?
+  category: knowledge
+  split: test
+  expected: [bg.1.28, bg.1.29, bg.1.30]
+- id: k-skill-in-action
+  question: What does the Gita mean by yoga being skill in action?
+  category: knowledge
+  expected: [bg.2.50, bg.2.48]
+- id: k-yama-temptations
+  question: What did Yama offer Nachiketas instead of the secret of death?
+  category: knowledge
+  split: test
+  expected: [katha.1.23, katha.1.24, katha.1.25]
+- id: k-divine-qualities
+  question: What qualities belong to a person born with a divine nature?
+  category: knowledge
+  expected: [bg.16.1, bg.16.2, bg.16.3]
+- id: k-incomplete-yoga
+  question: What happens to a seeker who fails to complete the path of yoga?
+  category: knowledge
+  split: test
+  expected: [bg.6.37, bg.6.38, bg.6.40, bg.6.41, bg.6.43]
+  concepts: [no-effort-wasted]
+- id: k-fruit-of-action
+  question: What does it mean to act without desire for the fruit of action?
+  category: knowledge
+  expected: [bg.2.47, bg.2.48, bg.3.19, bg.4.20, bg.5.12, bg.18.6]
+  concepts: [action-without-attachment]
+- id: k-inaction-in-action
+  question: What does it mean to see inaction in action and action in inaction?
+  category: knowledge
+  split: test
+  expected: [bg.4.18, bg.4.19, bg.4.20]
+- id: k-lord-in-hearts
+  question: Where does the Gita say the Lord dwells in the hearts of all beings?
+  category: knowledge
+  expected: [bg.18.61, bg.15.15, bg.10.20]
+- id: k-ear-of-the-ear
+  question: What does the Kena Upanishad say directs the mind, the eye and the ear?
+  category: knowledge
+  split: test
+  expected: [kena.1.1, kena.1.2]
+- id: k-meditation-seat
+  question: How does the Gita describe the seat and posture for meditation?
+  category: knowledge
+  expected: [bg.6.11, bg.6.12, bg.6.13, bg.6.14]
+  concepts: [meditation]
+
+# --- Hindi (added) -----------------------------------------------------------------
+- id: hi-job-loss
+  question: नौकरी चली गई है, घर कैसे चलेगा यह सोचकर रात भर नींद नहीं आती।
+  category: career
+  language: hi
+  expected: [bg.2.47, bg.2.14, bg.9.22, bg.18.66, bg.2.56, bg.2.38]
+  concepts: [action-without-attachment, refuge-and-trust, equanimity]
+- id: hi-father-ill
+  question: मेरे पिताजी बहुत बीमार हैं और मुझे उन्हें खोने का डर है।
+  category: grief
+  language: hi
+  split: test
+  expected: [bg.2.27, bg.2.13, bg.2.20, bg.2.14, bg.2.11]
+  concepts: [grief-and-the-self, impermanence-and-endurance]
+- id: hi-comparison
+  question: मैं हर बात में दूसरों से अपनी तुलना करता रहता हूँ।
+  category: comparison
+  language: hi
+  expected: [bg.4.22, bg.3.35, bg.12.13, bg.6.5, bg.16.3]
+  concepts: [comparison-and-envy, own-path]
+- id: hi-low-marks
+  question: बोर्ड परीक्षा में कम अंक आए हैं और घरवाले नाराज़ हैं।
+  category: study
+  language: hi
+  split: test
+  expected: [bg.2.47, bg.2.48, bg.2.38, bg.6.5, bg.2.40]
+  concepts: [action-without-attachment, equanimity, no-effort-wasted]
+- id: hi-broken-trust
+  question: किसी ने मेरा भरोसा तोड़ा है, अब किसी पर विश्वास नहीं होता।
+  category: relationships
+  language: hi
+  expected: [bg.12.13, bg.12.18, bg.16.3, bg.6.9, bg.2.56]
+  concepts: [forgiveness, goodwill-toward-all, equanimity]
+- id: hi-phone-addiction
+  question: मुझे मोबाइल की लत लग गई है, चाहकर भी नहीं छूटती।
+  category: habits
+  language: hi
+  split: test
+  expected: [bg.2.62, bg.2.58, bg.2.60, bg.3.34, bg.18.38, bg.6.26]
+  concepts: [senses-and-desire, pleasure-and-lasting-good, mastering-the-mind]
+- id: hi-purpose
+  question: जीवन का उद्देश्य क्या है? सब कुछ बेकार लगता है।
+  category: purpose
+  language: hi
+  expected: [bg.3.8, bg.2.47, bg.18.45, bg.6.5, bg.3.19]
+  concepts: [acting-not-escaping, work-as-offering]
+- id: hi-marriage-pressure
+  question: घरवाले शादी के लिए दबाव डाल रहे हैं, पर मैं अभी तैयार नहीं हूँ।
+  category: family
+  language: hi
+  split: test
+  expected: [bg.3.35, bg.18.63, bg.2.7, bg.18.47, bg.4.42]
+  concepts: [own-path, reflect-then-choose, dilemma-and-despair]
+- id: hi-lose-courage
+  question: मैं बहुत जल्दी हिम्मत हार जाता हूँ।
+  category: fear
+  language: hi
+  expected: [bg.2.3, bg.6.5, bg.2.40, bg.6.40, bg.4.42]
+  concepts: [courage, self-as-friend, no-effort-wasted]
+- id: hi-worship-mind
+  question: भगवान से कैसे जुड़ूँ? पूजा करते समय मन भटकता रहता है।
+  category: spirituality
+  language: hi
+  split: test
+  expected: [bg.9.26, bg.9.27, bg.12.8, bg.6.35, bg.6.26, bg.9.22]
+  concepts: [devotion, mastering-the-mind]
+- id: hi-ego
+  question: अपने अहंकार को कैसे कम करूँ?
+  category: character
+  language: hi
+  expected: [bg.3.27, bg.16.4, bg.13.8, bg.18.58, bg.16.17]
+  concepts: [ego-and-humility]
+- id: hi-backbiting
+  question: मेरे दोस्त मेरी पीठ पीछे बुराई करते हैं।
+  category: relationships
+  language: hi
+  split: test
+  expected: [bg.12.18, bg.12.19, bg.14.24, bg.14.25, bg.12.13]
+  concepts: [equanimity, goodwill-toward-all]
+- id: hi-k-immortal-self
+  question: गीता के अनुसार आत्मा अमर क्यों है?
+  category: knowledge
+  language: hi
+  expected: [bg.2.20, bg.2.23, bg.2.24, bg.2.17, bg.2.18]
+  concepts: [grief-and-the-self]
+- id: hi-k-why-fight
+  question: कृष्ण ने अर्जुन को युद्ध करने के लिए क्यों कहा?
+  category: knowledge
+  language: hi
+  split: test
+  expected: [bg.2.31, bg.2.33, bg.2.37, bg.2.38, bg.2.3]
+- id: hi-small-worries
+  question: छोटी-छोटी बातों पर चिंता करना कैसे छोड़ूँ?
+  category: anxiety
+  language: hi
+  expected: [bg.2.56, bg.2.14, bg.2.15, bg.6.35, bg.12.15]
+  concepts: [equanimity, steady-wisdom, mastering-the-mind]
+
+# --- Hinglish (added) --------------------------------------------------------------
+- id: hl-boss-scolds
+  question: Office mein boss sabke saamne daant deta hai, bahut bura lagta hai.
+  category: career
+  language: hinglish
+  expected: [bg.2.14, bg.12.18, bg.12.19, bg.2.56, bg.6.7]
+  concepts: [equanimity, impermanence-and-endurance]
+- id: hl-exam-panic
+  question: Exam se pehle hamesha panic jaisa feel hota hai, haath kaanpne lagte hain.
+  category: study
+  language: hinglish
+  split: test
+  expected: [bg.2.14, bg.2.47, bg.2.56, bg.6.35, bg.2.38, bg.2.3]
+  concepts: [equanimity, action-without-attachment, courage]
+- id: hl-home-fights
+  question: Gharwalon se har baat pe jhagda ho jata hai, ghar mein bilkul shanti nahi hai.
+  category: family
+  language: hinglish
+  expected: [bg.2.62, bg.17.15, bg.16.3, bg.12.15, bg.2.66]
+  concepts: [anger-and-desire, right-speech, forgiveness]
+- id: hl-good-for-nothing
+  question: Mujhe lagta hai main kisi kaam ka nahi hoon.
+  category: self-worth
+  language: hinglish
+  split: test
+  expected: [bg.6.5, bg.6.6, bg.18.47, bg.3.35]
+  concepts: [self-as-friend, own-path]
+- id: hl-cheated
+  question: Girlfriend ne cheat kiya, ab kisi pe bhi trust nahi hota.
+  category: relationships
+  language: hinglish
+  expected: [bg.12.13, bg.16.3, bg.2.62, bg.2.14, bg.12.18]
+  concepts: [forgiveness, goodwill-toward-all, equanimity]
+- id: hl-late-scrolling
+  question: Raat ko teen baje tak reels scroll karta rehta hoon, subah uth nahi pata.
+  category: habits
+  language: hinglish
+  split: test
+  expected: [bg.6.16, bg.6.17, bg.18.38, bg.14.8, bg.18.39]
+  concepts: [balanced-living, pleasure-and-lasting-good, three-qualities]
+- id: hl-trust-god
+  question: Bhagwan pe bharosa kaise rakhun jab sab kuch galat ho raha hai?
+  category: spirituality
+  language: hinglish
+  expected: [bg.18.66, bg.9.22, bg.9.31, bg.18.62, bg.6.40]
+  concepts: [refuge-and-trust, faith-and-self-trust]
+- id: hl-new-job-smarter
+  question: Nayi company join ki hai, sab log mujhse zyada smart lagte hain.
+  category: career
+  language: hinglish
+  split: test
+  expected: [bg.4.22, bg.3.35, bg.6.5, bg.18.47]
+  concepts: [comparison-and-envy, own-path, self-as-friend]
+- id: hl-business-loss
+  question: Business mein bada loss ho gaya, family ko kya jawab doon samajh nahi aata.
+  category: career
+  language: hinglish
+  expected: [bg.2.38, bg.2.47, bg.2.14, bg.18.14, bg.2.40]
+  concepts: [equanimity, action-without-attachment, five-factors-of-action]
+- id: hl-grandfather-died
+  question: Nana ji nahi rahe, mummy bilkul toot gayi hain aur main unhe sambhal nahi pa raha.
+  category: grief
+  language: hinglish
+  split: test
+  expected: [bg.2.27, bg.2.20, bg.2.11, bg.2.13, bg.2.22]
+  concepts: [grief-and-the-self]
+- id: hl-brother-property
+  question: Bhai ke saath property ko leke jhagda chal raha hai, dil mein bahut kadwahat hai.
+  category: family
+  language: hinglish
+  expected: [bg.16.21, bg.12.13, bg.16.3, bg.2.62, bg.6.9]
+  concepts: [forgiveness, three-gates, goodwill-toward-all]
+- id: hl-negative-thoughts
+  question: Dimaag mein hamesha negative thoughts aate rehte hain, rok hi nahi pata.
+  category: anxiety
+  language: hinglish
+  split: test
+  expected: [bg.6.5, bg.6.26, bg.6.34, bg.6.35, bg.2.67]
+  concepts: [mastering-the-mind, self-as-friend]
+- id: hl-no-purpose
+  question: Life mein koi purpose nahi dikh raha, sab bekaar lagta hai.
+  category: purpose
+  language: hinglish
+  expected: [bg.3.8, bg.2.47, bg.18.45, bg.3.19, bg.6.5]
+  concepts: [acting-not-escaping, work-as-offering]
+- id: hl-meditation-calm
+  question: Kya meditation se sach mein mann shaant hota hai? Kaise shuru karun?
+  category: spirituality
+  language: hinglish
+  split: test
+  expected: [bg.6.10, bg.6.12, bg.6.15, bg.6.19, bg.6.26, bg.6.27]
+  concepts: [meditation, mastering-the-mind]
+- id: hl-expectations
+  question: Sab mujhse bahut expectations rakhte hain, pressure bardasht nahi hota.
+  category: anxiety
+  language: hinglish
+  expected: [bg.2.47, bg.3.35, bg.2.14, bg.6.5, bg.18.47]
+  concepts: [action-without-attachment, own-path, impermanence-and-endurance]
+- id: hl-k-karma
+  question: Gita mein Krishna ne karma ke baare mein kya kaha hai?
+  category: knowledge
+  language: hinglish
+  split: test
+  expected: [bg.2.47, bg.3.8, bg.3.19, bg.4.18, bg.2.50, bg.3.5]
+  concepts: [action-without-attachment]
+
+# --- Out of scope (added) ----------------------------------------------------------
+- id: oos-flat-tyre
+  question: How do I fix a flat tyre on my bicycle?
+  category: out-of-scope
+  split: test
+  out_of_scope: true
+- id: oos-programming-language
+  question: Which programming language should I learn first in 2026?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-phone-budget
+  question: Can you recommend a good phone under 20,000 rupees?
+  category: out-of-scope
+  split: test
+  out_of_scope: true
+- id: oos-weather
+  question: Will it rain in Delhi tomorrow?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-photosynthesis
+  question: Explain how photosynthesis works.
+  category: out-of-scope
+  split: test
+  out_of_scope: true
+- id: oos-cricket
+  question: Who won the cricket world cup in 2011?
+  category: out-of-scope
+  out_of_scope: true
+- id: hi-oos-flight
+  question: दिल्ली से मुंबई की सबसे सस्ती फ़्लाइट कौन सी है?
+  category: out-of-scope
+  language: hi
+  split: test
+  out_of_scope: true
+- id: hl-oos-trip
+  question: Goa trip ke liye teen din ka budget plan bana do.
+  category: out-of-scope
+  language: hinglish
   out_of_scope: true

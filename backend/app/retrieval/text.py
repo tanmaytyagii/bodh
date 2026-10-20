@@ -266,6 +266,10 @@ _syn("patience patient endure tolerate", "endure patience forgiveness")
 _syn("humble humility", "humility modesty")
 _syn("mentor guru teacher", "teacher discipleship wise")
 _syn("learn learning knowledge", "wisdom knowledge")
+_syn("charity donate donating donation donations generous generosity", "alms gift")
+_syn("bright brightness brilliant brilliance radiant dazzling", "splendour radiance blaze")
+_syn("argue arguing argument arguments quarrel quarrelling", "wrath anger speech")
+_syn("smoking smoke cigarette cigarettes alcohol drinking drunk binge", "desire senses")
 
 
 # Hindi (Devanagari) and Hinglish words → English keys above. Lets the lexical
@@ -315,6 +319,9 @@ _xl("safalta सफलता", "success")
 _xl("asafal असफल फेल", "fail")
 _xl("इंटरव्यू", "interview")
 _xl("कठिन मुश्किल", "pain")
+_xl("tulna tulana तुलना", "compare")
+_xl("jhagda jhagde jhagra झगड़ा झगड़े", "quarrel")
+_xl("kadwahat kadvahat कड़वाहट", "hate")
 _syn("overthinking", "doubt mind restless")
 
 
@@ -336,6 +343,21 @@ def stem(word: str) -> str:
     return str(_STEMMER.stem_word(word))
 
 
+_SYNONYMS_BY_STEM: dict[str, tuple[str, ...]] = {}
+
+
+def synonyms(word: str) -> tuple[str, ...]:
+    """Translation vocabulary for a word, also for its other forms: "cravings"
+    finds the entry for "craving", "grudges" the one for "grudge"."""
+    if word in SYNONYMS:
+        return SYNONYMS[word]
+    if not _SYNONYMS_BY_STEM:
+        for key, targets in SYNONYMS.items():
+            merged = _SYNONYMS_BY_STEM.get(stem(key), ())
+            _SYNONYMS_BY_STEM[stem(key)] = tuple(dict.fromkeys(merged + targets))
+    return _SYNONYMS_BY_STEM.get(stem(word), ())
+
+
 def keywords(text: str, *, expand: bool = True) -> list[str]:
     """Content words of a query, plus vocabulary of the translation they map to."""
     out: list[str] = []
@@ -349,7 +371,7 @@ def keywords(text: str, *, expand: bool = True) -> list[str]:
     def expand_word(word: str) -> None:
         add(word)
         if expand:
-            for synonym in SYNONYMS.get(word, ()):
+            for synonym in synonyms(word):
                 for piece in synonym.split("-"):
                     add(piece)
 

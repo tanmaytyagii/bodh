@@ -128,7 +128,7 @@ The processed corpus is committed, so a fresh checkout runs without fetching any
 The project writes this data; it is not quoted from a source. The API marks it `editorial: true`, and the UI labels it "Editorial".
 
 - **`concepts.yaml`**: 36 themes, such as "Steadiness in success and failure" or "How desire turns into anger". Each has a summary, caveats, the life situations it fits, linked passages and related themes. Every quotation in a summary must occur word for word in a linked passage. A Sanskrit `term` must occur in a linked verse's transliteration (a stem match, so inflected forms count).
-- **`stories.yaml`**: story records with characters, summary, dilemma, choices and consequences, lessons, caveats, verbatim excerpts (passage ids) and related passages. The only story so far is Nachiketas and Death (Katha Upanishad). Quotations are checked against the excerpts.
+- **`stories.yaml`**: story records with characters, summary, dilemma, choices and consequences, lessons, caveats, verbatim excerpts (passage ids) and related passages. There are four: Nachiketas and Death (Katha Upanishad), the gods and the mystery (Kena Upanishad), and Arjuna at Kurukshetra and the vision of the universal form (Bhagavad Gita). Quotations are checked against the excerpts.
 - **`sensitivities.yaml`**: context notes for passages that are easily misused, such as war exhortations, the deathless self, varṇa and birth, or Arjuna's despair. The notes go to the model along with the passage. `exclude_in_crisis: true` keeps a passage out of answers to someone who may be at risk. See [SAFETY.md](SAFETY.md).
 - **`reviews.yaml`**: editors' decisions on flagged verses (next section).
 

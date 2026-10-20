@@ -9,7 +9,7 @@
 - **cross_checks**: {'exact': 479, 'orthographic': 197, 'variant': 25}
 - **corrections**: {'translation:kept printed': 3, 'translation:applied': 12, 'sanskrit:applied': 12, 'sanskrit:kept printed': 2, 'verse_number:applied': 9, 'speaker:applied': 1}
 - **concepts**: 36
-- **stories**: 1
+- **stories**: 4
 
 ## Errors (0)
 - none

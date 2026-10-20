@@ -4,13 +4,18 @@
     python -m app.evaluation.retrieval --backend postgres
     python -m app.evaluation.retrieval --channels vector   # ablation
     python -m app.evaluation.retrieval --with-llm          # use the LLM's query rewriting
+    python -m app.evaluation.retrieval --split test        # only the held-out cases
 
 Metrics (over in-scope questions):
   hit@k        some expected verse is among the top k results
   mrr          1 / rank of the first expected verse (0 if none in the top k)
   precision@k  share of the top k that is relevant (expected, or in an expected concept)
   concepts     share of expected concepts that were matched
+  misses       in-scope questions with no expected verse in the top k
 Out-of-scope questions report the evidence level the retriever assigned.
+
+Cases marked `split: test` are held out: report on them, but never use them to
+choose a setting. Everything else is the dev split.
 """
 
 from __future__ import annotations
@@ -21,6 +26,7 @@ import statistics
 import sys
 import time
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -42,6 +48,14 @@ class Case:
     expected: list[str] = field(default_factory=list)
     concepts: list[str] = field(default_factory=list)
     out_of_scope: bool = False
+    split: str = "dev"
+
+
+def question_type(case: Case) -> str:
+    """life (a situation), knowledge (about the texts), lookup (a verse by its words) or out-of-scope."""
+    if case.out_of_scope:
+        return "out-of-scope"
+    return case.category if case.category in ("knowledge", "lookup") else "life"
 
 
 @dataclass
@@ -50,6 +64,8 @@ class CaseResult:
     language: str
     category: str
     out_of_scope: bool
+    split: str
+    type: str
     retrieved: list[str]
     hit_at_5: float
     hit_at_k: float
@@ -78,6 +94,8 @@ def score_case(
         language=case.language,
         category=case.category,
         out_of_scope=case.out_of_scope,
+        split=case.split,
+        type=question_type(case),
         retrieved=ids,
         hit_at_5=float(any(pid in expected for pid in ids[:5])),
         hit_at_k=float(first is not None),
@@ -102,18 +120,28 @@ def summarize(results: list[CaseResult]) -> dict[str, Any]:
             "concepts": round(statistics.mean(recalls), 3) if recalls else float("nan"),
         }
 
+    def by(key: Callable[[CaseResult], str]) -> dict[str, dict[str, float]]:
+        groups: dict[str, list[CaseResult]] = defaultdict(list)
+        for r in in_scope:
+            groups[key(r)].append(r)
+        return {name: agg(rows) for name, rows in sorted(groups.items())}
+
     in_scope = [r for r in results if not r.out_of_scope]
-    by_language: dict[str, list[CaseResult]] = defaultdict(list)
-    for r in in_scope:
-        by_language[r.language].append(r)
     evidence = defaultdict(lambda: defaultdict(int))  # type: ignore[var-annotated]
     for r in results:
         evidence["out_of_scope" if r.out_of_scope else "in_scope"][r.evidence] += 1
+    latencies = sorted(r.latency_ms for r in results)
+    misses = [r.id for r in in_scope if not r.hit_at_k]
     return {
-        "overall": agg(in_scope),
-        "by_language": {lang: agg(rows) for lang, rows in sorted(by_language.items())},
+        "overall": agg(in_scope) if in_scope else {},
+        "misses": {"n": len(misses), "ids": misses},
+        "by_language": by(lambda r: r.language),
+        "by_type": by(lambda r: r.type),
+        "by_split": by(lambda r: r.split),
+        "by_category": by(lambda r: r.category),
         "evidence": {k: dict(v) for k, v in evidence.items()},
-        "latency_ms_p50": round(statistics.median(r.latency_ms for r in results), 1),
+        "latency_ms_p50": round(statistics.median(latencies), 1),
+        "latency_ms_p95": round(latencies[min(len(latencies) - 1, int(0.95 * len(latencies)))], 1),
     }
 
 
@@ -138,6 +166,28 @@ def build_retriever(backend: str) -> HybridRetriever:
     return HybridRetriever(repo, embedder, settings)
 
 
+# How an experiment retrieves for one case: (retriever, case, extra queries,
+# model-chosen concepts, k, channels) → result. The default is production retrieval.
+RetrieveFn = Callable[[HybridRetriever, Case, list[str], list[str], int, set[str] | None], RetrievalResult]
+
+
+def production_retrieve(
+    retriever: HybridRetriever,
+    case: Case,
+    queries: list[str],
+    concept_ids: list[str],
+    k: int,
+    channels: set[str] | None,
+) -> RetrievalResult:
+    return retriever.retrieve(
+        question=case.question, queries=queries, concept_ids=concept_ids, top_k=k, channels=channels
+    )
+
+
+def select_split(cases: list[Case], split: str) -> list[Case]:
+    return cases if split == "all" else [c for c in cases if c.split == split]
+
+
 def run(
     *,
     backend: str = "memory",
@@ -145,9 +195,12 @@ def run(
     channels: set[str] | None = None,
     with_llm: bool = False,
     cases: list[Case] | None = None,
+    split: str = "all",
+    retrieve: RetrieveFn = production_retrieve,
+    retriever: HybridRetriever | None = None,
 ) -> tuple[list[CaseResult], dict[str, Any]]:
-    retriever = build_retriever(backend)
-    cases = cases or load_cases()
+    retriever = retriever or build_retriever(backend)
+    cases = select_split(cases or load_cases(), split)
     understand = None
     if with_llm:
         from app.generation.service import understand_for_eval
@@ -163,9 +216,7 @@ def run(
                 relevant.update(concept.passage_ids)
         queries, concept_ids = understand(case.question) if understand else ([], [])
         start = time.perf_counter()
-        result = retriever.retrieve(
-            question=case.question, queries=queries, concept_ids=concept_ids, top_k=k, channels=channels
-        )
+        result = retrieve(retriever, case, queries, concept_ids, k, channels)
         latency = (time.perf_counter() - start) * 1000
         results.append(score_case(case, result, k, relevant, latency))
     return results, summarize(results)
@@ -177,19 +228,25 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--k", type=int, default=8)
     parser.add_argument("--channels", help="comma-separated subset of vector,lexical,roman,concept")
     parser.add_argument("--with-llm", action="store_true", help="use the LLM to rewrite queries")
+    parser.add_argument(
+        "--split", choices=["all", "dev", "test"], default="all", help="test: the held-out cases"
+    )
     parser.add_argument("--json", type=Path, help="write the full report to this file")
     parser.add_argument("--verbose", action="store_true", help="print every case")
     args = parser.parse_args(argv)
 
     channels = set(args.channels.split(",")) if args.channels else None
-    results, summary = run(backend=args.backend, k=args.k, channels=channels, with_llm=args.with_llm)
+    results, summary = run(
+        backend=args.backend, k=args.k, channels=channels, with_llm=args.with_llm, split=args.split
+    )
     if args.verbose:
         for r in results:
             flag = (
                 "OOS" if r.out_of_scope else f"hit={int(r.hit_at_k)} mrr={r.mrr:.2f} p={r.precision_at_k:.2f}"
             )
             print(
-                f"{r.id:26s} {r.language:8s} {flag:24s} evidence={r.evidence:8s} {' '.join(r.retrieved[:5])}"
+                f"{r.id:28s} {r.language:8s} {r.split:4s} {flag:24s} evidence={r.evidence:8s} "
+                f"{' '.join(r.retrieved[:5])}"
             )
     print(json.dumps(summary, indent=2))
     if args.json:
