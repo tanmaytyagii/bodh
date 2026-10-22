@@ -35,6 +35,8 @@ The API image:
 
 Set `AUTO_LOAD=0` to skip loading on start. That is the right setting for multiple replicas: run `python -m app.ingestion load` once as a release step instead, so replicas do not race.
 
+Each API process builds its keyword-search (BM25) index from the stored text on its first search. It looks for a reloaded corpus at most every 30 seconds, so after a release-step load every replica searches the new text within 30 seconds, without a restart.
+
 The web image reads `API_URL` at runtime, so one image works in every environment. The site's public address (`NEXT_PUBLIC_SITE_URL`) is compiled in at build time, and so is `NEXT_PUBLIC_APP_NAME` if you set it.
 
 ## Configuration

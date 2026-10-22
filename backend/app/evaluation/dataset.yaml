@@ -1050,3 +1050,182 @@
   category: out-of-scope
   language: hinglish
   out_of_scope: true
+
+# =============================================================================
+# Added 2026-10-20: 36 out-of-scope questions, so that abstention can be tuned on
+# dev and measured on held-out questions (12 out-of-scope questions were too few).
+# They were written before the confidence signals were analysed, by the same
+# author as the rest of this file: they are not independent. Their split was not
+# chosen by hand: `split: test` where sha256(id) is divisible by 3.
+# =============================================================================
+
+# --- Out of scope (added 2026-10-20) -----------------------------------------------
+- id: oos-tax-return
+  question: How do I file my income tax return online?
+  category: out-of-scope
+  split: test
+  out_of_scope: true
+- id: oos-python-sort
+  question: How do I sort a list of dictionaries by a key in Python?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-laptop-slow
+  question: My laptop has become very slow. How do I speed it up?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-train-ticket
+  question: How do I book a Tatkal train ticket on IRCTC?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-football
+  question: Who scored the most goals at the 2022 football World Cup?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-math-equation
+  question: "Solve for x: 3x + 7 = 22."
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-translate-french
+  question: Translate "where is the railway station" into French.
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-car-mileage
+  question: Which car gives the best mileage in India?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-sourdough
+  question: How long should I proof sourdough bread before baking it?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-paracetamol-dose
+  question: What is the maximum safe dose of paracetamol for an adult?
+  category: out-of-scope
+  split: test
+  out_of_scope: true
+- id: oos-visa
+  question: What documents do I need for a US tourist visa?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-wifi
+  question: Why does my Wi-Fi keep disconnecting every few minutes?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-moon-distance
+  question: How far is the moon from the earth?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-excel
+  question: How do I make a pivot table in Excel?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-genesis-flood
+  question: What does the Book of Genesis say about the great flood?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-mughal
+  question: Who was the first Mughal emperor?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-gym-split
+  question: What is a good four-day gym workout split?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-electricity-bill
+  question: How can I reduce my electricity bill in summer?
+  category: out-of-scope
+  out_of_scope: true
+- id: oos-resume-length
+  question: Should my resume be one page or two?
+  category: out-of-scope
+  split: test
+  out_of_scope: true
+- id: oos-password
+  question: How do I reset a forgotten Gmail password?
+  category: out-of-scope
+  out_of_scope: true
+- id: hi-oos-recipe
+  question: राजमा चावल बनाने की विधि बताइए।
+  category: out-of-scope
+  language: hi
+  out_of_scope: true
+- id: hi-oos-pan-card
+  question: पैन कार्ड में नाम कैसे बदलें?
+  category: out-of-scope
+  language: hi
+  out_of_scope: true
+- id: hi-oos-weather
+  question: कल लखनऊ में मौसम कैसा रहेगा?
+  category: out-of-scope
+  language: hi
+  out_of_scope: true
+- id: hi-oos-match-score
+  question: आज के मैच का स्कोर क्या है?
+  category: out-of-scope
+  language: hi
+  split: test
+  out_of_scope: true
+- id: hi-oos-triangle
+  question: त्रिभुज का क्षेत्रफल कैसे निकालते हैं?
+  category: out-of-scope
+  language: hi
+  out_of_scope: true
+- id: hi-oos-phone-hang
+  question: मेरा फ़ोन बार-बार हैंग हो जाता है, क्या करूँ?
+  category: out-of-scope
+  language: hi
+  split: test
+  out_of_scope: true
+- id: hi-oos-river
+  question: भारत की सबसे लंबी नदी कौन सी है?
+  category: out-of-scope
+  language: hi
+  out_of_scope: true
+- id: hi-oos-train-time
+  question: दिल्ली से जयपुर ट्रेन से कितने घंटे लगते हैं?
+  category: out-of-scope
+  language: hi
+  split: test
+  out_of_scope: true
+- id: hl-oos-laptop
+  question: Coding ke liye 50k ke under best laptop konsa hai?
+  category: out-of-scope
+  language: hinglish
+  split: test
+  out_of_scope: true
+- id: hl-oos-maggi
+  question: Maggi ko aur tasty kaise banaye, koi recipe batao.
+  category: out-of-scope
+  language: hinglish
+  out_of_scope: true
+- id: hl-oos-ipl
+  question: IPL 2025 ka winner kaun tha?
+  category: out-of-scope
+  language: hinglish
+  split: test
+  out_of_scope: true
+- id: hl-oos-gst
+  question: GST registration ke liye kaunse documents chahiye?
+  category: out-of-scope
+  language: hinglish
+  out_of_scope: true
+- id: hl-oos-vlookup
+  question: Excel mein VLOOKUP kaise use karte hain?
+  category: out-of-scope
+  language: hinglish
+  out_of_scope: true
+- id: hl-oos-bike-service
+  question: Bike ki servicing kitne km pe karwani chahiye?
+  category: out-of-scope
+  language: hinglish
+  out_of_scope: true
+- id: hl-oos-hair-fall
+  question: Hair fall rokne ke liye konsa shampoo best hai?
+  category: out-of-scope
+  language: hinglish
+  split: test
+  out_of_scope: true
+- id: hl-oos-movie
+  question: Is weekend kaunsi movie dekhni chahiye?
+  category: out-of-scope
+  language: hinglish
+  out_of_scope: true

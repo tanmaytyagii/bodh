@@ -1,7 +1,7 @@
 """In-memory repository built from the processed corpus.
 
-Mirrors the Postgres backend's behaviour closely enough for tests and for
-running the app without Docker: BM25 over the same stemmed search text,
+Mirrors the Postgres backend's behaviour for tests and for running the app
+without Docker: the same BM25 index over the same search text (storage/lexical.py),
 cosine similarity over the same embeddings, trigram containment for fuzzy
 romanized Sanskrit.
 """
@@ -9,9 +9,8 @@ romanized Sanskrit.
 from __future__ import annotations
 
 import json
-import math
 import threading
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -19,49 +18,15 @@ from typing import Any
 import numpy as np
 
 from app.corpus import Concept, Corpus, Edition, Passage, Source, Story
-from app.retrieval import text
 from app.retrieval.embeddings import Embedder
 from app.storage.indexing import concept_texts, passage_rows, sha256
+from app.storage.lexical import LexicalIndex
 from app.storage.repository import FeedbackRecord, Hit
-
-_K1, _B = 1.2, 0.75
-_SECONDARY_WEIGHT = 0.4
-
-
-class _BM25:
-    def __init__(self, docs: list[list[str]]) -> None:
-        self.tfs = [Counter(doc) for doc in docs]
-        self.lengths = [len(doc) for doc in docs]
-        self.avg = (sum(self.lengths) / len(docs)) if docs else 0.0
-        df: Counter[str] = Counter()
-        for tf in self.tfs:
-            df.update(tf.keys())
-        n = len(docs)
-        self.idf = {t: math.log(1 + (n - d + 0.5) / (d + 0.5)) for t, d in df.items()}
-
-    def scores(self, query: list[str]) -> np.ndarray:
-        out = np.zeros(len(self.tfs), dtype=np.float64)
-        if not self.avg:
-            return out
-        for term in set(query):
-            idf = self.idf.get(term)
-            if idf is None:
-                continue
-            for i, tf in enumerate(self.tfs):
-                f = tf.get(term)
-                if f:
-                    norm = f + _K1 * (1 - _B + _B * self.lengths[i] / self.avg)
-                    out[i] += idf * f * (_K1 + 1) / norm
-        return out
 
 
 def _trigrams(value: str) -> set[str]:
     padded = f"  {value} "
     return {padded[i : i + 3] for i in range(len(padded) - 2)}
-
-
-def _doc_tokens(value: str) -> list[str]:
-    return [text.stem(t) for t in text.tokenize(value) if t not in text.STOPWORDS]
 
 
 class MemoryRepository:
@@ -94,8 +59,12 @@ class MemoryRepository:
         self.concepts = {c.id: c for c in corpus.concepts}
         self.stories = {s.id: s for s in corpus.stories}
 
-        self._primary = _BM25([_doc_tokens(r.search_primary) for r in rows])
-        self._secondary = _BM25([_doc_tokens(r.search_secondary) for r in rows])
+        self._lexical = LexicalIndex(
+            [p.id for p in self.passages],
+            [p.source_id for p in self.passages],
+            [r.search_primary for r in rows],
+            [r.search_secondary for r in rows],
+        )
         self._roman = [_trigrams(r.roman_key) if r.roman_key else set() for r in rows]
         self._source_of = np.array([p.source_id for p in self.passages])
 
@@ -188,12 +157,7 @@ class MemoryRepository:
         return [Hit(self.passages[i].id, float(scores[i])) for i in order if np.isfinite(scores[i])]
 
     def lexical_search(self, words: list[str], limit: int, source_ids: list[str] | None = None) -> list[Hit]:
-        query = text.stems(words)
-        if not query:
-            return []
-        scores = self._primary.scores(query) + _SECONDARY_WEIGHT * self._secondary.scores(query)
-        scores = np.where(scores > 0, scores, -np.inf)
-        return self._top(scores, limit, self._mask(source_ids))
+        return self._lexical.search(words, limit, source_ids)
 
     def vector_search(self, vector: np.ndarray, limit: int, source_ids: list[str] | None = None) -> list[Hit]:
         if self.vectors is None or not len(self.vectors):

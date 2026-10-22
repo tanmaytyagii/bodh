@@ -232,7 +232,8 @@ _syn("angry anger rage furious irritated frustrated frustration revenge", "wrath
 _syn("hate hatred resent resentment grudge", "hatred ill-will aversion malice")
 _syn(
     "sad sadness depressed depression hopeless despair grief grieving mourning",
-    "grief sorrow despondency dejection",
+    # "grieve": the translation's verb ("Thou grievest", 2.11), whose stem "grief" does not match.
+    "grief grieve sorrow despondency dejection",
 )
 _syn("death die died dying dead", "death dead slain")
 _syn("fear afraid scared panic terrified", "fear fearlessness")
@@ -269,7 +270,7 @@ _syn("learn learning knowledge", "wisdom knowledge")
 _syn("charity donate donating donation donations generous generosity", "alms gift")
 _syn("bright brightness brilliant brilliance radiant dazzling", "splendour radiance blaze")
 _syn("argue arguing argument arguments quarrel quarrelling", "wrath anger speech")
-_syn("smoking smoke cigarette cigarettes alcohol drinking drunk binge", "desire senses")
+_syn("smoking smoke cigarette cigarettes alcohol drinking drunk", "desire senses")
 
 
 # Hindi (Devanagari) and Hinglish words → English keys above. Lets the lexical

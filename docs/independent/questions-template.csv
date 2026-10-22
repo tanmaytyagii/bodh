@@ -1,0 +1,2 @@
+question,language,category,note
+"# One question per row. language: en, hi or hinglish. category and note are optional. Rows starting with # are ignored.",,,

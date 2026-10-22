@@ -12,7 +12,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Any
 
-from app.corpus import Corpus
+from app.corpus import Corpus, short_ref
 from app.ingestion.normalize import loose_roman, to_iast
 
 _DEVANAGARI = re.compile("[\u0900-\u097f]")
@@ -125,12 +125,25 @@ def validate(corpus: Corpus) -> ValidationReport:
                 errors.append(f"story {story.id}: unknown passage {pid!r}")
         if not story.excerpt_ids:
             errors.append(f"story {story.id}: no verbatim excerpts")
+        foreign = [
+            pid for pid in story.excerpt_ids if pid in passages and passages[pid].source_id != story.source_id
+        ]
+        if foreign:
+            errors.append(f"story {story.id}: excerpts from another source: {foreign}")
         story_text = " ".join(
             [story.summary, story.dilemma, *story.lessons, *story.caveats]
             + [f"{c.choice} {c.consequence or ''}" for c in story.choices]
         )
         for fragment in _misquotes(story_text, story.excerpt_ids + story.related_passage_ids, corpus):
             errors.append(f"story {story.id}: quoted text {fragment!r} is not found in its passages")
+        shown = {
+            short_ref(passages[pid])
+            for pid in story.excerpt_ids + story.related_passage_ids
+            if pid in passages
+        }
+        for ref in dict.fromkeys(_cited_refs(story_text)):
+            if ref not in shown:
+                errors.append(f"story {story.id}: cites {ref}, which is not among its excerpts or related")
 
     report.stats = {
         "passages": len(corpus.passages),
@@ -169,6 +182,31 @@ def _misquotes(text: str, passage_ids: list[str], corpus: Corpus) -> list[str]:
             if len(fragment) >= 4 and fragment not in haystack:
                 bad.append(fragment)
     return bad
+
+
+# References as editors write them, in parentheses, matched as the web app links
+# them (web/src/components/CitedText.tsx): "(2.47)" for the Gita, "(2.62–2.63)",
+# "(Kena 3.6)", "(Katha 1.2.1-1.2.2)", several separated by commas.
+_REFERENCE_GROUP = re.compile(r"\(([^()]{1,80})\)")
+_REFERENCE = re.compile(
+    r"\b(Katha|Isha|Kena)\s+(\d+(?:\.\d+){0,2})(?:\s*[–-]\s*(?:(?:Katha|Isha|Kena)\s+)?(\d+(?:\.\d+){0,2}))?"
+    r"|\b(\d{1,2})\.(\d{1,3})(?:\s*[–-]\s*(\d{1,2})\.(\d{1,3}))?\b"
+)
+
+
+def _cited_refs(text: str) -> list[str]:
+    """Short references ("BG 2.47", "Kena 3.6") an editorial text cites; a range
+    contributes both of its ends."""
+    refs = []
+    for group in _REFERENCE_GROUP.finditer(text):
+        for m in _REFERENCE.finditer(group.group(1)):
+            if m.group(1):
+                refs += [f"{m.group(1)} {n}" for n in (m.group(2), m.group(3)) if n]
+            else:
+                refs.append(f"BG {m.group(4)}.{m.group(5)}")
+                if m.group(6):
+                    refs.append(f"BG {m.group(6)}.{m.group(7)}")
+    return refs
 
 
 def _term_attested(term: str, passage_ids: list[str], corpus: Corpus) -> bool:

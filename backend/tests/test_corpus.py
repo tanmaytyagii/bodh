@@ -2,9 +2,11 @@
 
 import re
 from collections import Counter
+from typing import Any
 
 from app.corpus import Corpus
 from app.ingestion.sources.gita_besant import EXPECTED_VERSES
+from app.ingestion.validate import validate
 
 
 def test_every_verse_is_present_and_ordered(corpus: Corpus) -> None:
@@ -140,6 +142,36 @@ def test_every_story_is_grounded_in_its_own_source(corpus: Corpus) -> None:
         )
         assert _misquotes(text, story.excerpt_ids + story.related_passage_ids, corpus) == [], story.id
         assert story.caveats, f"{story.id}: an editorial story says what it does not claim"
+
+
+def _story_errors(corpus: Corpus, **changes: Any) -> list[str]:
+    """Validation errors for the Kena story with some fields changed."""
+    story = next(s for s in corpus.stories if s.id == "the-gods-and-the-mystery")
+    broken = corpus.model_copy(update={"stories": [story.model_copy(update=changes)]})
+    return [e for e in validate(broken).errors if e.startswith("story ")]
+
+
+def test_a_story_must_show_the_passages_it_relies_on(corpus: Corpus) -> None:
+    story = next(s for s in corpus.stories if s.id == "the-gods-and-the-mystery")
+
+    def without(pid: str) -> list[str]:
+        return [p for p in story.excerpt_ids if p != pid]
+
+    assert _story_errors(corpus) == []
+    # Missing evidence: a passage that is not in the corpus, or no excerpts at all.
+    unknown = _story_errors(corpus, excerpt_ids=[*story.excerpt_ids, "kena.9.99"])
+    assert any("unknown passage 'kena.9.99'" in e for e in unknown)
+    assert any("no verbatim excerpts" in e for e in _story_errors(corpus, excerpt_ids=[]))
+    # Incomplete excerpts: a verse the analysis cites, or one it quotes, is not shown with it.
+    assert any("cites Kena 3.6" in e for e in _story_errors(corpus, excerpt_ids=without("kena.3.6")))
+    quoted = _story_errors(corpus, excerpt_ids=without("kena.3.5"))
+    assert any("can burn up all whatsoever exists on earth" in e for e in quoted)
+    # Excerpts are the story's own text; a verse from another source is a related passage at most.
+    assert any(
+        "excerpts from another source: ['bg.2.47']" in e
+        for e in _story_errors(corpus, excerpt_ids=[*story.excerpt_ids, "bg.2.47"])
+    )
+    assert _story_errors(corpus, related_passage_ids=[*story.related_passage_ids, "bg.2.47"]) == []
 
 
 def test_a_corpus_without_stories_serves_none(corpus: Corpus, repo) -> None:  # type: ignore[no-untyped-def]

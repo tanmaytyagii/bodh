@@ -1,0 +1,29 @@
+# Independent retrieval evaluation questions. Empty until collected: see
+# docs/INDEPENDENT_EVALUATION.md for how questions are written, labelled and
+# frozen, and `python -m app.evaluation.independent --help` for the tools.
+# Only questions written by independent people belong here: never questions by
+# BODH's developers, by an AI assistant, or synthetic test fixtures.
+#
+# Each question records who wrote it (a pseudonym), when, and the file it came
+# from. Each labeller's decision is kept under `annotations`; the final label is
+# `expected` (or `out_of_scope: true`), with who made it, when, and how:
+# single (one labeller), agreed (all labellers alike) or adjudicated (a person
+# settled a disagreement, giving the reason in `note`). Labels name passages
+# only: no theme ids.
+#
+# - id: ind-hi-001                  # ind-<language>-<number>, given on import
+#   question: ...
+#   language: hi                    # en | hi | hinglish
+#   category: life                  # life | knowledge | lookup | paraphrase | ambiguous | out-of-scope
+#   author: A1                      # a pseudonym, never a name or contact
+#   written_on: '2026-11-02'
+#   authorship: independent
+#   batch: A1 2026-11-02 questions-A1.csv sha256:0123456789ab
+#   annotations:
+#   - {by: L1, on: '2026-11-05', expected: [bg.2.47, bg.2.48], out_of_scope: false}
+#   - {by: L2, on: '2026-11-06', expected: [bg.2.47, bg.2.48], out_of_scope: false}
+#   expected: [bg.2.47, bg.2.48]
+#   out_of_scope: false
+#   labelled_by: L1+L2
+#   labelled_on: '2026-11-06'
+#   decision: agreed

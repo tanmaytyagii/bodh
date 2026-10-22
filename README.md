@@ -59,7 +59,7 @@ flowchart LR
   subgraph api["FastAPI service (backend/)"]
     routes["Routes<br/>/ask/stream, /search, /passages, …"]
     service["Answer pipeline<br/>safety · understand · retrieve ·<br/>generate · verify"]
-    retriever["Hybrid retrieval<br/>vectors, full text, romanized Sanskrit,<br/>themes"]
+    retriever["Hybrid retrieval<br/>vectors, BM25, romanized Sanskrit,<br/>themes"]
   end
 
   store[("PostgreSQL 17 + pgvector<br/>or the in-memory backend")]
@@ -81,7 +81,7 @@ flowchart LR
 
 1. **Safety.** Regular expressions catch crisis language first, with or without a model.
 2. **Understanding.** The model restates the situation and turns it into searches phrased the way the translations speak ("fruit of action", "balanced in success and failure").
-3. **Retrieval.** Reciprocal-rank fusion of semantic search (multilingual-e5-small, run locally), full-text search, trigram matching of romanized Sanskrit and the editorial theme index.
+3. **Retrieval.** Reciprocal-rank fusion of semantic search (multilingual-e5-small, run locally), BM25 keyword search, trigram matching of romanized Sanskrit and the editorial theme index.
 4. **Generation.** The model writes the answer from the retrieved passages only, and refers to them by id.
 5. **Verification.** Citations of anything not retrieved are removed, and quoted wording is checked word for word against the translations. Every change is reported with the answer.
 
@@ -134,7 +134,7 @@ The processed corpus is committed in `backend/data/processed`, so nothing needs 
 
 Run `make api-memory` instead of `make db` and `make api` (or set `RETRIEVAL_BACKEND=memory` in `.env`). The API then serves the committed corpus from memory, and everything works as it does with PostgreSQL, except that:
 
-- full-text ranking uses BM25 instead of PostgreSQL's full-text search, so results can differ a little ([docs/EVALUATION.md](docs/EVALUATION.md) has numbers for both);
+- the passages' embeddings are computed in other batches than PostgreSQL's, which moves some near-ties in semantic search, so results can differ a little ([docs/EVALUATION.md](docs/EVALUATION.md) has numbers for both); lexical ranking is identical;
 - reports sent with "Report an issue" are written to `backend/.cache/feedback.jsonl`, not to the database;
 - the passages are embedded on the first start, and cached under `backend/.cache`.
 
@@ -158,7 +158,7 @@ Every setting is an environment variable, read from `.env`. All of them are docu
 | `ANTHROPIC_API_KEY` | none | Required for AI guidance with the default provider |
 | `LLM_MODEL` | `claude-opus-5-5` | Model for both steps. `LLM_FAST_MODEL` overrides it for the understanding step. |
 | `LLM_BASE_URL`, `OPENAI_API_KEY` | none | For OpenAI-compatible providers |
-| `RETRIEVAL_BACKEND` | `postgres` | `postgres` (pgvector + full-text search) or `memory` |
+| `RETRIEVAL_BACKEND` | `postgres` | `postgres` (pgvector and the stored corpus) or `memory` |
 | `DATABASE_URL` | `postgresql://wisdom:wisdom@localhost:54329/wisdom` | Matches the Compose database |
 | `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL` | `local`, `intfloat/multilingual-e5-small` | In-process ONNX embeddings with no key; an OpenAI-compatible endpoint is also supported |
 | `API_URL` | `http://127.0.0.1:8000` | Where the web server reaches the API |
@@ -172,7 +172,7 @@ Every setting is an environment variable, read from `.env`. All of them are docu
 | `make test` | Backend unit and integration tests. No Docker or model key needed. |
 | `make lint` | ruff, mypy, the TypeScript check and ESLint |
 | `make e2e` | Playwright tests on desktop Chrome and a Pixel 7, including axe accessibility checks in both themes. They build and serve their own copy of the web app on port 3100, alongside `make web`. Start the API first, and install the browser once with `cd web && npx playwright install chromium`. |
-| `make eval` | Retrieval evaluation on 190 labelled questions |
+| `make eval` | Retrieval evaluation on 226 labelled questions |
 | `make eval-answers` | Answer evaluation through the configured model. It makes real model calls. |
 | `make corpus` / `make ingest` | Rebuild the processed corpus / load it into PostgreSQL |
 | `make help` | Everything else |
@@ -218,9 +218,9 @@ cd web && node scripts/capture-media.mjs   # BASE_URL=http://localhost:3000 by d
 | Backend tests | `make test` | Sanskrit normalisation, corpus validation, retrieval in three languages, crisis detection, the verifier, the answer pipeline with a stand-in model, and the HTTP API |
 | Browser tests | `make e2e` | The ask flow, the landing story, the 3D scene and its fallback, both themes, accessibility (axe, WCAG 2.1 AA) and responsive layouts, on desktop Chrome and a Pixel 7 |
 | Lint and types | `make lint` | ruff, mypy, TypeScript and ESLint |
-| Retrieval evaluation | `make eval` | 190 labelled questions in English, Hindi and Hinglish, 57 of them held out: hit@5, hit@8, MRR, precision@8, misses and latency |
+| Retrieval evaluation | `make eval` | 226 labelled questions in English, Hindi and Hinglish, 48 of them out of scope and 66 held out: hit@5, hit@8, MRR, precision@8, misses, evidence labels and latency |
 
-Without a model, retrieval finds a relevant passage in the top 8 for 76% of the 70 in-scope questions on the in-memory backend (reproduced on 13 October 2026). [docs/EVALUATION.md](docs/EVALUATION.md) has the full results, the ablations and the reasons these numbers are probably optimistic. CI runs the backend checks and the web app's type check, lint and production build on every push to `main` and every pull request; the browser tests need a running API, so they run locally.
+Without a model, retrieval finds an expected passage in the top 8 for 74% of the 178 in-scope questions, on both backends. On the 53 held-out questions the figure is 64% in memory and 66% on PostgreSQL. It labels 40 of the 48 out-of-scope questions as weak evidence. These were measured on 20 October 2026. [docs/EVALUATION.md](docs/EVALUATION.md) has the full results, the ablations and the reasons these numbers are probably optimistic: every question and label was written by the people who built the retrieval. [docs/INDEPENDENT_EVALUATION.md](docs/INDEPENDENT_EVALUATION.md) describes how to collect independent ones. CI runs the backend checks and the web app's type check, lint and production build on every push to `main` and every pull request; the browser tests need a running API, so they run locally.
 
 ## Using BODH responsibly
 
@@ -247,7 +247,8 @@ BODH is a working application, not a production service. Known gaps:
 - Review the 25 flagged verses against the printed pages.
 - Add the Upanishads' Sanskrit, with a second translation to check against.
 - Add stories from the Mahabharata and the Ramayana, and traditional commentaries such as Shankara's, as verified public-domain editions are ingested.
-- Measure a reranker with `make eval`.
+- Collect independent evaluation questions in English, Hindi and Hinglish ([docs/INDEPENDENT_EVALUATION.md](docs/INDEPENDENT_EVALUATION.md)), and measure retrieval on them.
+- Test the remaining Hindi and Hinglish ideas on independent questions: the texts' own names and core terms in Hindi, theme matching on an English gloss, and indexing the parts of hyphenated words ([docs/EVALUATION.md](docs/EVALUATION.md#hindi-and-hinglish)).
 - Build and smoke-test the Docker images, and run the browser tests in CI.
 - Optional accounts, so that reflections can follow you between devices.
 
@@ -278,7 +279,8 @@ BODH was developed under the working name Scriptural Wisdom, and a few infrastru
 - [Architecture](docs/ARCHITECTURE.md): components, the answer pipeline, retrieval and verification
 - [API](docs/API.md): endpoints, the answer format and streaming events
 - [Data](docs/DATA.md): sources, licences, provenance, ingestion, adding sources, reviewing variants
-- [Evaluation](docs/EVALUATION.md): method, current numbers, ablations, embedding study
+- [Evaluation](docs/EVALUATION.md): method, current numbers, confidence and abstention, reranking, ablations, embedding study
+- [Independent evaluation](docs/INDEPENDENT_EVALUATION.md): how independent questions are written, labelled and frozen
 - [Deployment](docs/DEPLOYMENT.md): containers, database, configuration, operations
 - [Safety and privacy](docs/SAFETY.md): crisis handling, sensitive passages, data retention
 - [Web app](web/README.md): the Ask page, the scene, the brand, design rules

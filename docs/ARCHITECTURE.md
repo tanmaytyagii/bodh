@@ -12,7 +12,7 @@ flowchart LR
   subgraph api["FastAPI service (backend/)"]
     routes["Routes<br/>/ask/stream, /search, /passages, …"]
     service["Answer pipeline<br/>safety · understand · retrieve ·<br/>generate · verify"]
-    retriever["Hybrid retrieval<br/>vectors, full text, romanized Sanskrit,<br/>themes"]
+    retriever["Hybrid retrieval<br/>vectors, BM25, romanized Sanskrit,<br/>themes"]
   end
 
   store[("PostgreSQL 17 + pgvector<br/>or the in-memory backend")]
@@ -125,7 +125,7 @@ The stream's events are `status` (`understanding`, `retrieving`, `writing`), `un
 | Channel | What it matches | Weight |
 | --- | --- | --- |
 | `vector` | Cosine similarity between query and passage embeddings, one list per query | 1.0 for the model's queries, 0.25 for the raw question (`RETRIEVAL_RAW_VECTOR_WEIGHT`) |
-| `lexical` | PostgreSQL full-text search. The translation is weight A; translator's notes and concept vocabulary are weight B. | 1.0 |
+| `lexical` | BM25 over the English search text (`storage/lexical.py`), the same index on both backends: the translation is one field; translator's notes, chapter title and concept vocabulary are another, at 0.4 | 1.0 |
 | `roman` | Trigram `word_similarity` of the question against romanized Sanskrit, so `karmanye vadhikaraste` finds 2.47 | 4.0 |
 | `concept_llm` | Passages of the concepts the model chose | 2.0 |
 | `concept_semantic` | Passages of concepts whose description embeds close to the question (cosine ≥ 0.80) | 1.0 |
@@ -137,10 +137,10 @@ After fusion:
 - **Adjacency.** A verse adjacent to one already selected becomes that verse's context instead of taking its own slot, which keeps results diverse. Each result carries ±1 neighbouring verses as context.
 - **Evidence.** `assess_evidence` labels each result set:
   - **strong:** a romanized-Sanskrit match, a concept chosen by the model, or concept similarity of at least 0.83;
-  - **moderate:** concept similarity of at least 0.80, or at least two top-5 passages found by more than one channel;
+  - **moderate:** concept similarity of at least 0.80, or at least two top-5 passages found by more than one channel, provided the question is semantically close to some passage (raw-question vector similarity of at least 0.825). Without that condition, shared words alone ("rain", "moon", "won") made unrelated questions look answered;
   - **weak:** otherwise.
 
-  The answer prompt also asks the model to judge relevance. The label is a hint, not a guarantee; see [EVALUATION.md](EVALUATION.md).
+  Without a model, the label is what tells a reader that the texts may not address the question: "weak" becomes "limited" evidence in Ask and a note in Explore. With a model, the understanding step recognises out-of-scope questions itself, and the answer prompt asks the model to judge relevance. The label is a hint, not a guarantee; see [EVALUATION.md](EVALUATION.md#confidence-and-abstention).
 
 **Query processing** (`retrieval/text.py`):
 
@@ -154,8 +154,12 @@ After fusion:
 
 **Backends.**
 
-- `postgres` uses pgvector for exact cosine search. With 872 passages an index is not needed; add HNSW once the corpus grows past roughly 50k passages. It also uses a generated weighted `tsvector` and `pg_trgm`.
-- `memory` implements the same `Repository` protocol with BM25, numpy and trigram containment. Tests, the evaluation and Docker-free development use it.
+- `postgres` uses pgvector for exact cosine search. With 872 passages an index is not needed; add HNSW once the corpus grows past roughly 50k passages.
+  - **Lexical search:** it builds the shared BM25 index from the stored search text on first use, and rebuilds it when the passages change. It checks at most every 30 seconds, so after `make ingest` the API searches the new text within 30 seconds.
+  - **Fuzzy Sanskrit:** it uses `pg_trgm`.
+  - **Unused for ranking:** the generated `tsvector` column and its index remain, but nothing ranks by them any more. `ts_rank_cd` gives a common word as much weight as a rare one and ignores length, and it found fewer expected passages ([EVALUATION.md](EVALUATION.md#the-postgresql-gap)).
+- `memory` implements the same `Repository` protocol with the same BM25 index, numpy and trigram containment. Tests, the evaluation and Docker-free development use it.
+- **Lexical results are identical on both backends.** Vector results can differ slightly: PostgreSQL's stored embeddings were computed in other batches, and the model's output depends a little on batch composition.
 
 ## Model providers
 
@@ -180,7 +184,7 @@ Missing credentials never crash the API. `/health` reports `llm.configured: fals
 | Table | Contents |
 | --- | --- |
 | `sources`, `editions` | Source metadata (divisions, labels) and editions (translator, licence, URL). One edition can cover several sources. |
-| `passages` | One row per verse: the full passage JSON plus search columns (weighted `tsvector`, romanized key) and a content hash |
+| `passages` | One row per verse: the full passage JSON plus search columns (the English search text that the BM25 index is built from, a weighted `tsvector` no longer used for ranking, the romanized key) and a content hash |
 | `passage_embeddings` | One vector per passage and model, with the hash of the embedded text, so only changed text is re-embedded |
 | `concepts`, `concept_passages`, `concept_embeddings` | The editorial theme index |
 | `stories` | Editorial story records |
@@ -226,4 +230,4 @@ The web app uses Next.js 16 (App Router, Turbopack) with React 19 and Tailwind C
 - **Another source:** write an adapter in `backend/app/ingestion/sources/` and register it in `pipeline.build_corpus`. See [DATA.md](DATA.md#adding-a-source).
 - **Another model provider:** implement `LLMClient` and add it to `create_llm`.
 - **Another embedding model:** set `EMBEDDING_MODEL` and run `make ingest`. Re-check the concept thresholds with `make eval`, and add the model's query/passage prefixes to `embeddings.prefixes_for` if it needs them.
-- **A reranker:** add it after fusion in `HybridRetriever.retrieve`, over the top 20–30 candidates. Measure it with `make eval` before and after.
+- **A reranker:** add it after fusion in `HybridRetriever.retrieve`, over the top 20–30 candidates. One has been measured, always and only for uncertain questions (`python -m app.evaluation.experiments rerank`). It improved ordering but not recall, at about 1.2 s per question and 1 GB of memory, so it is not used; see [EVALUATION.md](EVALUATION.md#conditional-reranking).

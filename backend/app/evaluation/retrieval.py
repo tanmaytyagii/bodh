@@ -5,6 +5,7 @@
     python -m app.evaluation.retrieval --channels vector   # ablation
     python -m app.evaluation.retrieval --with-llm          # use the LLM's query rewriting
     python -m app.evaluation.retrieval --split test        # only the held-out cases
+    python -m app.evaluation.retrieval --dataset independent   # the frozen independent questions
 
 Metrics (over in-scope questions):
   hit@k        some expected verse is among the top k results
@@ -12,16 +13,23 @@ Metrics (over in-scope questions):
   precision@k  share of the top k that is relevant (expected, or in an expected concept)
   concepts     share of expected concepts that were matched
   misses       in-scope questions with no expected verse in the top k
-Out-of-scope questions report the evidence level the retriever assigned.
+hit@k_ci is a 95% Wilson interval: on a slice of 7 questions it spans tens of points.
+Out-of-scope questions report the evidence level the retriever assigned; `abstention`
+counts out-of-scope questions labelled weak (higher is better) and found in-scope
+questions labelled weak (lower is better), by split and language.
 
 Cases marked `split: test` are held out: report on them, but never use them to
-choose a setting. Everything else is the dev split.
+choose a setting. Everything else is the dev split. Independent questions
+(independent.yaml) are evaluated only once frozen; their relevance is the
+listed passages alone, with no credit for themes.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import math
 import statistics
 import sys
 import time
@@ -55,7 +63,7 @@ def question_type(case: Case) -> str:
     """life (a situation), knowledge (about the texts), lookup (a verse by its words) or out-of-scope."""
     if case.out_of_scope:
         return "out-of-scope"
-    return case.category if case.category in ("knowledge", "lookup") else "life"
+    return case.category if case.category in ("knowledge", "lookup", "paraphrase", "ambiguous") else "life"
 
 
 @dataclass
@@ -108,19 +116,38 @@ def score_case(
     )
 
 
+def wilson(successes: float, n: int, z: float = 1.96) -> tuple[float, float]:
+    """95% Wilson score interval for a proportion; sound for small n and for 0 or n."""
+    if n == 0:
+        return (0.0, 1.0)
+    p = successes / n
+    centre = (p + z * z / (2 * n)) / (1 + z * z / n)
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+    return (round(max(0.0, centre - half), 3), round(min(1.0, centre + half), 3))
+
+
 def summarize(results: list[CaseResult]) -> dict[str, Any]:
-    def agg(rows: list[CaseResult]) -> dict[str, float]:
+    def agg(rows: list[CaseResult]) -> dict[str, Any]:
         recalls = [r.concept_recall for r in rows if r.concept_recall is not None]
         return {
             "n": len(rows),
             "hit@5": round(statistics.mean(r.hit_at_5 for r in rows), 3),
             "hit@k": round(statistics.mean(r.hit_at_k for r in rows), 3),
+            "hit@k_ci": wilson(sum(r.hit_at_k for r in rows), len(rows)),
             "mrr": round(statistics.mean(r.mrr for r in rows), 3),
             "precision@k": round(statistics.mean(r.precision_at_k for r in rows), 3),
             "concepts": round(statistics.mean(recalls), 3) if recalls else float("nan"),
         }
 
-    def by(key: Callable[[CaseResult], str]) -> dict[str, dict[str, float]]:
+    def weak(rows: list[CaseResult]) -> dict[str, list[int]]:
+        oos = [r for r in rows if r.out_of_scope]
+        found = [r for r in rows if not r.out_of_scope and r.hit_at_k]
+        return {
+            "oos_weak": [sum(r.evidence == "weak" for r in oos), len(oos)],
+            "found_weak": [sum(r.evidence == "weak" for r in found), len(found)],
+        }
+
+    def by(key: Callable[[CaseResult], str]) -> dict[str, dict[str, Any]]:
         groups: dict[str, list[CaseResult]] = defaultdict(list)
         for r in in_scope:
             groups[key(r)].append(r)
@@ -140,6 +167,17 @@ def summarize(results: list[CaseResult]) -> dict[str, Any]:
         "by_split": by(lambda r: r.split),
         "by_category": by(lambda r: r.category),
         "evidence": {k: dict(v) for k, v in evidence.items()},
+        "abstention": {
+            "all": weak(results),
+            **{
+                split: weak([r for r in results if r.split == split])
+                for split in sorted({r.split for r in results})
+            },
+            **{
+                lang: weak([r for r in results if r.language == lang])
+                for lang in sorted({r.language for r in results})
+            },
+        },
         "latency_ms_p50": round(statistics.median(latencies), 1),
         "latency_ms_p95": round(latencies[min(len(latencies) - 1, int(0.95 * len(latencies)))], 1),
     }
@@ -231,14 +269,44 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--split", choices=["all", "dev", "test"], default="all", help="test: the held-out cases"
     )
+    parser.add_argument(
+        "--dataset",
+        choices=["main", "independent"],
+        default="main",
+        help="independent: the frozen independent questions (docs/INDEPENDENT_EVALUATION.md)",
+    )
     parser.add_argument("--json", type=Path, help="write the full report to this file")
     parser.add_argument("--verbose", action="store_true", help="print every case")
     args = parser.parse_args(argv)
 
     channels = set(args.channels.split(",")) if args.channels else None
+    cases, path, version = load_cases(), DATASET, ""
+    if args.dataset == "independent":
+        from app.evaluation import independent
+
+        try:
+            cases, version = independent.usable_cases()
+        except independent.DatasetError as exc:
+            print("The independent set cannot be evaluated:", *exc.problems, sep="\n  ", file=sys.stderr)
+            return 2
+        path = independent.INDEPENDENT
+        if not cases:
+            print("No labelled independent questions yet.", file=sys.stderr)
+            return 2
     results, summary = run(
-        backend=args.backend, k=args.k, channels=channels, with_llm=args.with_llm, split=args.split
+        backend=args.backend,
+        k=args.k,
+        channels=channels,
+        with_llm=args.with_llm,
+        cases=cases,
+        split=args.split if args.dataset == "main" else "all",
     )
+    summary["dataset"] = {
+        "file": path.name,
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest()[:16],
+        "questions": len(results),
+        **({"version": version} if version else {}),
+    }
     if args.verbose:
         for r in results:
             flag = (

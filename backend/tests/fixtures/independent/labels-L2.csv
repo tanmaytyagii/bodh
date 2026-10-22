@@ -1,0 +1,9 @@
+id,language,category,question,expected,out_of_scope,note
+ind-en-001,,,,bg.12.13 bg.17.20,no,
+ind-en-002,,,,bg.6.16 bg.6.17,no,
+ind-en-003,,,,bg.2.50,no,
+ind-hi-001,,,,,,
+ind-hinglish-001,,,,bg.2.56 bg.2.47,no,
+ind-hinglish-002,,,,bg.3.9,no,karma as consequence
+ind-en-004,,,,,yes,
+ind-hi-002,,,,,yes,
