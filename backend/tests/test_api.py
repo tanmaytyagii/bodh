@@ -38,7 +38,40 @@ def test_passage_by_location_and_stories(make_app) -> None:  # type: ignore[no-u
     assert detail["stories"] == [{"id": "nachiketas-and-death", "title": "Nachiketas and Death"}]
     assert client.get("/sources/katha-upanishad/passages/9/1").status_code == 404
     story = client.get("/stories/nachiketas-and-death").json()
-    assert story["editorial"] is True and story["excerpts"][0]["id"] == "katha.1.3"
+    assert story["editorial"] is True and story["excerpts"][0]["id"] == "katha.1.1"
+
+
+def test_stories_list_and_link_back_from_their_verses(make_app) -> None:  # type: ignore[no-untyped-def]
+    client = make_app()
+    ids = [s["id"] for s in client.get("/stories").json()]
+    assert {
+        "nachiketas-and-death",
+        "the-gods-and-the-mystery",
+        "arjuna-at-kurukshetra",
+        "the-universal-form",
+    } <= set(ids)
+    story = client.get("/stories/the-gods-and-the-mystery").json()
+    assert story["editorial"] is True
+    assert [p["id"] for p in story["excerpts"]][:2] == ["kena.3.1", "kena.3.2"]
+    assert all(p["path"].startswith("/scripture/kena-upanishad/") for p in story["excerpts"])
+    # A verse in a story names the story; one in none names none.
+    assert client.get("/passages/bg.2.7").json()["stories"] == [
+        {"id": "arjuna-at-kurukshetra", "title": "Arjuna's Despair at Kurukshetra"}
+    ]
+    assert client.get("/passages/bg.6.5").json()["stories"] == []
+    assert client.get("/stories/no-such-story").status_code == 404
+
+
+def test_story_passages_carry_their_source(make_app) -> None:  # type: ignore[no-untyped-def]
+    client = make_app()
+    for listed in client.get("/stories").json():
+        story = client.get(f"/stories/{listed['id']}").json()
+        assert story["editorial"] is True  # the analysis is marked as the editors' reading
+        assert {p["source_id"] for p in story["excerpts"]} == {story["source_id"]}
+        for passage in story["excerpts"] + story["related"]:
+            assert passage["translator"] != "Unknown translator", passage["id"]
+            assert passage["citation"]["label"], passage["id"]
+            assert passage["citation"]["url"].startswith("https://"), passage["id"]
 
 
 def test_search(make_app) -> None:  # type: ignore[no-untyped-def]

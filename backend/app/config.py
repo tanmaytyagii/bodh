@@ -76,10 +76,13 @@ class Settings(BaseSettings):
     # --- Retrieval tuning ------------------------------------------------------
     retrieval_candidates_per_channel: int = 30
     retrieval_top_k: int = 8
-    rrf_k: int = 60
+    # Fusion constant: smaller values let the top of each channel's ranking
+    # count for more. 30 and 0.25 were chosen on the dev split of the
+    # evaluation set and confirmed on its held-out split (docs/EVALUATION.md).
+    rrf_k: int = 30
     # Weight of semantic search on the user's raw wording (rewritten queries
     # from the language model always get weight 1.0).
-    retrieval_raw_vector_weight: float = 0.5
+    retrieval_raw_vector_weight: float = 0.25
 
     # --- API -------------------------------------------------------------------
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])

@@ -1,9 +1,14 @@
-"""PostgreSQL repository: pgvector for semantic search, full-text search for
-lexical search, pg_trgm for fuzzy matching of romanized Sanskrit."""
+"""PostgreSQL repository: pgvector for semantic search, pg_trgm for fuzzy
+matching of romanized Sanskrit, and lexical search by BM25 over the stored
+search text, with the same index as the in-memory backend (storage/lexical.py).
+PostgreSQL's own full-text ranking, ts_rank_cd, has no inverse document
+frequency or length normalisation and found fewer expected passages; the
+`search_tsv` column it used is kept, but nothing ranks by it."""
 
 from __future__ import annotations
 
-import re
+import threading
+import time
 from typing import Any
 
 import numpy as np
@@ -11,9 +16,12 @@ from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
 from app.corpus import Concept, Edition, Passage, Source, Story
+from app.storage.lexical import LexicalIndex
 from app.storage.repository import FeedbackRecord, Hit
 
-_SAFE_WORD = re.compile(r"^[a-z]+$")
+# How often the lexical index looks for a reloaded corpus (`make ingest` runs in
+# another process). Between checks a reload can go unseen for this long.
+LEXICAL_RECHECK_SECONDS = 30.0
 
 
 class PostgresRepository:
@@ -22,6 +30,10 @@ class PostgresRepository:
     def __init__(self, pool: ConnectionPool, embedding_model: str) -> None:
         self.pool = pool
         self.model = embedding_model
+        self._lexical: LexicalIndex | None = None
+        self._lexical_version: tuple[Any, ...] | None = None
+        self._lexical_checked = 0.0
+        self._lexical_lock = threading.Lock()
 
     # --- corpus -----------------------------------------------------------
 
@@ -99,21 +111,30 @@ class PostgresRepository:
     # --- search -----------------------------------------------------------
 
     def lexical_search(self, words: list[str], limit: int, source_ids: list[str] | None = None) -> list[Hit]:
-        terms = [w for w in words if _SAFE_WORD.match(w)]
-        if not terms:
-            return []
-        rows = self._rows(
-            """
-            SELECT id, ts_rank_cd(search_tsv, q, 32) AS score
-            FROM passages, to_tsquery('english', %(q)s) q
-            WHERE search_tsv @@ q
-              AND (%(sources)s::text[] IS NULL OR source_id = ANY(%(sources)s))
-            ORDER BY score DESC, position
-            LIMIT %(limit)s
-            """,
-            {"q": " | ".join(terms), "sources": source_ids, "limit": limit},
-        )
-        return [Hit(r[0], float(r[1])) for r in rows]
+        return self._lexical_index().search(words, limit, source_ids)
+
+    def _lexical_index(self) -> LexicalIndex:
+        """The BM25 index over the stored search text, rebuilt when the passages
+        change: their count or latest update, checked at most every
+        LEXICAL_RECHECK_SECONDS."""
+        with self._lexical_lock:
+            now = time.monotonic()
+            if self._lexical is None or now - self._lexical_checked >= LEXICAL_RECHECK_SECONDS:
+                version = tuple(self._rows("SELECT count(*), max(updated_at) FROM passages")[0])
+                self._lexical_checked = now
+                if self._lexical is None or version != self._lexical_version:
+                    rows = self._rows(
+                        """
+                        SELECT p.id, p.source_id, p.search_primary, p.search_secondary
+                        FROM passages p JOIN sources s ON s.id = p.source_id
+                        ORDER BY s.sort_order, p.source_id, p.position
+                        """
+                    )
+                    self._lexical = LexicalIndex(
+                        [r[0] for r in rows], [r[1] for r in rows], [r[2] for r in rows], [r[3] for r in rows]
+                    )
+                    self._lexical_version = version
+            return self._lexical
 
     def vector_search(self, vector: np.ndarray, limit: int, source_ids: list[str] | None = None) -> list[Hit]:
         rows = self._rows(

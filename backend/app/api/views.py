@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from app.corpus import Concept, Edition, Passage, ProvenanceStatus, Source, Story
+from app.corpus import Concept, Edition, Passage, ProvenanceStatus, Source, Story, short_ref
 
 # --------------------------------------------------------------------------
 # Passages
@@ -100,15 +100,6 @@ def translator_label(edition: Edition | None) -> str:
         return "Unknown translator"
     name = edition.contributors.split("(")[0].strip().rstrip(";")
     return f"{name} ({edition.year})" if edition.year else name
-
-
-def short_ref(passage: Passage) -> str:
-    if passage.source_id == "bhagavad-gita":
-        return f"BG {passage.division.get('chapter')}.{passage.division.get('verse')}"
-    standard = passage.metadata.get("standard_ref")
-    if standard:
-        return f"{passage.ref.split()[0]} {standard}"
-    return passage.ref
 
 
 def passage_view(passage: Passage, lookup: Lookup) -> PassageView:

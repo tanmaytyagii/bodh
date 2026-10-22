@@ -31,7 +31,7 @@ All responses are JSON unless noted, and text is UTF-8. Errors use FastAPI's sha
 {
   "status": "ok",
   "version": "0.1.0",
-  "storage": {"backend": "postgres", "passages": 872, "embedded": 872, "concepts": 36, "stories": 1},
+  "storage": {"backend": "postgres", "passages": 872, "embedded": 872, "concepts": 36, "stories": 4},
   "embedding_model": "intfloat/multilingual-e5-small",
   "llm": {
     "provider": "anthropic",

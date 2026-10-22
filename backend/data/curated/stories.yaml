@@ -53,10 +53,14 @@
     - holding to an important question that others want you to drop
     - choosing long-term good over short-term pleasure
   excerpt_ids:
+    - katha.1.1
+    - katha.1.2
     - katha.1.3
     - katha.1.4
     - katha.1.9
     - katha.1.10
+    - katha.1.11
+    - katha.1.13
     - katha.1.20
     - katha.1.21
     - katha.1.23
@@ -69,3 +73,205 @@
     - katha.2.3
     - katha.2.4
   related_passage_ids: [bg.18.37, bg.18.38, bg.2.62]
+
+- id: the-gods-and-the-mystery
+  source_id: kena-upanishad
+  title: The Gods and the Mysterious Spirit
+  location: Kena Upanishad 3.1-4.3 (Paramananda's Parts 3-4)
+  characters:
+    - The Devas (gods), among them Agni (Fire), Vayu (Air) and Indra
+    - Brahman, appearing as a mysterious spirit
+    - Uma of golden hue, daughter of Haimavat (Himalaya)
+  summary: >-
+    The Brahman wins a victory for the Devas, but the Devas grow elated and think,
+    "This victory is ours. This glory is ours." Brahman appears before them in a form
+    they do not recognise. They send Agni to find out what it is; asked what power is in
+    him, he answers that he "can burn up all whatsoever exists on earth", but when Brahman
+    places a straw before him he cannot burn it. Vayu, who says he "can blow away all
+    whatsoever exists on earth", cannot blow the straw away. When Indra goes, the spirit
+    disappears before him, and in that same space he finds Uma, who tells him: "It is
+    Brahman. It is through the victory of Brahman that ye are victorious." Agni, Vayu and
+    Indra excel the other Devas because they came nearer to Brahman, and Indra most of
+    all, because he was the first to know it as Brahman.
+  dilemma: >-
+    Whether to claim a victory as wholly their own, and how to meet a power they cannot
+    explain: by asserting their own strength, or by asking what it is.
+  choices:
+    - actor: The Devas
+      choice: 'Claim the victory as their own: "This victory is ours."'
+      consequence: Brahman appears before them in a form they cannot recognise.
+    - actor: Agni
+      choice: Tells the mysterious spirit that he can burn up everything on earth.
+      consequence: He cannot burn a single straw, and returns without learning what the spirit is.
+    - actor: Vayu
+      choice: Tells it that he can blow away everything on earth.
+      consequence: He cannot move the straw either, and also returns without an answer.
+    - actor: Indra
+      choice: 'Goes himself and, when the spirit vanishes, asks Uma: "What is this great mystery?"'
+      consequence: Uma tells him it is Brahman, and Indra is the first to know it.
+  lessons:
+    - A success that rests on more than our own effort is easily taken for our own achievement (Kena 3.1).
+    - Read as a boast, their answer shows where a power ends; gods who said they could burn or blow away everything could not burn or move a straw (Kena 3.6, Kena 3.10).
+    - Asking, rather than asserting, is what led to understanding (Kena 3.12, Kena 4.1).
+  caveats:
+    - This is a teaching story about Brahman, told in the Upanishad's own symbolic terms. It makes no claim about natural forces.
+    - Its point is humility about where one's powers come from, not that effort or ability are worthless.
+  life_situations:
+    - taking credit for a success that others or circumstances made possible
+    - pride after a win
+    - meeting something you cannot explain or control
+  excerpt_ids:
+    - kena.3.1
+    - kena.3.2
+    - kena.3.3
+    - kena.3.4
+    - kena.3.5
+    - kena.3.6
+    - kena.3.7
+    - kena.3.8
+    - kena.3.9
+    - kena.3.10
+    - kena.3.11
+    - kena.3.12
+    - kena.4.1
+    - kena.4.2
+    - kena.4.3
+  related_passage_ids: [bg.3.27, bg.18.16, bg.16.4]
+
+- id: arjuna-at-kurukshetra
+  source_id: bhagavad-gita
+  title: Arjuna's Despair at Kurukshetra
+  location: Bhagavad Gita 1.1-2.10, and its close in 18.63-18.73
+  characters:
+    - Arjuna, a prince and warrior of the Pandavas
+    - Krishna, his charioteer
+    - Sanjaya, who narrates the scene to King Dhritarashtra
+  summary: >-
+    As the battle at Kurukshetra is about to begin, Arjuna asks Krishna, his charioteer,
+    to stop his chariot between the two armies so that he can see whom he must fight.
+    Among the ranks he sees uncles and grandfathers, teachers, cousins, sons and
+    comrades. Overcome with pity, he tells Krishna, "My limbs fail and my mouth is
+    parched", and says that nothing could be worth killing his own kinsmen: "I desire not
+    victory, O Krishna, nor kingdom, nor pleasures". He sinks down on the seat of the
+    chariot, "casting away his bow and arrow, his mind overborne by grief". Krishna answers
+    sharply: "Shake off this paltry faint-heartedness!" Arjuna admits that his mind is
+    "confused as to duty" and asks to be taught. Saying "I will not fight!", he falls
+    silent, and the teaching of the Gita follows. At its close Krishna tells him to reflect
+    on it fully and then act as he chooses, and Arjuna answers that his delusion is
+    destroyed and his doubts have fled.
+  dilemma: >-
+    Whether to fight against his own kinsmen, teachers and friends, or to refuse, when his
+    mind is "confused as to duty", both choices seem to end in grief, and he cannot tell
+    "which for us be the better".
+  choices:
+    - actor: Arjuna
+      choice: Asks Krishna to place his chariot between the two armies, to see whom he must face.
+      consequence: He sees kinsmen, teachers and friends on both sides and is overcome with pity.
+    - actor: Arjuna
+      choice: Casts away his bow and refuses to fight.
+      consequence: He sits in the chariot "overborne by grief", unable to act.
+    - actor: Krishna
+      choice: 'Does not console him at first, but tells him to "Stand up".'
+      consequence: 'Arjuna names his confusion and asks for help: "I am thy disciple, suppliant to Thee; teach me."'
+    - actor: Arjuna
+      choice: Hears the whole teaching, which Krishna asks him to reflect on fully before he acts as he chooses.
+      consequence: '"Destroyed is my delusion … I am firm, my doubts have fled away. I will do according to Thy word."'
+  lessons:
+    - Paralysis before a hard choice is not something to hide; Arjuna names his confusion and asks for help (2.7).
+    - Strong feeling does not settle what is right; the Gita's answer comes after full reflection, not instead of it (18.63).
+    - A decision reached after reflection can be held firmly (18.73).
+  caveats:
+    - The story is set on a battlefield, but it is not an endorsement of violence or war. It frames the teaching that follows, and many readers take the battle as an image of inner conflict.
+    - Arjuna's duty belonged to his own place and time; the story does not tell anyone what their own duty is.
+    - Krishna's sharp words are part of the story, not a model for speaking to someone in distress.
+  life_situations:
+    - torn between a duty and the people you love
+    - too overwhelmed to decide
+    - asking for help when you cannot see the way
+  excerpt_ids:
+    - bg.1.1
+    - bg.1.20
+    - bg.1.21
+    - bg.1.22
+    - bg.1.26
+    - bg.1.27
+    - bg.1.28
+    - bg.1.29
+    - bg.1.30
+    - bg.1.32
+    - bg.1.35
+    - bg.1.47
+    - bg.2.1
+    - bg.2.3
+    - bg.2.6
+    - bg.2.7
+    - bg.2.9
+    - bg.18.63
+    - bg.18.72
+    - bg.18.73
+  related_passage_ids: [bg.2.11, bg.4.42, bg.2.31]
+
+- id: the-universal-form
+  source_id: bhagavad-gita
+  title: The Vision of the Universal Form
+  location: Bhagavad Gita 11.1-11.55
+  characters:
+    - Arjuna
+    - Krishna
+    - Sanjaya, who narrates the scene to King Dhritarashtra
+  summary: >-
+    After hearing Krishna speak of his greatness, Arjuna asks to see it: "I desire to see
+    Thy Form omnipotent." Krishna tells him that he cannot see it with his own eyes and
+    gives him "the divine eye". Arjuna sees a form "with many mouths and eyes", whose glory
+    Sanjaya compares to "the splendour of a thousand suns", and in it "the whole universe,
+    divided into manifold parts", standing in the body of the Deity of Deities. Wonder
+    turns to terror: Arjuna says that his "inmost self is
+    quaking", pleads for mercy, and asks forgiveness for having treated Krishna as an
+    ordinary friend. He asks to see Krishna's familiar form again. Krishna tells him to
+    "Cast fear away", takes on his gentle human form once more, and Arjuna says that he is
+    "restored to my own nature". Krishna adds that this form can be known through devotion.
+  dilemma: >-
+    What to do when the truth one asked to see is overwhelming: keep looking, or ask to
+    return to what one can bear, and whether asking to turn back is a failure.
+  choices:
+    - actor: Arjuna
+      choice: Asks to see Krishna's imperishable Self.
+      consequence: He is given "the divine eye" and sees the universal form.
+    - actor: Arjuna
+      choice: 'Admits his fear and asks pardon for past familiarity: "Forgive my error, O Thou boundless One."'
+      consequence: 'Krishna answers his fear: "Be not bewildered, be thou not afraid".'
+    - actor: Arjuna
+      choice: 'Asks to see Krishna as before: "Again I fain would see Thee as before".'
+      consequence: 'Krishna again assumes "a gentle form" and consoles "the terrified one".'
+  lessons:
+    - Awe and fear can come together; Arjuna's "heart is glad, yet faileth me for fear" (11.45).
+    - It is no failure to ask for what one can bear; Krishna answers the request with consolation (11.49-11.50).
+    - In the Gita, what is beyond us is approached through devotion (11.54).
+  caveats:
+    - This is a visionary episode in sacred poetry. It describes Arjuna's experience, not something a reader should expect or seek.
+    - Its image of Time destroying the warriors belongs to the battlefield setting; it is not a teaching that suffering is deserved.
+  life_situations:
+    - overwhelmed by something far larger than you
+    - afraid of what you asked to understand
+    - needing to come back to something familiar
+  excerpt_ids:
+    - bg.11.3
+    - bg.11.4
+    - bg.11.8
+    - bg.11.9
+    - bg.11.10
+    - bg.11.12
+    - bg.11.13
+    - bg.11.14
+    - bg.11.24
+    - bg.11.25
+    - bg.11.32
+    - bg.11.41
+    - bg.11.42
+    - bg.11.45
+    - bg.11.46
+    - bg.11.49
+    - bg.11.50
+    - bg.11.51
+    - bg.11.54
+  related_passage_ids: [bg.10.20, bg.18.66]

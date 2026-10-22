@@ -47,7 +47,8 @@ test("the teachings are passages from the corpus, exactly as stored", async ({ p
     const { passage } = await (await page.request.get(`/api/passages/${id}`)).json();
     await expect(leaf).toHaveAttribute("aria-label", passage.ref);
     expect((await leaf.locator("blockquote").textContent())?.trim()).toBe(passage.translation.trim());
-    await expect(leaf.getByText("Source text", { exact: true })).toBeVisible();
+    // The label, not the citation link, which also reads "Source text" when there is no printed page.
+    await expect(leaf.getByText("Source text", { exact: true }).and(leaf.locator(":not(a *)"))).toBeVisible();
     if (passage.sanskrit) await expect(leaf.locator("[lang=sa]")).not.toBeEmpty();
     await expect(leaf.getByRole("link", { name: /Printed page|Source text/ })).toHaveAttribute(
       "href",

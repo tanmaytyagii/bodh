@@ -1,4 +1,6 @@
-from app.retrieval.hybrid import HybridRetriever
+import pytest
+
+from app.retrieval.hybrid import CLOSE_PASSAGE_SIMILARITY, HybridRetriever, assess_evidence
 from app.retrieval.text import keywords
 
 
@@ -52,6 +54,64 @@ def test_cross_lingual_keywords() -> None:
 
 def test_unrelated_question_gets_weak_evidence(retriever: HybridRetriever) -> None:
     assert retriever.retrieve(question="What is the capital of Australia?").evidence == "weak"
+
+
+def test_shared_words_alone_are_not_evidence(retriever: HybridRetriever) -> None:
+    # Verses about rain are found by several channels, but they do not answer a weather question.
+    result = retriever.retrieve(question="Is it going to rain in Mumbai this weekend?")
+    assert result.signals["multi_channel_top5"] >= 2
+    assert result.evidence == "weak"
+
+
+# Unrelated questions that share words with the texts (rivers, war, battle, gold,
+# the sun), none in the evaluation set. Each sits at least 0.01 below the
+# thresholds, so small numerical differences between machines cannot flip it.
+UNRELATED = [
+    "Which river flows through Varanasi?",
+    "How high is Mount Everest?",
+    "Where does the Ganga begin?",
+    "Who won the war between Russia and Ukraine?",
+    "Who won the last general election in India?",
+    "What did the finance minister announce in the budget?",
+    "When is the next solar eclipse?",
+    "Is gold a good investment this year?",
+    "Who won the battle of Panipat?",
+    "मंगल ग्रह पर पानी है क्या?",
+    "Mausam kal kaisa rahega Delhi mein?",
+]
+
+
+@pytest.mark.parametrize("question", UNRELATED)
+def test_unrelated_questions_sharing_the_texts_words_get_weak_evidence(
+    retriever: HybridRetriever, question: str
+) -> None:
+    assert retriever.retrieve(question=question).evidence == "weak"
+
+
+# Known failures: questions about the body and light are close in meaning to the
+# Upanishads' verses on the heart and on light, so they still look answered
+# (docs/EVALUATION.md). Strict: if one starts passing, the list must be updated.
+@pytest.mark.xfail(strict=True, reason="close in meaning to verses on the heart and on light")
+@pytest.mark.parametrize(
+    "question",
+    ["How does the heart pump blood around the body?", "How do stars produce light through nuclear fusion?"],
+)
+def test_known_false_confidence_on_science_questions(retriever: HybridRetriever, question: str) -> None:
+    assert retriever.retrieve(question=question).evidence == "weak"
+
+
+def test_agreement_between_channels_needs_a_passage_close_in_meaning() -> None:
+    signals = {
+        "roman_match": 0.0,
+        "model_concepts": 0.0,
+        "best_concept_similarity": 0.78,
+        "multi_channel_top5": 4.0,
+    }
+    assert assess_evidence({**signals, "vector_top1": CLOSE_PASSAGE_SIMILARITY - 0.01}) == "weak"
+    assert assess_evidence({**signals, "vector_top1": CLOSE_PASSAGE_SIMILARITY}) == "moderate"
+    # A close theme or a model-chosen theme does not depend on it.
+    assert assess_evidence({**signals, "vector_top1": 0.0, "best_concept_similarity": 0.81}) == "moderate"
+    assert assess_evidence({**signals, "vector_top1": 0.0, "model_concepts": 1.0}) == "strong"
 
 
 def test_source_filter(retriever: HybridRetriever) -> None:

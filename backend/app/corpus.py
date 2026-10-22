@@ -80,6 +80,16 @@ class Passage(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+def short_ref(passage: Passage) -> str:
+    """How a passage is cited in editorial text and the app: "BG 2.47", "Katha 1.2.1"."""
+    if passage.source_id == "bhagavad-gita":
+        return f"BG {passage.division.get('chapter')}.{passage.division.get('verse')}"
+    standard = passage.metadata.get("standard_ref")
+    if standard:
+        return f"{passage.ref.split()[0]} {standard}"
+    return passage.ref
+
+
 class Division(BaseModel):
     """A chapter (or other top-level division) of a source."""
 

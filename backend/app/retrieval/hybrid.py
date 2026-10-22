@@ -50,6 +50,10 @@ SPEAKER_PRIOR = {"Krishna": 1.0, "Arjuna": 0.8, "Sanjaya": 0.65, "Dhritarashtra"
 CONCEPT_MATCH_MIN = 0.80  # minimum cosine similarity for a semantic concept match
 CONCEPT_MATCH_MAX = 3
 STRONG_CONCEPT_SIMILARITY = 0.83
+# Passages found by several channels count as evidence only if the question is
+# this close to some passage: without it, shared words alone ("rain", "moon")
+# made unrelated questions look answered (docs/EVALUATION.md).
+CLOSE_PASSAGE_SIMILARITY = 0.825
 
 
 @dataclass
@@ -196,6 +200,9 @@ class HybridRetriever:
                 (h.score for name, hits in lists if name == "roman" for h in hits), default=0.0
             ),
             "multi_channel_top5": float(sum(1 for item in selected[:5] if len(item.channels) >= 2)),
+            "vector_top1": max(
+                (h.score for name, hits in lists if name == "vector_raw" for h in hits[:1]), default=0.0
+            ),
         }
         return RetrievalResult(
             passages=selected,
@@ -246,15 +253,17 @@ class HybridRetriever:
 def assess_evidence(signals: dict[str, float]) -> Evidence:
     """Heuristic confidence that the corpus addresses the question.
 
-    Thresholds were set on the evaluation set (see docs/EVALUATION.md); they
-    separate in-scope life questions from unrelated ones but are not a
-    guarantee, so the answer prompt also asks the model to judge relevance.
+    Thresholds were set on the dev split of the evaluation set (see
+    docs/EVALUATION.md); they separate in-scope life questions from unrelated
+    ones but are not a guarantee, so the answer prompt also asks the model to
+    judge relevance.
     """
     if signals["roman_match"] >= 0.8 or signals["model_concepts"] >= 1:
         return "strong"
     if signals["best_concept_similarity"] >= STRONG_CONCEPT_SIMILARITY:
         return "strong"
-    if signals["best_concept_similarity"] >= CONCEPT_MATCH_MIN or signals["multi_channel_top5"] >= 2:
+    agreement = signals["multi_channel_top5"] >= 2 and signals["vector_top1"] >= CLOSE_PASSAGE_SIMILARITY
+    if signals["best_concept_similarity"] >= CONCEPT_MATCH_MIN or agreement:
         return "moderate"
     return "weak"
 

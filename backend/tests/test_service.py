@@ -59,6 +59,24 @@ def test_without_a_model_returns_labelled_passages(repo, retriever) -> None:  # 
     assert answer.generated_by is None
 
 
+# In scope, but retrieval misses: none of its words is in the cross-lingual map.
+MISSED = "गीता के अनुसार आत्मा अमर क्यों है?"
+
+
+def test_a_retrieval_miss_is_limited_evidence_not_out_of_scope(repo, retriever) -> None:  # type: ignore[no-untyped-def]
+    answer = service(repo, retriever, None).ask(AskRequest(question=MISSED))
+    assert answer.kind == "retrieval_only"  # never "out_of_scope": that is the model's call
+    assert answer.evidence == "limited" and answer.retrieval and answer.retrieval.evidence == "weak"
+    assert answer.passages  # the reader still sees what was found, labelled as limited
+
+
+def test_weak_retrieval_reaches_the_model_as_a_hint_not_a_verdict(repo, retriever, fake_llm) -> None:  # type: ignore[no-untyped-def]
+    answer = service(repo, retriever, fake_llm).ask(AskRequest(question=MISSED))
+    assert answer.kind != "out_of_scope"  # only the understanding step decides that
+    assert [s for s, _ in fake_llm.calls] == ["Understanding", "GuidanceDraft"]
+    assert "<retrieval_evidence>" in fake_llm.calls[-1][1]
+
+
 def test_model_failure_falls_back_to_passages(repo, retriever) -> None:  # type: ignore[no-untyped-def]
     llm = FakeLLM(fail=LLMUnavailable("Rate limited."), fail_on="GuidanceDraft")
     events = list(service(repo, retriever, llm).stream(AskRequest(question=QUESTION)))

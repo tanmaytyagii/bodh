@@ -113,7 +113,9 @@ The processed corpus is committed, so a fresh checkout runs without fetching any
 - passages out of order;
 - verse counts that differ from a source's declared divisions;
 - a theme or story that names a missing passage;
+- a story without excerpts, or with an excerpt from a text other than its own;
 - a quotation in an editorial summary that does not occur verbatim in its linked passages;
+- a verse that a story cites in parentheses, such as "(2.7)" or "(Kena 3.6)", that is not among its excerpts or related passages;
 - a theme's Sanskrit term that does not occur in any linked verse's transliteration;
 - a sensitivity note for an unknown passage;
 - an invalid editorial review.
@@ -128,7 +130,7 @@ The processed corpus is committed, so a fresh checkout runs without fetching any
 The project writes this data; it is not quoted from a source. The API marks it `editorial: true`, and the UI labels it "Editorial".
 
 - **`concepts.yaml`**: 36 themes, such as "Steadiness in success and failure" or "How desire turns into anger". Each has a summary, caveats, the life situations it fits, linked passages and related themes. Every quotation in a summary must occur word for word in a linked passage. A Sanskrit `term` must occur in a linked verse's transliteration (a stem match, so inflected forms count).
-- **`stories.yaml`**: story records with characters, summary, dilemma, choices and consequences, lessons, caveats, verbatim excerpts (passage ids) and related passages. The only story so far is Nachiketas and Death (Katha Upanishad). Quotations are checked against the excerpts.
+- **`stories.yaml`**: story records with characters, summary, dilemma, choices and consequences, lessons, caveats, verbatim excerpts (passage ids) and related passages. There are four: Nachiketas and Death (Katha Upanishad), the gods and the mystery (Kena Upanishad), and Arjuna at Kurukshetra and the vision of the universal form (Bhagavad Gita). Quotations are checked against the excerpts.
 - **`sensitivities.yaml`**: context notes for passages that are easily misused, such as war exhortations, the deathless self, varṇa and birth, or Arjuna's despair. The notes go to the model along with the passage. `exclude_in_crisis: true` keeps a passage out of answers to someone who may be at risk. See [SAFETY.md](SAFETY.md).
 - **`reviews.yaml`**: editors' decisions on flagged verses (next section).
 
@@ -191,8 +193,15 @@ Then:
 
 Add an entry to `stories.yaml`:
 
-- `excerpt_ids` are the verbatim passages that tell the story, in order.
-- `related_passage_ids` are other passages worth reading with it.
-- Keep the summary and analysis faithful to the excerpts, quote only their exact words, name characters as the cited translation does, and add caveats where a reader might over-apply the story.
+- `excerpt_ids` are the verbatim passages that tell the story, in order, all from the story's own source. Include every verse the summary relies on, including the setting.
+- `related_passage_ids` are other passages worth reading with it. They may come from any source.
+- Keep the summary and analysis faithful to the excerpts:
+  - quote only their exact words;
+  - say what the text says, and keep readings of it, such as calling a reply a boast, for the lessons;
+  - name characters as the cited translation does;
+  - add caveats where a reader might over-apply the story.
+- Cite verses in parentheses, as "(2.7)" or "(Kena 3.6)". Each must be among the excerpts or related passages.
+
+Validation checks the quotations and the citations, but not whether a paraphrase is faithful: read each claim against the excerpts. On 2026-10-20 that reading added 1.1 and 1.22 to Arjuna's story and 11.32 to the universal form, both to ground what their summaries already said, and four verses to Nachiketas's (Katha 1.1.1, 1.1.2, 1.1.11 and 1.1.13). It also corrected the paraphrases in the three newer stories that went beyond the text: claims shown as fact, "honoured" for "excel", an argument from silence, and an unattested contrast.
 
 Run `make corpus` to validate. A story whose excerpts are not in the corpus cannot be added: add the source first.
